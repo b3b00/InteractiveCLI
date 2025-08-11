@@ -14,42 +14,52 @@ public class   SelectPrompt  {
         _choices = choices;
     }
 
-    private void Print((int left, int top) startPosition, int position) {
+    private void Print((int left, int top) startPosition, int position, bool initial = false) {
         for (int i = 0; i < _choices.Length; i ++) {
-            Console.SetCursorPosition(startPosition.left, startPosition.top+i);
             string lead = i == position ? " >" : "  ";
             string tail = i==position ? "<" : " ";
-            Console.Write($"{lead}{_choices[i]}{tail}");
+            var item = $"{lead}{_choices[i]}{tail}";
+            if (initial) {
+                Console.WriteLine(item);
+            }
+            else {
+                Console.SetCursorPosition(startPosition.left, startPosition.top+i);
+                Console.Write(item);
+            }
+            
+            
         }
     }
 
     public string? Select() {
 
         Console.WriteLine(_label);
-        var start = Console.GetCursorPosition();
+        var ( left, top) = Console.GetCursorPosition();
 
 
         int position = 0;
 
-        Print(start,position);
+        Print((left,top),position, true);
         ConsoleKeyInfo key = Console.ReadKey();
 
         while (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Escape) {
             if (key.Key == ConsoleKey.DownArrow) {
                 if (position < _choices.Length -1) {
                     position++;
-                    Print(start,position);
+                    Print((left,top),position);
                 }
             }
             if (key.Key == ConsoleKey.UpArrow) {
                 if (position > 0) {
                     position --;
-                    Print(start,position);
+                    Print((left,top),position);
                 }
             }
             key = Console.ReadKey();
         }
         if (key.Key == ConsoleKey.Escape) {
+            
+            Console.SetCursorPosition(left,top+_choices.Length);
             return null;
         }
 
