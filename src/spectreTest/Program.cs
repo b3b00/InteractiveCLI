@@ -48,5 +48,8 @@ public static class Program
 // Echo the fruit back to the terminal
         AnsiConsole.WriteLine($"I agree. {fruit} is tasty!");
 
+        var size = AnsiConsole.Ask<int>("how tall are you ?");
+        Console.WriteLine($"{size} is quite tall !");
+
     }
 }
