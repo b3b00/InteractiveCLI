@@ -14,5 +14,11 @@ public class Program
         
         Console.WriteLine($"So your name is {name}. You're {age} years old. And you are {(happy ? "": "not ")}happy");
         Console.WriteLine($"And you pretend being {tall} cm tall. Is this real ?");
+
+        var choice = Prompt.Select("choose :" , "choice 1", "choice 2", "choice 3", "choice 4", "choice 5" );
+        if (choice != null)
+            Console.WriteLine($" your choice : {choice}");
+        else 
+            Console.WriteLine("no choice");
     }
 }

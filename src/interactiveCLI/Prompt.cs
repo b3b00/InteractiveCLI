@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using interactiveCLI;
+
 
 namespace interactiveCLI;
 
@@ -6,7 +8,7 @@ namespace interactiveCLI;
 
 public class Prompt
 {
-    public string AskText(string label, Predicate<string> validator = null)
+    public string AskText(string label, Predicate<string>? validator = null)
     {
         Console.WriteLine(label+" : ");
         var answer = Console.ReadLine();
@@ -116,15 +118,15 @@ public class Prompt
         return false;
     }
 
-    public string Password(string label)
+    public string? Password(string label)
     {
         return null;
     }
 
-    public string Select(string label, params string[] choices)
+    public string? Select(string label, params string[] choices)
     {
-        interactiveCLI.SelectPrompt prompt = new interactiveCLI.SelectPrompt(label, choices);
-        var choice = prompt.Select();
+        interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices);
+        var choice = select.Select();
         return choice;
     }
 }

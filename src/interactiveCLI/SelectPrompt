@@ -1,6 +1,6 @@
 namespace interactiveCLI;
 
-public class SelectPrompt {
+public class   SelectPrompt  {
 
 
 
@@ -23,7 +23,7 @@ public class SelectPrompt {
         }
     }
 
-    public string Select() {
+    public string? Select() {
 
         Console.WriteLine(_label);
         var start = Console.GetCursorPosition();
@@ -34,7 +34,7 @@ public class SelectPrompt {
         Print(start,choices,position,true);
         ConsoleKeyInfo key = Console.ReadKey();
 
-        while (key.Key != ConsoleKey.Enter) {
+        while (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Escape) {
             if (key.Key == ConsoleKey.DownArrow) {
                 if (position < _choices.Length -1) {
                     position++;
@@ -48,6 +48,9 @@ public class SelectPrompt {
                 }
             }
             key = Console.ReadKey();
+        }
+        if (key.Key == ConsoleKey.Escape) {
+            return null;
         }
 
         return _choices[position];
