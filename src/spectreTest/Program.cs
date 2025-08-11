@@ -12,7 +12,7 @@ public static class Program
                 .DefaultValue(true)
                 .WithConverter(choice => choice ? "y" : "n"));
 
-// Echo the confirmation back to the terminal
+        // Echo the confirmation back to the terminal
         Console.WriteLine(confirmation ? "Confirmed" : "Declined");
 
         // Ask the user a couple of simple questions
@@ -21,18 +21,18 @@ public static class Program
         var age = AnsiConsole.Prompt(
             new TextPrompt<int>("What's your age?"));
 
-// Echo the name and age back to the terminal
+        // Echo the name and age back to the terminal
         AnsiConsole.WriteLine($"So you're {name} and you're {age} years old");
-        
+
         // Ask for the user's favorite fruit
         var fruit = AnsiConsole.Prompt(
             new TextPrompt<string>("What's your favorite fruit?")
                 .AddChoices(["Apple", "Banana", "Orange"])
                 .DefaultValue("Orange"));
 
-// Echo the fruit back to the terminal
+        // Echo the fruit back to the terminal
         Console.WriteLine($"I agree. {fruit} is tasty!");
-        
+
         // Ask for the user's favorite fruit
         fruit = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -40,12 +40,12 @@ public static class Program
                 .PageSize(10)
                 .MoreChoicesText("[grey](Move up and down to reveal more fruits)[/]")
                 .AddChoices(new[] {
-                    "Apple", "Apricot", "Avocado", 
+                    "Apple", "Apricot", "Avocado",
                     "Banana", "Blackcurrant", "Blueberry",
                     "Cherry", "Cloudberry", "Cocunut",
                 }));
 
-// Echo the fruit back to the terminal
+        // Echo the fruit back to the terminal
         AnsiConsole.WriteLine($"I agree. {fruit} is tasty!");
 
         var size = AnsiConsole.Ask<int>("how tall are you ?");

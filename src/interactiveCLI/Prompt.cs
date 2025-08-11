@@ -10,14 +10,14 @@ public class Prompt
 {
     public string AskText(string label, Predicate<string>? validator = null)
     {
-        Console.WriteLine(label+" : ");
+        Console.WriteLine(label + " : ");
         var answer = Console.ReadLine();
         while (true)
         {
-            if(validator(answer))
+            if (validator(answer))
             {
                 return answer;
-                
+
             }
             Console.Error.WriteLine("Invalid answer.");
             answer = AskText(label, validator);
@@ -123,9 +123,9 @@ public class Prompt
         return null;
     }
 
-    public string? Select(string label, params string[] choices)
+    public string? Select(string label, Func<string,bool,string> formatter = null, params string[] choices)
     {
-        interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices);
+        interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices, formatter);
         var choice = select.Select();
         return choice;
     }
