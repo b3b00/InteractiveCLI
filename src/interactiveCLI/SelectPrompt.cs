@@ -15,7 +15,7 @@ public class   SelectPrompt  {
     }
 
     private void Print((int left, int top) startPosition, int position) {
-        for (int i = 0; i < choices.Length; i ++) {
+        for (int i = 0; i < _choices.Length; i ++) {
             Console.SetCursorPosition(startPosition.left, startPosition.top+i);
             string lead = i == position ? " >" : "  ";
             string tail = i==position ? "<" : " ";
@@ -31,7 +31,7 @@ public class   SelectPrompt  {
 
         int position = 0;
 
-        Print(start,choices,position,true);
+        Print(start,position);
         ConsoleKeyInfo key = Console.ReadKey();
 
         while (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Escape) {
