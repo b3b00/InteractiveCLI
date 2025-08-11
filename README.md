@@ -1,0 +1,1 @@
+A nuget to help build interactive console application.
