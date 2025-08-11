@@ -4,6 +4,20 @@
     <TargetFrameworks>net9.0;net8.0;net7.0;net6.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageProjectUrl>https://github.com/b3b00/interactiveCLI</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/b3b00/interactiveCLI</RepositoryUrl>   
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
   </PropertyGroup>
+
+ <PropertyGroup>   
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Include="../../LICENSE" Pack="true" PackagePath=""/>
+      <None Include="../../README.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
 
 </Project>

@@ -11,4 +11,7 @@
       <ProjectReference Include="..\interactiveCLI\interactiveCLI.csproj" />
     </ItemGroup>
 
+
+   
+
 </Project>
