@@ -121,8 +121,10 @@ public class Prompt
         return null;
     }
 
-    public string Select(string label, params string[] options)
+    public string Select(string label, params string[] choices)
     {
-        return null;
+        interactiveCLI.SelectPrompt prompt = new interactiveCLI.SelectPrompt(label, choices);
+        var choice = prompt.Select();
+        return choice;
     }
 }

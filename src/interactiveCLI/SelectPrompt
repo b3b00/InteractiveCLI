@@ -1,0 +1,55 @@
+namespace interactiveCLI;
+
+public class SelectPrompt {
+
+
+
+    private string[] _choices;
+    private string _label;
+
+
+    public SelectPrompt(string label, string[] choices)
+    {
+        _label = label;
+        _choices = choices;
+    }
+
+    private void Print((int left, int top) startPosition, int position) {
+        for (int i = 0; i < choices.Length; i ++) {
+            Console.SetCursorPosition(startPosition.left, startPosition.top+i);
+            string lead = i == position ? " >" : "  ";
+            string tail = i==position ? "<" : " ";
+            Console.Write($"{lead}{_choices[i]}{tail}");
+        }
+    }
+
+    public string Select() {
+
+        Console.WriteLine(_label);
+        var start = Console.GetCursorPosition();
+
+
+        int position = 0;
+
+        Print(start,choices,position,true);
+        ConsoleKeyInfo key = Console.ReadKey();
+
+        while (key.Key != ConsoleKey.Enter) {
+            if (key.Key == ConsoleKey.DownArrow) {
+                if (position < _choices.Length -1) {
+                    position++;
+                    Print(start,position);
+                }
+            }
+            if (key.Key == ConsoleKey.UpArrow) {
+                if (position > 0) {
+                    position --;
+                    Print(start,position);
+                }
+            }
+            key = Console.ReadKey();
+        }
+
+        return _choices[position];
+    } 
+}
