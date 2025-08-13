@@ -52,6 +52,9 @@ public class Program
     
     public static void Main(string[] args)
     {
+        Prompt prompter = new Prompt();
+        int entier = prompter.Ask<int>("entier :");
+        Console.WriteLine(entier);
         //reading();
         Console.WriteLine("\x1b[1mTEST\x1b[0m");
         // Prompt prompter = new Prompt();

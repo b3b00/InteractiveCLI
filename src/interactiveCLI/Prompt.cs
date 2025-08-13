@@ -6,6 +6,13 @@ using interactiveCLI.forms;
 namespace interactiveCLI;
 
 
+public class Result<T>
+{
+    public T Value {get;set;}
+    
+    public bool Ok {get;set;}
+}
+
 
 public class Prompt
 {
@@ -157,6 +164,18 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
             }
             answer = AskText(label, CompoundValidator);
         }
+    }
+    
+    public Result<T> Ask<T>(string label)
+    {
+        Console.Write(label);
+        string input = Console.ReadLine();
+        var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
+        if (converter != null && converter.IsValid(input))
+        {
+            return new Result<T>() { Ok = false };
+        }
+        throw new InvalidCastException($"Impossible de convertir '{input}' en {typeof(T).Name}");
     }
 
     public double AskDouble(string label, Predicate<string>? validator = null)
