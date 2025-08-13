@@ -223,9 +223,33 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
         return false;
     }
 
-    public string? Password(string label)
+    public string? AskPassword(string label)
     {
-        return AskText(label);
+        Console.Write(label);
+        var password = new StringBuilder();
+        while (true)
+        {
+            var key = Console.ReadKey(true);
+            if (key.Key == ConsoleKey.Enter)
+            {
+                Console.WriteLine();
+                break;
+            }
+            else if (key.Key == ConsoleKey.Backspace)
+            {
+                if (password.Length > 0)
+                {
+                    password.Length--;
+                    Console.Write("\b \b");
+                }
+            }
+            else if (!char.IsControl(key.KeyChar))
+            {
+                password.Append(key.KeyChar);
+                Console.Write("*");
+            }
+        }
+        return password.ToString();
     }
 
     public string? Select(string label, Func<string,bool,string> formatter = null, params string[] choices)

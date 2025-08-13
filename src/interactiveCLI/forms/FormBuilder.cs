@@ -29,7 +29,7 @@ public class FormBuilder<T>
             {
                 actions.Add(instance =>
                 {
-                    var value = prompt.AskText(inputAttribute.Label);
+                    var value = prompt.AskPassword(inputAttribute.Label);
                     property.SetValue(instance, value);
                 });
             }
