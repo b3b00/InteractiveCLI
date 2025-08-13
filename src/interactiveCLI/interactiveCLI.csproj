@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <PackageProjectUrl>https://github.com/b3b00/interactiveCLI</PackageProjectUrl>
     <RepositoryUrl>https://github.com/b3b00/interactiveCLI</RepositoryUrl>   
-    <version>1.0.0</version>
-    <PackageVersion>1.0.0</PackageVersion>
+    <version>1.0.1</version>
+    <PackageVersion>1.0.1</PackageVersion>
     <LangVersion>latest</LangVersion>   
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
 <PackageOutputPath>./nupkg</PackageOutputPath>
