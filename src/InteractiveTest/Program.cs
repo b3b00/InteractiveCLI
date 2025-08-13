@@ -1,12 +1,53 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using interactiveCLI;
+using interactiveCLI.forms;
+
+
+[Form]
+public class MyForm
+{
+    [Password("password :")]
+    public string Password { get; set; }
+        
+    [Input("name :")]
+    public string Name { get; set; }
+        
+    [Input("age :")]
+    public int Age { get; set; }
+        
+    [Input("salary :")]
+    public double Salary { get; set; }
+
+    [BoolInput("Ok ?", ["y"], ["n"])]
+    public bool Ok {get; set;}
+}
 
 public class Program
 {
+ 
+
+    public static void TestForm()
+    {
+        var prompt = new Prompt();
+        var myForm = prompt.AskForm<MyForm>();
+        // FormBuilder<MyForm> formBuilder = new FormBuilder<MyForm>();
+        // var form = formBuilder.Build(new MyForm(),prompt);
+        // MyForm myForm = form.Ask();
+        Console.WriteLine($"password : {myForm.Password}");
+        Console.WriteLine($"name : {myForm.Name}");
+        Console.WriteLine($"age : {myForm.Age}");
+        Console.WriteLine($"salary : {myForm.Salary}");
+        Console.WriteLine($"Ok ? : {myForm.Ok}");
+        
+
+    }
+    
     public static void Main(string[] args)
     {
         Console.WriteLine("\x1b[1mTEST\x1b[0m");
+        TestForm();
+        return;
         Prompt prompter = new Prompt();
         var name = prompter.AskText("What's your name ?",(s) => !s.Equals("bill", StringComparison.InvariantCultureIgnoreCase));
         var age = prompter.AskInt("How old are you ?");

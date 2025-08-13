@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using interactiveCLI;
+using interactiveCLI.forms;
 
 
 namespace interactiveCLI;
@@ -14,7 +15,7 @@ public class Prompt
         var answer = Console.ReadLine();
         while (true)
         {
-            if (validator(answer))
+            if (validator == null || validator(answer))
             {
                 return answer;
 
@@ -120,7 +121,7 @@ public class Prompt
 
     public string? Password(string label)
     {
-        return null;
+        return AskText(label);
     }
 
     public string? Select(string label, Func<string,bool,string> formatter = null, params string[] choices)
@@ -128,5 +129,14 @@ public class Prompt
         interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices, formatter);
         var choice = select.Select();
         return choice;
+    }
+
+    public T AskForm<T>()
+    {
+        FormBuilder<T> formBuilder = new FormBuilder<T>();
+        T formBackingData = (T)Activator.CreateInstance(typeof(T));
+        var form = formBuilder.Build(formBackingData,this);
+        formBackingData = form.Ask();
+        return formBackingData;
     }
 }
