@@ -9,13 +9,13 @@ namespace interactiveCLI;
 
 public class Prompt
 {
-    public string AskText(string label, Predicate<string>? validator = null , string pattern = null)
+    public string AskText(string label, Predicate<string>? validator = null , string pattern = null, Predicate<(int,char)> ? charValidator = null)
     {
         Console.WriteLine(label);
         string answer = null;
         if (!string.IsNullOrWhiteSpace(pattern) && pattern.Contains("_"))
         {
-            answer = ReadPattern(pattern);
+            answer = ReadPatternCopilot(pattern, charValidator);
         }
         else
         {
@@ -38,59 +38,80 @@ public class Prompt
     {
         File.AppendAllLines("c:/tmp/debug.txt",[message]);
     }
+    
+    
+    
+/// <summary>
+/// This method has been generated with Github Copilot.
+/// It displays a pattern that he user must fill. (ex __/__/____ for a date following the format dd/MM/yyyy)
+/// </summary>
+/// <param name="pattern">A pattern where `_` are free space and other chars are constant.</param>
+/// <returns>the entered string</returns>
+public string ReadPatternCopilot(string pattern, Predicate<(int position, char c)>? isAllowed = null)
+{
+    char[] buffer = pattern.ToCharArray();
+    int[] editableIndexes = new int[pattern.Count(c => c == '_')];
+    int idx = 0;
+    for (int i = 0; i < pattern.Length; i++)
+        if (pattern[i] == '_') editableIndexes[idx++] = i;
 
-    private string ReadPattern(string pattern)
+    int current = 0;
+    Console.Write(pattern);
+    Console.SetCursorPosition(editableIndexes[0], Console.CursorTop);
+
+    while (true)
     {
-        if (!string.IsNullOrEmpty(pattern) && pattern.Contains("_"))
-        {
-            var start = Console.GetCursorPosition();
-            Console.Write(pattern);
-            Console.SetCursorPosition(start.Left,start.Top);
-            var key = Console.ReadKey();
-            string value = "";
-            int i = 1;
-            while (key.Key != ConsoleKey.Enter)
-            {
-                
-                Console.SetCursorPosition(start.Left + i, start.Top);
-                if (key.Key == ConsoleKey.Backspace)
-                {
-                    if (value.Length > 0)
-                    {
-                        i--;
-                    }
-                }
+        var key = Console.ReadKey(true);
 
-                else if (key.Key == ConsoleKey.Escape)
+        if (key.Key == ConsoleKey.Backspace && current > 0)
+        {
+            current--;
+            buffer[editableIndexes[current]] = '_';
+            Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+            Console.Write('_');
+            Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+        }
+        else if (key.Key == ConsoleKey.Escape)
+        {
+            return null;
+        }
+        else if (key.Key == ConsoleKey.LeftArrow && current > 0)
+        {
+            current--;
+            Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+        }
+        else if (key.Key == ConsoleKey.RightArrow && current < editableIndexes.Length - 1)
+        {
+            current++;
+            Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+        }
+        else if (key.Key == ConsoleKey.Enter)
+        {
+            break;
+        }
+        // Vérifie si le caractère est autorisé à la position courante
+        else if (!char.IsControl(key.KeyChar) && current < editableIndexes.Length)
+        {
+            int pos = editableIndexes[current];
+            if (isAllowed == null || isAllowed((pos, key.KeyChar)))
+            {
+                buffer[pos] = key.KeyChar;
+                Console.SetCursorPosition(pos, Console.CursorTop);
+                Console.Write(key.KeyChar);
+                if (current < editableIndexes.Length - 1)
                 {
-                    return null;
-                }
-                else
-                {
-                    if (i-1 < pattern.Length)
-                    {
-                        var currentPatternChar = pattern[i-1];
-                        if (currentPatternChar == '_')
-                        {
-                            value += key.KeyChar;
-                            while (i < pattern.Length && pattern[i] != '_')
-                            {
-                                value += pattern[i];
-                                i++;
-                                Console.SetCursorPosition(start.Left + i, start.Top);
-                            }
-                        }
-                        i++;
-                    }
-                    key = Console.ReadKey();
+                    current++;
+                    Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
                 }
             }
-            return value;
             
         }
-
-        return null;
     }
+    Console.WriteLine();
+    return new string(buffer);
+}
+
+    
 
     public int AskInt(string label, Predicate<string>? validator = null)
     {
