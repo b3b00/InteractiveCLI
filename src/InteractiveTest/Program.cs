@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Globalization;
 using interactiveCLI;
 using interactiveCLI.forms;
 
@@ -46,8 +47,17 @@ public class Program
     public static void Main(string[] args)
     {
         Console.WriteLine("\x1b[1mTEST\x1b[0m");
+        Prompt prompter = new Prompt();
+        Predicate<string> validateDate = s =>
+        {
+            var test = DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
+            return test;
+        };
+        var d = prompter.AskText("with pattern", validator:validateDate, pattern:"__/__/____");
+        Console.WriteLine("with pattern :: "+d);
+        
         TestForm();
-        return;
+        /*
         Prompt prompter = new Prompt();
         var name = prompter.AskText("What's your name ?",(s) => !s.Equals("bill", StringComparison.InvariantCultureIgnoreCase));
         var age = prompter.AskInt("How old are you ?");
@@ -69,6 +79,6 @@ public class Program
         if (choice != null)
             Console.WriteLine($" your choice : {choice}");
         else
-            Console.WriteLine("no choice");
+            Console.WriteLine("no choice");*/
     }
 }

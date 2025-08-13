@@ -9,10 +9,19 @@ namespace interactiveCLI;
 
 public class Prompt
 {
-    public string AskText(string label, Predicate<string>? validator = null)
+    public string AskText(string label, Predicate<string>? validator = null , string pattern = null)
     {
-        Console.WriteLine(label + " : ");
-        var answer = Console.ReadLine();
+        Console.WriteLine(label);
+        string answer = null;
+        if (!string.IsNullOrWhiteSpace(pattern) && pattern.Contains("_"))
+        {
+            answer = ReadPattern(pattern);
+        }
+        else
+        {
+            answer = Console.ReadLine();
+        }
+
         while (true)
         {
             if (validator == null || validator(answer))
@@ -21,8 +30,66 @@ public class Prompt
 
             }
             Console.Error.WriteLine("Invalid answer.");
-            answer = AskText(label, validator);
+            answer = AskText(label, validator, pattern);
         }
+    }
+
+    private void Log(string message)
+    {
+        File.AppendAllLines("c:/tmp/debug.txt",[message]);
+    }
+
+    private string ReadPattern(string pattern)
+    {
+        if (!string.IsNullOrEmpty(pattern) && pattern.Contains("_"))
+        {
+            var start = Console.GetCursorPosition();
+            Console.Write(pattern);
+            Console.SetCursorPosition(start.Left,start.Top);
+            var key = Console.ReadKey();
+            string value = "";
+            int i = 1;
+            while (key.Key != ConsoleKey.Enter)
+            {
+                
+                Console.SetCursorPosition(start.Left + i, start.Top);
+                if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (value.Length > 0)
+                    {
+                        i--;
+                    }
+                }
+
+                else if (key.Key == ConsoleKey.Escape)
+                {
+                    return null;
+                }
+                else
+                {
+                    if (i-1 < pattern.Length)
+                    {
+                        var currentPatternChar = pattern[i-1];
+                        if (currentPatternChar == '_')
+                        {
+                            value += key.KeyChar;
+                            while (i < pattern.Length && pattern[i] != '_')
+                            {
+                                value += pattern[i];
+                                i++;
+                                Console.SetCursorPosition(start.Left + i, start.Top);
+                            }
+                        }
+                        i++;
+                    }
+                    key = Console.ReadKey();
+                }
+            }
+            return value;
+            
+        }
+
+        return null;
     }
 
     public int AskInt(string label, Predicate<string>? validator = null)
