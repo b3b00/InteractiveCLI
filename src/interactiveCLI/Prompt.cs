@@ -71,8 +71,6 @@ public class Prompt
         }
 
         var answer = AskText(label, CompoundValidator);
-        Console.Error.WriteLine("Invalid answer.");
-        answer = AskText(label, CompoundValidator);
         return double.Parse(answer);
     }
 

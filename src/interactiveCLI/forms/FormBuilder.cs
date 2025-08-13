@@ -33,7 +33,15 @@ public class FormBuilder<T>
                     property.SetValue(instance, value);
                 });
             }
-            if (property.PropertyType == typeof(double))
+            else if (property.PropertyType == typeof(int))
+            {
+                actions.Add(instance =>
+                {
+                    var value = prompt.AskInt(inputAttribute.Label);
+                    property.SetValue(instance, value);
+                });
+            }
+            else if (property.PropertyType == typeof(double))
             {
                 actions.Add(instance =>
                 {
