@@ -8,6 +8,9 @@ using interactiveCLI.forms;
 [Form]
 public class MyForm
 {
+    [Input("birthday :","__/__/____")]
+    public string Birthday {get; set;}
+    
     [Password("password :")]
     public string Password { get; set; }
         
@@ -36,6 +39,7 @@ public class Program
         // var form = formBuilder.Build(new MyForm(),prompt);
         // MyForm myForm = form.Ask();
         Console.WriteLine($"password : {myForm.Password}");
+        Console.WriteLine($"birthday : {myForm.Birthday}");
         Console.WriteLine($"name : {myForm.Name}");
         Console.WriteLine($"age : {myForm.Age}");
         Console.WriteLine($"salary : {myForm.Salary}");
@@ -44,29 +48,20 @@ public class Program
 
     }
 
-    public static void reading()
-    {
-        var key = Console.ReadKey();
-        while (key.Key != ConsoleKey.Escape)
-        {
-            Console.WriteLine(key.Key);
-            key = Console.ReadKey();
-        }
-        Console.WriteLine("done reading. ");
-    }
+    
     
     public static void Main(string[] args)
     {
         //reading();
         Console.WriteLine("\x1b[1mTEST\x1b[0m");
-        Prompt prompter = new Prompt();
-        Predicate<string> validateDate = s =>
-        {
-            var test = DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
-            return test;
-        };
-        var d = prompter.AskText("with pattern", validator:validateDate, pattern:"__/__/____", ((int position, char c) t) => char.IsDigit(t.c));
-        Console.WriteLine("with pattern :: "+d);
+        // Prompt prompter = new Prompt();
+        // Predicate<string> validateDate = s =>
+        // {
+        //     var test = DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
+        //     return test;
+        // };
+        // var d = prompter.AskText("with pattern", validator:validateDate, pattern:"__/__/____", ((int position, char c) t) => char.IsDigit(t.c));
+        // Console.WriteLine("with pattern :: "+d);
         
         TestForm();
         /*

@@ -53,7 +53,7 @@ public class FormBuilder<T>
             {
                 actions.Add((instance) =>
                 {
-                    var value = prompt.AskText(inputAttribute.Label);
+                    var value = prompt.AskText(inputAttribute.Label, pattern:inputAttribute.Pattern);
                     property.SetValue(instance, value);
                 });
             }

@@ -8,5 +8,13 @@ public class InputAttribute : Attribute
     {
         Label = label;
     }
+    
+    public InputAttribute(string label, string pattern)
+    {
+        Label = label;
+        Pattern = pattern;
+    }
     public string Label { get; }
+    
+    public string Pattern { get; }
 }
