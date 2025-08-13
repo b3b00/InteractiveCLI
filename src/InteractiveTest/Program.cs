@@ -22,6 +22,9 @@ public class MyForm
         
     [Input("salary :")]
     public double Salary { get; set; }
+    
+    [Select("fruit : ",["Orange","Raspberry","Banana","Apple","Pear"])]
+    public string Fruit { get; set; }
 
     [BoolInput("Ok ?", ["y"], ["n"])]
     public bool Ok {get; set;}
@@ -43,6 +46,7 @@ public class Program
         Console.WriteLine($"name : {myForm.Name}");
         Console.WriteLine($"age : {myForm.Age}");
         Console.WriteLine($"salary : {myForm.Salary}");
+        Console.WriteLine($"fruit : {myForm.Fruit}");
         Console.WriteLine($"Ok ? : {myForm.Ok}");
         
 
@@ -53,8 +57,8 @@ public class Program
     public static void Main(string[] args)
     {
         Prompt prompter = new Prompt();
-        int entier = prompter.Ask<int>("entier :");
-        Console.WriteLine(entier);
+        var entier = prompter.Ask<int>("entier :");
+        Console.WriteLine(entier.Ok ? $"ok:{entier.Value}":"KO"); 
         //reading();
         Console.WriteLine("\x1b[1mTEST\x1b[0m");
         // Prompt prompter = new Prompt();

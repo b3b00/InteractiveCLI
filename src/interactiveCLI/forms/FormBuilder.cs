@@ -19,13 +19,21 @@ public class FormBuilder<T>
         
 
         foreach (var property in properties)
-        {
+        {   
             var inputAttribute = property.GetCustomAttribute<InputAttribute>();
             if (inputAttribute == null)
             {
                 continue;
             }
-            if (inputAttribute is PasswordAttribute)
+            else if (inputAttribute is SelectAttribute selectAttribute)
+            {
+                actions.Add(instance =>
+                {
+                    var value = prompt.Select(selectAttribute.Label,choices:selectAttribute.Values);
+                    property.SetValue(instance, value);
+                });
+            }
+            else if (inputAttribute is PasswordAttribute)
             {
                 actions.Add(instance =>
                 {

@@ -173,9 +173,9 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
         var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
         if (converter != null && converter.IsValid(input))
         {
-            return new Result<T>() { Ok = false };
+            return new Result<T>() { Ok = true, Value = (T)converter.ConvertFrom(input) };
         }
-        throw new InvalidCastException($"Impossible de convertir '{input}' en {typeof(T).Name}");
+        return new Result<T>() { Ok = false };
     }
 
     public double AskDouble(string label, Predicate<string>? validator = null)
@@ -271,7 +271,7 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
         return password.ToString();
     }
 
-    public string? Select(string label, Func<string,bool,string> formatter = null, params string[] choices)
+    public string? Select(string label, Func<string,bool,string> formatter = null, string[] choices = null)
     {
         interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices, formatter);
         var choice = select.Select();
