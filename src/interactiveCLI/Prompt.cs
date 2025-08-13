@@ -47,6 +47,7 @@ public class Prompt
 /// </summary>
 /// <param name="pattern">A pattern where `_` are free space and other chars are constant.</param>
 /// <returns>the entered string</returns>
+
 public string ReadPatternCopilot(string pattern, Predicate<(int position, char c)>? isAllowed = null)
 {
     char[] buffer = pattern.ToCharArray();
@@ -63,33 +64,53 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
     {
         var key = Console.ReadKey(true);
 
-        if (key.Key == ConsoleKey.Backspace && current > 0)
+        if (key.Key == ConsoleKey.Escape)
         {
-            current--;
-            buffer[editableIndexes[current]] = '_';
-            Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
-            Console.Write('_');
-            Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
-        }
-        else if (key.Key == ConsoleKey.Escape)
-        {
+            Console.WriteLine("ESC");
             return null;
+        }
+
+        if (key.Key == ConsoleKey.Backspace)
+        {
+            if (current > 0)
+            {
+                if (current != editableIndexes.Length)
+                {
+                    current--;
+                    //current--;
+                    buffer[editableIndexes[current]] = '_';
+                    Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+                    Console.Write('_');
+                    Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+                }
+                else
+                {
+                    int index = editableIndexes[current-1]; 
+                    buffer[index] = '_';
+                    Console.SetCursorPosition(index, Console.CursorTop);
+                    Console.Write('_');
+                    Console.SetCursorPosition(index, Console.CursorTop);
+                    current--;
+                }
+
+                
+            }
         }
         else if (key.Key == ConsoleKey.LeftArrow && current > 0)
         {
             current--;
             Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
         }
-        else if (key.Key == ConsoleKey.RightArrow && current < editableIndexes.Length - 1)
+        else if (key.Key == ConsoleKey.RightArrow && current < editableIndexes.Length)
         {
             current++;
-            Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+            if (current < editableIndexes.Length)
+                Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
         }
         else if (key.Key == ConsoleKey.Enter)
         {
             break;
         }
-        // Vérifie si le caractère est autorisé à la position courante
         else if (!char.IsControl(key.KeyChar) && current < editableIndexes.Length)
         {
             int pos = editableIndexes[current];
@@ -98,13 +119,10 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
                 buffer[pos] = key.KeyChar;
                 Console.SetCursorPosition(pos, Console.CursorTop);
                 Console.Write(key.KeyChar);
-                if (current < editableIndexes.Length - 1)
-                {
-                    current++;
+                current++;
+                if (current < editableIndexes.Length)
                     Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
-                }
             }
-            
         }
     }
     Console.WriteLine();
