@@ -5,28 +5,40 @@ using interactiveCLI;
 using interactiveCLI.forms;
 
 
+
+
+
+public static class Lambdas
+{
+    public static bool BoolValidator(string s) => s == "yes" || s == "no";
+    
+    public static bool BoolConverter(string s) => s == "yes" ;
+} 
+
 [Form("\x1b[3;31mEntrée invalide !<\x1b[0m")]
 public class MyForm
 {
-    [Input("birthday :","__/__/____")]
+    [Input<string>("birthday :","__/__/____")]
     public string Birthday {get; set;}
     
     [Password("password :")]
     public string Password { get; set; }
         
-    [Input("name :")]
+    [Input<string>("name :")]
     public string Name { get; set; }
         
-    [Input("age :")]
+    [Input<int>("age :")]
     public int Age { get; set; }
         
-    [Input("salary :")]
+    [Input<double>("salary :")]
     public double Salary { get; set; }
     
-    [Select("fruit : ",["Orange","Raspberry","Banana","Apple","Pear"])]
+    [Input<string>("fruit : ",possibleValues:["Orange","Raspberry","Banana","Apple","Pear"])]
     public string Fruit { get; set; }
 
-    [BoolInput("Ok ?", ["y"], ["n"])]
+    [Input<bool>("Ok ? ", possibleValues:["yes","no"], 
+        validator: Lambdas.BoolValidator,
+        converter : (str) => string.Equals(str, "yes", StringComparison.Ordinal))]
     public bool Ok {get; set;}
 }
 

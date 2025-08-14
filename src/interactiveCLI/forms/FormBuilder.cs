@@ -8,7 +8,7 @@ public class FormBuilder<T>
     {
         return typeof(T)
             .GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-            .Where(f => f.GetCustomAttribute(typeof(InputAttribute)) != null)
+            .Where(f => f.GetCustomAttribute(typeof(InputAttribute<T>)) != null)
             .ToList();
     }
     
@@ -20,7 +20,7 @@ public class FormBuilder<T>
 
         foreach (var property in properties)
         {   
-            var inputAttribute = property.GetCustomAttribute<InputAttribute>();
+            var inputAttribute = property.GetCustomAttribute<InputAttribute<T>>();
             if (inputAttribute == null)
             {
                 continue;
