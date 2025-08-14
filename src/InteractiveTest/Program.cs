@@ -5,7 +5,7 @@ using interactiveCLI;
 using interactiveCLI.forms;
 
 
-[Form]
+[Form("\x1b[3;31mEntrée invalide !<\x1b[0m")]
 public class MyForm
 {
     [Input("birthday :","__/__/____")]
@@ -52,10 +52,24 @@ public class Program
 
     }
 
+    public static void TestGenerics()
+    {
+        Console.WriteLine("\u001b[3;31mWelcome to the generics test\u001b[0m");
+        Prompt prompter = new Prompt("\u001b[3;31mInvalid\u001b[0m");
+        //var name = prompter.Ask<string>("What's your name ?",(s) => !s.Equals("bill", StringComparison.InvariantCultureIgnoreCase));
+        var age = prompter.Ask<int>("How old are you ?");
+        var happy = prompter.Ask<bool>("Are you happy ? (y, n)",x => x == "y" || x == "n", x => x == "y");
+        var tall = prompter.Ask<double>("How tall are you ?");
+        Console.WriteLine($"So your name is unknown. You're {age.Value} years old. You are {tall.Value:F} cm tall. And you are {(happy.Value ? "": "not ")}happy");
+
+    }
+
     
     
     public static void Main(string[] args)
     {
+        TestGenerics();
+        return;
         Prompt prompter = new Prompt();
         var entier = prompter.Ask<int>("entier :");
         Console.WriteLine(entier.Ok ? $"ok:{entier.Value}":"KO"); 

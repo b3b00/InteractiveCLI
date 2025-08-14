@@ -16,6 +16,13 @@ public class Result<T>
 
 public class Prompt
 {
+    public Prompt(string invalidInputMessage = null)
+    {
+        InvalidInputMessage = invalidInputMessage;
+    }
+    
+    public string InvalidInputMessage { get; set; }  
+    
     public string AskText(string label, Predicate<string>? validator = null , string pattern = null, Predicate<(int,char)> ? charValidator = null)
     {
         Console.WriteLine(label);
@@ -36,7 +43,7 @@ public class Prompt
                 return answer;
 
             }
-            Console.Error.WriteLine("Invalid answer.");
+            Console.Error.WriteLine(InvalidInputMessage ?? "Invalid answer.");
             answer = AskText(label, validator, pattern);
         }
     }
@@ -166,16 +173,61 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
         }
     }
     
-    public Result<T> Ask<T>(string label)
+    public Result<T> Ask<T>(string label, Predicate<string>? validator = null, Func<string,T>? converter = null)
     {
-        Console.Write(label);
-        string input = Console.ReadLine();
-        var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
-        if (converter != null && converter.IsValid(input))
+        while (true)
         {
-            return new Result<T>() { Ok = true, Value = (T)converter.ConvertFrom(input) };
+            Console.Write(label);
+            string input = Console.ReadLine();
+            var typeConverter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
+            bool isValid = false;
+            try
+            {
+                if (validator != null)
+                {
+                    isValid = validator(input);
+                }
+                else
+                {
+                    if (typeConverter != null)
+                    {
+                        isValid = typeConverter.CanConvertFrom(typeof(string));
+                    }
+                }
+            }
+            catch(ArgumentException e)
+            {
+                Console.Error.WriteLine(e.Message);
+                isValid = false;
+            }
+
+            if (isValid)
+            {
+                
+                if (converter != null)
+                {
+                    return new Result<T>()
+                    { Ok = true, Value = converter(input) };
+                }
+                else
+                {
+                    try
+                    {
+                        if (typeConverter != null)
+                        {
+                            return new Result<T>()
+                                { Ok = true, Value = (T)typeConverter.ConvertFrom(input) };
+                        }
+                    }
+                    catch
+                    {
+                        isValid = false;
+                    }
+                }
+            }
+            Console.Error.WriteLine(InvalidInputMessage ?? "Invalid answer.");
+            //return new Result<T>() { Ok = false };
         }
-        return new Result<T>() { Ok = false };
     }
 
     public double AskDouble(string label, Predicate<string>? validator = null)
