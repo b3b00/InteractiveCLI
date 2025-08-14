@@ -58,10 +58,10 @@ public class Program
         Prompt prompter = new Prompt("\u001b[3;31mInvalid\u001b[0m");
         //var name = prompter.Ask<string>("What's your name ?",(s) => !s.Equals("bill", StringComparison.InvariantCultureIgnoreCase));
         var age = prompter.Ask<int>("How old are you ?");
-        var happy = prompter.Ask<bool>("Are you happy ? (y, n)",x => x == "y" || x == "n", x => x == "y");
+        var happy = prompter.Ask<bool>("Are you happy ?",possibleValues:["yes", "no"], converter:x => x == "yes");
         var tall = prompter.Ask<double>("How tall are you ?");
-        Console.WriteLine($"So your name is unknown. You're {age.Value} years old. You are {tall.Value:F} cm tall. And you are {(happy.Value ? "": "not ")}happy");
-
+        var fruit = prompter.Ask<string>("Fruit : ", ["Orange","Banana", "Apple", "Cherry", "Apricot"]);
+        Console.WriteLine($"So your name is unknown. You're {age.Value} years old. You are {tall.Value:F} cm tall. You are {(happy.Value ? "": "not ")}happy. And you like {fruit.Value}.");
     }
 
     

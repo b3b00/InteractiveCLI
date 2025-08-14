@@ -173,12 +173,20 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
         }
     }
     
-    public Result<T> Ask<T>(string label, Predicate<string>? validator = null, Func<string,T>? converter = null)
+    public Result<T> Ask<T>(string label, string[] possibleValues = null, Predicate<string>? validator = null, Func<string,T>? converter = null)
     {
         while (true)
         {
             Console.Write(label);
-            string input = Console.ReadLine();
+            string input = null;
+            if (possibleValues != null && possibleValues.Length >= 2)
+            {
+                input = Select(label,choices: possibleValues);
+            }
+            else
+            {
+                input = Console.ReadLine();
+            }
             var typeConverter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
             bool isValid = false;
             try
