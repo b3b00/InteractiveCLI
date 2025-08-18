@@ -1,7 +1,7 @@
 ﻿namespace interactiveCLI.forms;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-public class InputAttribute<T> : Attribute
+public class InputAttribute : Attribute
 {
 
     public InputAttribute(string label)
@@ -9,13 +9,11 @@ public class InputAttribute<T> : Attribute
         Label = label;
     }
     
-    public InputAttribute(string label, string? pattern = null, string[]? possibleValues = null, Predicate<string>? validator = null, Func<string,T>? converter = null)
+    public InputAttribute(string label, string? pattern = null, string[]? possibleValues = null)
     {
         Label = label;
         Pattern = pattern;
         PossibleValues = possibleValues;
-        Validator = validator;
-        Converter = converter;
     }
     public string Label { get; }
     
@@ -23,8 +21,8 @@ public class InputAttribute<T> : Attribute
     
     public string[]? PossibleValues { get; }
     
-    public Predicate<string>? Validator { get; }
-    
-    public Func<string,T>? Converter { get; }
+    // public Predicate<string>? Validator { get; }
+    //
+    // public Func<string,T>? Converter { get; }
     
 }

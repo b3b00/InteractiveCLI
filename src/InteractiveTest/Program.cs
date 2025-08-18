@@ -10,37 +10,51 @@ using interactiveCLI.forms;
 
 public static class Lambdas
 {
-    public static bool BoolValidator(string s) => s == "yes" || s == "no";
     
-    public static bool BoolConverter(string s) => s == "yes" ;
 } 
 
 [Form("\x1b[3;31mEntrée invalide !<\x1b[0m")]
 public class MyForm
 {
-    [Input<string>("birthday :","__/__/____")]
-    public string Birthday {get; set;}
+    [Input("birthday :","__/__/____")]
+    public DateTime Birthday {get; set;}
+    
+    [InputConverter("Birthday")]
+    public DateTime ConvertDateTime(string date) =>  DateTime.ParseExact(date,"dd/MM/yyyy",CultureInfo.InvariantCulture);
+    
+    [InputValidator("Birthday")] 
+    public bool IsDateValid(string date) => DateTime.TryParseExact(date,"dd/MM/yyyy",CultureInfo.InvariantCulture,DateTimeStyles.None,out _);
     
     [Password("password :")]
     public string Password { get; set; }
         
-    [Input<string>("name :")]
+    [Input("name :")]
     public string Name { get; set; }
         
-    [Input<int>("age :")]
+    [Input("age :")]
     public int Age { get; set; }
         
-    [Input<double>("salary :")]
+    [Input("salary :")]
     public double Salary { get; set; }
     
-    [Input<string>("fruit : ",possibleValues:["Orange","Raspberry","Banana","Apple","Pear"])]
+    [Input("fruit : ",possibleValues:["Orange","Raspberry","Banana","Apple","Pear"])]
     public string Fruit { get; set; }
 
-    [Input<bool>("Ok ? ", possibleValues:["yes","no"], 
-        validator: Lambdas.BoolValidator,
-        converter : (str) => string.Equals(str, "yes", StringComparison.Ordinal))]
+    [Input("Ok ? ", possibleValues:["yes","no"])]
     public bool Ok {get; set;}
+    /*
+    validator: Lambdas.BoolValidator,
+    converter : (str) => 
+    */
+    
+    [InputValidator("Ok")]
+    public static bool BoolValidator(string s) => s == "yes" || s == "no";
+    
+    [InputConverter("Ok")]
+    public static bool BoolConverter(string str) => string.Equals(str, "yes", StringComparison.Ordinal) ;
+    
 }
+
 
 public class Program
 {
@@ -80,7 +94,14 @@ public class Program
     
     public static void Main(string[] args)
     {
-        TestGenerics();
+        // Console.WriteLine("=========================");
+        // Console.WriteLine("=== explicit generics");
+        // Console.WriteLine("=========================");
+        // TestGenerics();
+        Console.WriteLine("=========================");
+        Console.WriteLine("=== generic form");
+        Console.WriteLine("=========================");
+        TestForm();
         return;
         Prompt prompter = new Prompt();
         var entier = prompter.Ask<int>("entier :");
