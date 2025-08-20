@@ -8,10 +8,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\interactiveCLI\interactiveCLI.csproj" />
+        <ProjectReference Include="..\interactiveCLI\interactiveCLI.csproj" OutputItemType="Analyser" />        
     </ItemGroup>
 
 
-   
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+    </PropertyGroup>
+
+
+
+
 
 </Project>
