@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using interactiveCLI;
 using interactiveCLI.forms;
 
@@ -44,6 +45,16 @@ public partial class Bar
         }} ;
         return DateTime.Now;
     }}
+
+    public override string ToString()
+    {
+        StringBuilder b = new StringBuilder();
+        b.Append("hello = ").AppendLine(Hello.ToString())
+            .Append("goodbye = ").AppendLine(GoodBye)
+            .Append("fruit = ").AppendLine(SelectMe)
+            .Append("birth = ").AppendLine(BirthDay.ToString("dd/MM/yyyy"));
+        return b.ToString();
+    }
  
 }
 public partial class Bar {
@@ -56,36 +67,36 @@ public partial class Bar {
 // field Hello
 //
 
-        var HelloResult = prompt.Ask<bool>("hello",pattern:null,possibleValues:null, validator:(string s) => IsValid(s),converter:(string s) => Convert(s),dataSource:null);
-        if (HelloResult.Ok) {
-            Hello = HelloResult.Value;
+        var helloResult = prompt.Ask<bool>("hello",pattern:null,possibleValues:null, validator:(string s) => IsValid(s),converter:(string s) => Convert(s),dataSource:null);
+        if (helloResult.Ok) {
+            Hello = helloResult.Value;
         }
 
 //
 // field GoodBye
 //
 
-        var GoodByeResult = prompt.Ask<string>("good bye !",pattern:null,possibleValues:null, validator:null,converter:null,dataSource:null);
-        if (GoodByeResult.Ok) {
-            GoodBye = GoodByeResult.Value;
+        var goodByeResult = prompt.Ask<string>("good bye !",pattern:null,possibleValues:null, validator:null,converter:null,dataSource:null);
+        if (goodByeResult.Ok) {
+            GoodBye = goodByeResult.Value;
         }
 
 //
 // field SelectMe
 //
 
-        var SelectMeResult = prompt.Ask<string>("select me :",pattern:null,possibleValues:null, validator:null,converter:null,dataSource:() => SelectMeDataSource());
-        if (SelectMeResult.Ok) {
-            SelectMe = SelectMeResult.Value;
+        var selectMeResult = prompt.Ask<string>("select me :",pattern:null,possibleValues:null, validator:null,converter:null,dataSource:() => SelectMeDataSource());
+        if (selectMeResult.Ok) {
+            SelectMe = selectMeResult.Value;
         }
 
 //
 // field BirthDay
 //
 
-        var BirthDayResult = prompt.Ask<DateTime>("BirthDay",pattern:"__/__/____",possibleValues:null, validator:(string s) => ValidateDate(s),converter:(string s) => ConvertDate(s),dataSource:null);
-        if (BirthDayResult.Ok) {
-            BirthDay = BirthDayResult.Value;
+        var birthDayResult = prompt.Ask<DateTime>("BirthDay",pattern:"__/__/____",possibleValues:null, validator:(string s) => ValidateDate(s),converter:(string s) => ConvertDate(s),dataSource:null);
+        if (birthDayResult.Ok) {
+            BirthDay = birthDayResult.Value;
         }
 
     }

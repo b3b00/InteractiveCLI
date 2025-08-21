@@ -179,11 +179,15 @@ public class Prompt
             string input = null;
             if ((possibleValues != null && possibleValues.Length >= 2) || (dataSource !=null))
             {
-                if (possibleValues == null && possibleValues.Length < 2 && dataSource != null)
+                if ((possibleValues == null || possibleValues.Length < 2) && dataSource != null)
                 {
                     possibleValues = dataSource();
                 }
                 input = Select(label, choices: possibleValues);
+            }
+            else if (!string.IsNullOrEmpty(pattern))
+            {
+                input = AskText(label,validator,pattern);
             }
             else
             {
