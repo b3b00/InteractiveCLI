@@ -65,9 +65,8 @@ public class FormGenerator : IIncrementalGenerator
             if (declarationSyntax is ClassDeclarationSyntax classDeclarationSyntax)
             {
                 
-                GetInputs(classDeclarationSyntax);
-                GetValidators(classDeclarationSyntax);
-                GetConverters(classDeclarationSyntax);
+                var inputs = GetInputs(classDeclarationSyntax);
+                
 
                 var className = classDeclarationSyntax.Identifier.Text;
                 
@@ -87,14 +86,27 @@ public class FormGenerator : IIncrementalGenerator
 
                 var dummySource = $@"
 namespace foo; 
-public public class {className} {{
+public partial class {className} {{
     
-    public void heyRodriguez(string s) {{
-        Console.WriteLine(""Rodriguez ! père, et fils"");
-    }}
-}}
+   public void Ask() {{
+   
+        Prompt prompt = new Prompt();
+        ";
+                foreach (Input input in inputs)
+                {
+                    var inputSourceCode = InputGenerator.Generate(input);
+                    dummySource += @$"
+//
+// field {input.Name}
+//
+{inputSourceCode}";
+                }
+                
+dummySource +=@"
+   }
+}
 ";
-                context.AddSource($"GeneratedBar.g.cs",dummySource);
+                context.AddSource($"Generated{className}.g.cs",dummySource);
                 // context.AddSource($"Generated{parserDecl.Identifier.Text}.g.cs", SourceText.From(generatedParser.sourceCode, Encoding.UTF8));
                 // context.AddSource($"{className}.g.cs", SourceText.From(generatedGenerator, Encoding.UTF8));
 
@@ -177,38 +189,21 @@ public public class {className} {{
                     if (input != null)
                     {
                         input.Field = propertyDeclarationSyntax;
+                        input.InputAttribute = inputAttribute;
                     }
                 }
             }
 
             if (member is MethodDeclarationSyntax methodDeclarationSyntax)
             {
-                var validatorAttribute = methodDeclarationSyntax.GetAttribute("Validator");
-                if (validatorAttribute != null)
-                {
-                    var name = validatorAttribute.GetFirstStringArg();
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        var input = getInputOrCreateNew(name);
-                        if (input != null)
-                        {
-                            input.Validator = methodDeclarationSyntax;
-                        }
-                    }
-                }
-                var converterAttribute = methodDeclarationSyntax.GetAttribute("Converter");
-                if (converterAttribute != null)
-                {
-                    var name = converterAttribute.GetFirstStringArg();
-                    if (!string.IsNullOrEmpty(name))
-                    {
-                        var input = getInputOrCreateNew(name);
-                        if (input != null)
-                        {
-                            input.Converter = methodDeclarationSyntax;
-                        }
-                    }
-                }
+                SetMethod("Validator",methodDeclarationSyntax, getInputOrCreateNew,
+                    (input,method) => input.Validator = methodDeclarationSyntax);
+                
+                SetMethod("Converter",methodDeclarationSyntax, getInputOrCreateNew,
+                    (input,method) => input.Converter = methodDeclarationSyntax);
+                
+                SetMethod("DataSource",methodDeclarationSyntax, getInputOrCreateNew,
+                    (input,method) => input.DataSource = methodDeclarationSyntax);
             }
         }
         ;
@@ -216,14 +211,23 @@ public public class {className} {{
 
     }
 
-    private static Dictionary<string,string> GetValidators(ClassDeclarationSyntax classDeclarationSyntax)
+    private static void SetMethod(string attributeName, MethodDeclarationSyntax methodDeclarationSyntax, Func<string, Input> getInputOrCreateNew, Action<Input,MethodDeclarationSyntax> setter  )
     {
-        return new Dictionary<string, string>();
+        var dataSourceAttribute = methodDeclarationSyntax.GetAttribute(attributeName);
+        if (dataSourceAttribute != null)
+        {
+            var name = dataSourceAttribute.GetNthStringArg(0);
+            if (!string.IsNullOrEmpty(name))
+            {
+                var input = getInputOrCreateNew(name);
+                if (input != null)
+                {
+                    setter(input,methodDeclarationSyntax);
+                }
+            }
+        }
     }
 
-    private static Dictionary<string,(string methodName, string type)> GetConverters(ClassDeclarationSyntax classDeclarationSyntax)
-    {
-        return new Dictionary<string, (string methodName, string type)>();
-    }
+    
     
 }

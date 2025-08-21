@@ -5,18 +5,24 @@ using interactiveCLI.forms;
 
 namespace interactiveCLI;
 
-
 public class Result<T>
 {
-    public T Value {get;set;}
-    
-    public bool Ok {get;set;}
-}
+    public T Value { get; set; }
 
+    public bool Ok { get; set; }
+}
 
 public class Prompt
 {
-    public string AskText(string label, Predicate<string>? validator = null , string pattern = null, Predicate<(int,char)> ? charValidator = null)
+    public string InvalidInputMessage { get; set; }
+
+    public Prompt(string invalidInputMessage = null)
+    {
+        InvalidInputMessage = invalidInputMessage;
+    }
+
+    public string AskText(string label, Predicate<string>? validator = null, string pattern = null,
+        Predicate<(int, char)>? charValidator = null)
     {
         Console.WriteLine(label);
         string answer = null;
@@ -34,8 +40,8 @@ public class Prompt
             if (validator == null || validator(answer))
             {
                 return answer;
-
             }
+
             Console.Error.WriteLine("Invalid answer.");
             answer = AskText(label, validator, pattern);
         }
@@ -43,100 +49,97 @@ public class Prompt
 
     private void Log(string message)
     {
-        File.AppendAllLines("c:/tmp/debug.txt",[message]);
+        File.AppendAllLines("c:/tmp/debug.txt", [message]);
     }
-    
-    
-    
-/// <summary>
-/// This method has been generated with Github Copilot.
-/// It displays a pattern that he user must fill. (ex __/__/____ for a date following the format dd/MM/yyyy)
-/// </summary>
-/// <param name="pattern">A pattern where `_` are free space and other chars are constant.</param>
-/// <returns>the entered string</returns>
 
-public string ReadPatternCopilot(string pattern, Predicate<(int position, char c)>? isAllowed = null)
-{
-    char[] buffer = pattern.ToCharArray();
-    int[] editableIndexes = new int[pattern.Count(c => c == '_')];
-    int idx = 0;
-    for (int i = 0; i < pattern.Length; i++)
-        if (pattern[i] == '_') editableIndexes[idx++] = i;
 
-    int current = 0;
-    Console.Write(pattern);
-    Console.SetCursorPosition(editableIndexes[0], Console.CursorTop);
-
-    while (true)
+    /// <summary>
+    /// This method has been generated with Github Copilot.
+    /// It displays a pattern that he user must fill. (ex __/__/____ for a date following the format dd/MM/yyyy)
+    /// </summary>
+    /// <param name="pattern">A pattern where `_` are free space and other chars are constant.</param>
+    /// <returns>the entered string</returns>
+    public string ReadPatternCopilot(string pattern, Predicate<(int position, char c)>? isAllowed = null)
     {
-        var key = Console.ReadKey(true);
+        char[] buffer = pattern.ToCharArray();
+        int[] editableIndexes = new int[pattern.Count(c => c == '_')];
+        int idx = 0;
+        for (int i = 0; i < pattern.Length; i++)
+            if (pattern[i] == '_')
+                editableIndexes[idx++] = i;
 
-        if (key.Key == ConsoleKey.Escape)
-        {
-            Console.WriteLine("ESC");
-            return null;
-        }
+        int current = 0;
+        Console.Write(pattern);
+        Console.SetCursorPosition(editableIndexes[0], Console.CursorTop);
 
-        if (key.Key == ConsoleKey.Backspace)
+        while (true)
         {
-            if (current > 0)
+            var key = Console.ReadKey(true);
+
+            if (key.Key == ConsoleKey.Escape)
             {
-                if (current != editableIndexes.Length)
-                {
-                    current--;
-                    //current--;
-                    buffer[editableIndexes[current]] = '_';
-                    Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
-                    Console.Write('_');
-                    Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
-                }
-                else
-                {
-                    int index = editableIndexes[current-1]; 
-                    buffer[index] = '_';
-                    Console.SetCursorPosition(index, Console.CursorTop);
-                    Console.Write('_');
-                    Console.SetCursorPosition(index, Console.CursorTop);
-                    current--;
-                }
-
-                
+                Console.WriteLine("ESC");
+                return null;
             }
-        }
-        else if (key.Key == ConsoleKey.LeftArrow && current > 0)
-        {
-            current--;
-            Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
-        }
-        else if (key.Key == ConsoleKey.RightArrow && current < editableIndexes.Length)
-        {
-            current++;
-            if (current < editableIndexes.Length)
-                Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
-        }
-        else if (key.Key == ConsoleKey.Enter)
-        {
-            break;
-        }
-        else if (!char.IsControl(key.KeyChar) && current < editableIndexes.Length)
-        {
-            int pos = editableIndexes[current];
-            if (isAllowed == null || isAllowed((pos, key.KeyChar)))
+
+            if (key.Key == ConsoleKey.Backspace)
             {
-                buffer[pos] = key.KeyChar;
-                Console.SetCursorPosition(pos, Console.CursorTop);
-                Console.Write(key.KeyChar);
+                if (current > 0)
+                {
+                    if (current != editableIndexes.Length)
+                    {
+                        current--;
+                        //current--;
+                        buffer[editableIndexes[current]] = '_';
+                        Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+                        Console.Write('_');
+                        Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+                    }
+                    else
+                    {
+                        int index = editableIndexes[current - 1];
+                        buffer[index] = '_';
+                        Console.SetCursorPosition(index, Console.CursorTop);
+                        Console.Write('_');
+                        Console.SetCursorPosition(index, Console.CursorTop);
+                        current--;
+                    }
+                }
+            }
+            else if (key.Key == ConsoleKey.LeftArrow && current > 0)
+            {
+                current--;
+                Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+            }
+            else if (key.Key == ConsoleKey.RightArrow && current < editableIndexes.Length)
+            {
                 current++;
                 if (current < editableIndexes.Length)
                     Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
             }
+            else if (key.Key == ConsoleKey.Enter)
+            {
+                break;
+            }
+            else if (!char.IsControl(key.KeyChar) && current < editableIndexes.Length)
+            {
+                int pos = editableIndexes[current];
+                if (isAllowed == null || isAllowed((pos, key.KeyChar)))
+                {
+                    buffer[pos] = key.KeyChar;
+                    Console.SetCursorPosition(pos, Console.CursorTop);
+                    Console.Write(key.KeyChar);
+                    current++;
+                    if (current < editableIndexes.Length)
+                        Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+                }
+            }
         }
-    }
-    Console.WriteLine();
-    return new string(buffer);
-}
 
-    
+        Console.WriteLine();
+        return new string(buffer);
+    }
+
 
     public int AskInt(string label, Predicate<string>? validator = null)
     {
@@ -162,20 +165,80 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
             {
                 return value;
             }
+
             answer = AskText(label, CompoundValidator);
         }
     }
-    
-    public Result<T> Ask<T>(string label)
+
+    public Result<T> Ask<T>(string label, string pattern = null,string[] possibleValues = null, Predicate<string>? validator = null,
+        Func<string, T>? converter = null, Func<string[]> dataSource = null)
     {
-        Console.Write(label);
-        string input = Console.ReadLine();
-        var converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
-        if (converter != null && converter.IsValid(input))
+        while (true)
         {
-            return new Result<T>() { Ok = true, Value = (T)converter.ConvertFrom(input) };
+            Console.Write(label);
+            string input = null;
+            if ((possibleValues != null && possibleValues.Length >= 2) || (dataSource !=null))
+            {
+                if (possibleValues == null && possibleValues.Length < 2 && dataSource != null)
+                {
+                    possibleValues = dataSource();
+                }
+                input = Select(label, choices: possibleValues);
+            }
+            else
+            {
+                input = Console.ReadLine();
+            }
+
+            var typeConverter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
+            bool isValid = false;
+            try
+            {
+                if (validator != null)
+                {
+                    isValid = validator(input);
+                }
+                else
+                {
+                    if (typeConverter != null)
+                    {
+                        isValid = typeConverter.CanConvertFrom(typeof(string));
+                    }
+                }
+            }
+            catch (ArgumentException e)
+            {
+                Console.Error.WriteLine(e.Message);
+                isValid = false;
+            }
+
+            if (isValid)
+            {
+                if (converter != null)
+                {
+                    return new Result<T>()
+                        { Ok = true, Value = converter(input) };
+                }
+                else
+                {
+                    try
+                    {
+                        if (typeConverter != null)
+                        {
+                            return new Result<T>()
+                                { Ok = true, Value = (T)typeConverter.ConvertFrom(input) };
+                        }
+                    }
+                    catch
+                    {
+                        isValid = false;
+                    }
+                }
+            }
+
+            Console.Error.WriteLine(InvalidInputMessage ?? "Invalid answer.");
+            //return new Result<T>() { Ok = false };
         }
-        return new Result<T>() { Ok = false };
     }
 
     public double AskDouble(string label, Predicate<string>? validator = null)
@@ -268,10 +331,11 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
                 Console.Write("*");
             }
         }
+
         return password.ToString();
     }
 
-    public string? Select(string label, Func<string,bool,string> formatter = null, string[] choices = null)
+    public string? Select(string label, Func<string, bool, string> formatter = null, string[] choices = null)
     {
         interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices, formatter);
         var choice = select.Select();
@@ -282,7 +346,7 @@ public string ReadPatternCopilot(string pattern, Predicate<(int position, char c
     {
         FormBuilder<T> formBuilder = new FormBuilder<T>();
         T formBackingData = (T)Activator.CreateInstance(typeof(T));
-        var form = formBuilder.Build(formBackingData,this);
+        var form = formBuilder.Build(formBackingData, this);
         formBackingData = form.Ask();
         return formBackingData;
     }

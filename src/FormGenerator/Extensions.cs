@@ -21,12 +21,12 @@ public static class Extensions
         return null;
     }
     
-    public static string GetFirstStringArg(this AttributeSyntax attributeSyntax)
+    public static string GetNthStringArg(this AttributeSyntax attributeSyntax, int nth)
     {
         var arguments = attributeSyntax?.ArgumentList?.Arguments;
-        if (arguments != null && arguments.HasValue && arguments.Value.Any())
+        if (arguments != null && arguments.HasValue && arguments.Value.Any() &&  arguments.Value.Count >= nth + 1 )
         {
-            var nameArg = arguments.Value[0];
+            var nameArg = arguments.Value[nth];
             var expr = nameArg.Expression;
             if (expr != null)
             {

@@ -1,0 +1,52 @@
+﻿using System.Globalization;
+using interactiveCLI.forms;
+
+namespace TestProject;
+
+
+[Form]
+internal partial class TestForm
+{
+   public void Main()
+   {
+      Console.WriteLine("Hello generator!");
+   }
+
+   [Input("bool (yes|y /no|n)")]
+   public bool YesOrNo {get; set;}
+   
+   [Validator(nameof(YesOrNo))]
+   public bool YesOrNoValidation(string v) => v == "yes" || v == "no";
+   
+   [Converter(nameof(YesOrNo))]
+   public bool YesOrNoConverter(string v) => v == "yes" ;
+   
+
+   [Input("Nombre : ")]
+   public double Number {get; set;}
+
+   [Input("select me :")]
+   public string SelectMe {get; set;} 
+
+   [DataSource(nameof(SelectMe))]
+   public string[] SelectMeDataSource() => ["Orange","Apple","Banana","Apricot"]; 
+   
+   
+[Input("date :","__/__/____")]
+DateTime BirthDay {get; set;}
+
+[Validator(nameof(BirthDay))]
+bool ValidateDate(string s) =>DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
+
+[Converter(nameof(BirthDay))]
+DateTime ConvertDate(string s)
+{
+      if (DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d))
+      {
+            return d;
+      }
+
+      return DateTime.Now;
+   }
+
+}
