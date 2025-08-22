@@ -172,6 +172,8 @@ public partial class {className} {{
                     {
                         input.Field = propertyDeclarationSyntax;
                         input.InputAttribute = inputAttribute;
+                        int index = inputAttribute.GetNthIntArg(0);
+                        input.Index = index;
                     }
                 }
             }
@@ -192,8 +194,9 @@ public partial class {className} {{
             }
         }
 
-        ;
-        return inputs.Values.ToList();
+        var ordered = inputs.Values.Where(x => x.Index >= 0).OrderBy(x => x.Index).ToList();
+        ordered.AddRange(inputs.Values.Where(x => x.Index < 0));
+        return ordered;
 
     }
 

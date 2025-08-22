@@ -9,12 +9,15 @@ public class InputAttribute : Attribute
         Label = label;
     }
     
-    public InputAttribute(string label, string pattern)
+    public InputAttribute(string label, string pattern = null, int index = -1)
     {
         Label = label;
         Pattern = pattern;
+        Index = index;
     }
     public string Label { get; }
     
     public string Pattern { get; }
+    
+    public int? Index { get; set; }
 }

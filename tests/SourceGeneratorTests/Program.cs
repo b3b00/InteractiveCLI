@@ -2,6 +2,8 @@
 using formGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SharpFileSystem.FileSystems;
 
 namespace SourceGeneratorTests;
 
@@ -10,57 +12,10 @@ public class Program
     
     public static void Main(string[] args)
     {
-        var source = @"
-namespace foo;
-[Form]
-internal partial class Bar
-{
-    public void Main()
-    {
-        Console.WriteLine(""Hello generator!"");
-    }
-
-    [Input(""hello"")]
-    public bool Hello {get; set;}
-
-    [Input(""good bye !"")]
-    public string GoodBye {get; set;}
-
-    [Validator(""Hello"")]
-    public bool IsValid(string value) => true;
-
-    [Converter(nameof(Hello))]
-    public bool Convert(string value) => value == ""yes"";
-
-    [Input(""select me :"")]
-    public string SelectMe {get; set;} 
-
-    [DataSource(nameof(SelectMe))]
-    public string[] SelectMeDataSource() => new string[]{""Orange"",""Apple"",""Banana"",""Apricot""}; 
-
-    [Input(""BirthDay"", ""__/__/____"")]
-    DateTime BirthDay {get; set;}
-
-    [Validator(nameof(BirthDay))]
-    bool ValidateDate(string s) =>DateTime.TryParseExact(s, ""dd/MM/yyyy"", null, DateTimeStyles.None, out var d);
-
-    [Converter(nameof(BirthDay))]
-    DateTime ConvertDate(string s) {{
-        if (DateTime.TryParseExact(s, ""dd/MM/yyyy"", null, DateTimeStyles.None, out var d)) {{
-            return d;
-        }} ;
-        return DateTime.Now;
-    }}
-
-    [CharValidator(nameof(BirthDay))]
-    public bool IsCharValid((int position, char c) t)
-    {
-        var isDigit = char.IsDigit(t.c);
-        return isDigit;
-    }
-     
-};
-";
+       
+        
+        EmbeddedResourceFileSystem fs = new EmbeddedResourceFileSystem(typeof(Program).Assembly);
+        var testform = fs.ReadAllText("/testform.txt");
 
         var generator = new FormGenerator();
 
@@ -68,7 +23,7 @@ internal partial class Bar
         var driver = CSharpGeneratorDriver.Create(new[] { generator });
         
         var compilation = CSharpCompilation.Create("ExpressionGenerated",
-            new[] { CSharpSyntaxTree.ParseText(source) },
+            new[] { CSharpSyntaxTree.ParseText(testform) },
             new[]
             {
                 // To support 'System.Attribute' inheritance, add reference to 'System.Private.CoreLib'.

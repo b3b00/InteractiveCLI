@@ -13,4 +13,13 @@
 <!--      <ProjectReference Include="..\..\src\interactiveCLI\interactiveCLI.csproj" OutputItemType="Analyser"/>-->
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="testform.txt" />
+      <EmbeddedResource Include="testform.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="SharpCoreFileSystem" Version="1.1.6" />
+    </ItemGroup>
+
 </Project>

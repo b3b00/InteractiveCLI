@@ -19,7 +19,8 @@ public class Input
     public MethodDeclarationSyntax CharValidator {get; set;}
     
     public AttributeSyntax InputAttribute { get; set; }
-    
+    public int Index { get; set; }
+
     public Input(string name)
     {
         Name = name;

@@ -31,7 +31,7 @@ public partial class TestForm
    [Input("nom : ",index:0)]
    public string Name {get; set;}
    
-[Input("date :","__/__/____",2)]
+[Input("date :","__/__/____",3)]
 DateTime BirthDay {get; set;}
 
 [CharValidator(nameof(BirthDay))]
