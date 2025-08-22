@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\interactiveCLI\interactiveCLI.csproj" />
+<!--      <ProjectReference Include="..\..\src\interactiveCLI\interactiveCLI.csproj" OutputItemType="Analyser"/>-->
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="testform.txt" />
+      <EmbeddedResource Include="testform.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="SharpCoreFileSystem" Version="1.1.6" />
+    </ItemGroup>
+
+</Project>

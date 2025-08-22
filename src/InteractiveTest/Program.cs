@@ -6,7 +6,7 @@ using interactiveCLI.forms;
 
 
 [Form]
-public class MyForm
+public partial class MyForm
 {
     [Input("birthday :","__/__/____")]
     public string Birthday {get; set;}
