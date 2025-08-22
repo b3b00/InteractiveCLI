@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net8.0;net7.0;net6.0</TargetFrameworks>
-<!--    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>    -->
+    <TargetFramework>net9.0</TargetFramework>
     <Authors>b3b00</Authors>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -16,7 +15,10 @@
     <PackageOutputPath>./nupkg</PackageOutputPath>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>    
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+<!--      <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>-->
+      <IsRoslynComponent>true</IsRoslynComponent>
+      <IncludeBuildOutput>false</IncludeBuildOutput>
   </PropertyGroup>
 
  <PropertyGroup>   
@@ -25,12 +27,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-<!--        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">-->
-<!--            <PrivateAssets>all</PrivateAssets>-->
-<!--            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
-<!--        </PackageReference>-->
-<!--        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0"/>-->
-<!--        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.0"/>-->
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="*" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
