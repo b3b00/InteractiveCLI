@@ -15,6 +15,9 @@ public class Input
     public MethodDeclarationSyntax Converter {get; set;}
     
     public MethodDeclarationSyntax DataSource {get; set;}
+    
+    public MethodDeclarationSyntax CharValidator {get; set;}
+    
     public AttributeSyntax InputAttribute { get; set; }
     
     public Input(string name)

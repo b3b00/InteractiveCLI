@@ -51,7 +51,14 @@ internal partial class Bar
         }} ;
         return DateTime.Now;
     }}
- 
+
+    [CharValidator(nameof(BirthDay))]
+    public bool IsCharValid((int position, char c) t)
+    {
+        var isDigit = char.IsDigit(t.c);
+        return isDigit;
+    }
+     
 };
 ";
 

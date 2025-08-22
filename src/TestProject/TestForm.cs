@@ -34,6 +34,13 @@ public partial class TestForm
 [Input("date :","__/__/____")]
 DateTime BirthDay {get; set;}
 
+[CharValidator(nameof(BirthDay))]
+public bool IsCharValid((int position, char c) t)
+{
+    var isDigit = char.IsDigit(t.c);
+    return isDigit;
+}
+
 [Validator(nameof(BirthDay))]
 bool ValidateDate(string s) =>DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
 
@@ -55,7 +62,7 @@ public override string ToString()
         .Append("name : ").AppendLine(Name)
         .Append("yes/no = ").AppendLine(YesOrNo.ToString())
         .Append("fruit = ").AppendLine(SelectMe)
-        .Append("birth = ").AppendLine(BirthDay.ToString("dd/MM/yyyy"));
+        .Append("birth = ").AppendLine(BirthDay.ToString("f"));
     return b.ToString();
 }
 

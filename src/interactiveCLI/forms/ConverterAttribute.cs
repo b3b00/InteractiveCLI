@@ -9,3 +9,14 @@ public class ConverterAttribute : Attribute
         Name = name;
     }
 }
+
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+public class CharValidatorAttribute : Attribute
+{
+    public string Name { get; set; } 
+    public CharValidatorAttribute(string name)
+    {
+        Name = name;
+    }
+}
+

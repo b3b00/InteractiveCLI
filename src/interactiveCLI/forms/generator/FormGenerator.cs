@@ -186,6 +186,9 @@ public partial class {className} {{
 
                 SetMethod("DataSource", methodDeclarationSyntax, getInputOrCreateNew,
                     (input, method) => input.DataSource = methodDeclarationSyntax);
+                
+                SetMethod("CharValidator", methodDeclarationSyntax, getInputOrCreateNew,
+                    (input, method) => input.CharValidator = methodDeclarationSyntax);
             }
         }
 

@@ -55,3 +55,7 @@ nunit-*.xml
 
 # generated files
 GeneratedFiles/
+
+# VS and rider
+.vs/
+.idea

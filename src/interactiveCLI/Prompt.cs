@@ -171,7 +171,7 @@ public class Prompt
     }
 
     public Result<T> Ask<T>(string label, string pattern = null,string[] possibleValues = null, Predicate<string>? validator = null,
-        Func<string, T>? converter = null, Func<string[]> dataSource = null)
+        Func<string, T>? converter = null, Func<string[]> dataSource = null, Predicate<(int, char)>? charValidator = null)
     {
         while (true)
         {
@@ -187,7 +187,7 @@ public class Prompt
             }
             else if (!string.IsNullOrEmpty(pattern))
             {
-                input = AskText(label,validator,pattern);
+                input = AskText(label,validator,pattern,charValidator:charValidator);
             }
             else
             {

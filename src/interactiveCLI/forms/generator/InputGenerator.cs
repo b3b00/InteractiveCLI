@@ -16,14 +16,15 @@ public class InputGenerator
         var inputAttribute = input.Field.GetAttribute("Input");
         string validator = GenerateMethod(input.Validator);
         string converter = GenerateMethod(input.Converter);
-        string datasource = GenerateMethod(input.DataSource,false);
+        string dataSource = GenerateMethod(input.DataSource,withArgument:false);
+        string charValidator = GenerateMethod(input.CharValidator,argument:"(int position, char c)");
         string type = input.Field.Type.ToString();
         string label = input.InputAttribute.GetNthStringArg(0);
         string pattern = input.InputAttribute.GetNthStringArg(1);
         pattern = !string.IsNullOrEmpty(pattern) ? $"\"{pattern}\"" : "null";
         
         var ask = $@"
-    var {input.Name}Result = prompt.Ask<{type}>(""{label}"",pattern:{pattern},possibleValues:{possibleValues}, validator:{validator},converter:{converter},dataSource:{datasource});
+    var {input.Name}Result = prompt.Ask<{type}>(""{label}"",pattern:{pattern},possibleValues:{possibleValues}, validator:{validator},converter:{converter},dataSource:{dataSource}, charValidator:{charValidator});
     if ({input.Name}Result.Ok) {{
         {input.Name} = {input.Name}Result.Value;
     }}
@@ -32,7 +33,7 @@ public class InputGenerator
         return ask;
     }
 
-    public static string GenerateMethod(MethodDeclarationSyntax inputMethod, bool withArgument = true)
+    public static string GenerateMethod(MethodDeclarationSyntax inputMethod, string argument = "string",bool withArgument = true)
     {
         if (inputMethod == null)
         {
@@ -41,7 +42,7 @@ public class InputGenerator
 
         if (withArgument)
         {
-            return $"(string s) => {inputMethod.Identifier.ValueText}(s)";
+            return $"({argument} s) => {inputMethod.Identifier.ValueText}(s)";
         }
         return $"() => {inputMethod.Identifier.ValueText}()";
     }
