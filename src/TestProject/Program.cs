@@ -11,5 +11,7 @@ public class Program
 
         form.Ask();
         
+        Console.WriteLine(form.ToString());
+        
     }
 }

@@ -13,7 +13,7 @@ public partial class TestForm
    public bool YesOrNo {get; set;}
    
    [Validator(nameof(YesOrNo))]
-   public bool YesOrNoValidation(string v) => v == "yes" || v == "no";
+   public bool YesOrNoValidation(string v) => v == "yes" || v == "no" || v == "y" || v == "n";
    
    [Converter(nameof(YesOrNo))]
    public bool YesOrNoConverter(string v) => v == "yes" ;
