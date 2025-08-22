@@ -16,7 +16,7 @@
 
     <ItemGroup>      
       <ProjectReference Include="..\interactiveCLI\interactiveCLI.csproj" />      
-      <ProjectReference Include="..\InteractiveFormGenerator\InteractiveFormGenerator.csproj"  ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+      <ProjectReference Include="..\FormGenerator\FormGenerator.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>
 
 </Project>

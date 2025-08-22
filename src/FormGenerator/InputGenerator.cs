@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using formGenerator;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace interactiveCLI.forms;

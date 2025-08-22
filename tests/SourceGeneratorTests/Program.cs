@@ -1,4 +1,5 @@
 ﻿using interactiveCLI.forms;
+using formGenerator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 

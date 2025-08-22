@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace interactiveCLI.forms;
+namespace formGenerator;
 
 public static class Extensions
 {

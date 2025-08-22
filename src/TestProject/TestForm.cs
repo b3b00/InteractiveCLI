@@ -6,7 +6,7 @@ namespace TestProject;
 
 
 [Form]
-internal partial class TestForm
+public partial class TestForm
 {
 
    [Input("bool (yes|y /no|n)")]

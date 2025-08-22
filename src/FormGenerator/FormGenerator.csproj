@@ -2,20 +2,31 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <IsRoslynComponent>true</IsRoslynComponent>
-        <IsRoslynAnalyzer>true</IsRoslynAnalyzer>
-        <Version>1.0.2</Version>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <RootNamespace>formGenerator</RootNamespace>
     </PropertyGroup>
+
     <ItemGroup>
-        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all"/>            
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" PrivateAssets="all"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.0" PrivateAssets="all"/>       
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="*" />
+        <PackageReference Include="PolySharp" Version="*">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
+
     <ItemGroup>
-      <ProjectReference Include="..\interactiveCLI\interactiveCLI.csproj" />
+<!--      <ProjectReference Include="..\GeneratorLogging\GeneratorLogging.csproj" />-->
     </ItemGroup>
+
+    
+    
+
 </Project>

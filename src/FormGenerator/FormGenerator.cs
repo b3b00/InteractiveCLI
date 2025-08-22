@@ -1,120 +1,15 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Text;
+//using generatorLogging;
+using interactiveCLI.forms;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Text;
 
-
-namespace interactiveCLI.forms;
+namespace formGenerator;
 
 [Generator]
 public class FormGenerator : IIncrementalGenerator
 {
-    public void Initialize(IncrementalGeneratorInitializationContext context)
-    {
-        
-        Dictionary<ClassDeclarationSyntax,string> _lexerAndParserTypes = new();
-        
-        // Filter classes annotated with the [Report] attribute. Only filtered Syntax Nodes can trigger code generation.
-        var provider = context.SyntaxProvider
-            .CreateSyntaxProvider(
-                (s, _) => s is ClassDeclarationSyntax,
-                (ctx, _) => GetClassDeclarationForSourceGen(ctx))
-            .Where(t => t.formAttributeFound)
-            .Select((t, _) =>
-            {
-                _lexerAndParserTypes[t.classDeclarationSyntax] = t.formType;
-                return t.classDeclarationSyntax;
-            });
-
-        var provider2 = context.SyntaxProvider.CreateSyntaxProvider((s, _) => s is ClassDeclarationSyntax || s is EnumDeclarationSyntax,
-            ((ctx,_) =>  ctx.Node ));
-
-        
-        // Generate the source code.
-        context.RegisterSourceOutput(context.CompilationProvider.Combine(provider2.Collect()),
-            ((ctx, t) => GenerateCode(ctx, t.Left, t.Right)));
-    }
-    
-    private void GenerateCode(SourceProductionContext context, Compilation compilation, ImmutableArray<SyntaxNode> declarations)
-    {
-        Func<SyntaxNode, string> getName = (node) =>
-        {
-            if (node is ClassDeclarationSyntax classDeclarationSyntax)
-            {
-                return classDeclarationSyntax.Identifier.ToString();
-            }
-        
-            if (node is EnumDeclarationSyntax enumDeclarationSyntax)
-            {
-                return enumDeclarationSyntax.Identifier.ToString();
-            }
-        
-            return "";
-        };
-        
-        var formDeclarations = declarations.Where(x => IsForm(x as ClassDeclarationSyntax)).ToList();
-context.Log($" found {formDeclarations.Count} forms");
-
-        Dictionary<string, SyntaxNode> declarationsByName = formDeclarations.ToDictionary(x => getName(x));
-        
-        foreach (var declarationSyntax in formDeclarations)
-        {
-            
-            if (declarationSyntax is ClassDeclarationSyntax classDeclarationSyntax)
-            {
-                context.Log($"processing form class {classDeclarationSyntax.Identifier.Text.ToString()}");
-                var inputs = GetInputs(classDeclarationSyntax);
-                
-
-                var className = classDeclarationSyntax.Identifier.Text;
-                
-                var isPartial =
-                    classDeclarationSyntax.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
-                if (!isPartial)
-                {
-                    context.ReportDiagnostic(Diagnostic.Create(
-                        new DiagnosticDescriptor(
-                            "FormGeneratorErrors.NOT_PARTIAL",
-                            "Form is not partial",
-                            "Form {0} is not partial",
-                            "form",
-                            DiagnosticSeverity.Error,
-                            true), classDeclarationSyntax.GetLocation(), classDeclarationSyntax.Identifier.Text));
-                }
-
-                var dummySource = $@"
-namespace foo; 
-public partial class {className} {{
-    
-   public void Ask() {{
-   
-        Prompt prompt = new Prompt();
-        ";
-                foreach (Input input in inputs)
-                {
-                    var inputSourceCode = InputGenerator.Generate(input);
-                    dummySource += @$"
-//
-// field {input.Name}
-//
-{inputSourceCode}";
-                }
-                
-dummySource +=@"
-   }
-}
-";
-                context.AddSource($"Generated{className}.g.cs",dummySource);
-            }
-            else
-            {
-                context.Log($"FormGenerator : {declarationSyntax.ToString()} is not a class declaration");
-            }
-        }
-    }
 
     private static bool IsForm(ClassDeclarationSyntax classDeclarationSyntax)
     {
@@ -132,31 +27,111 @@ dummySource +=@"
 
         return false;
     }
-    
-    private static (ClassDeclarationSyntax classDeclarationSyntax, string formType, bool
-        formAttributeFound) GetClassDeclarationForSourceGen(
-            GeneratorSyntaxContext context)
-    {
 
-        var classDeclarationSyntax = (ClassDeclarationSyntax)context.Node;
-        // Go through all attributes of the class.
-        foreach (AttributeListSyntax attributeListSyntax in classDeclarationSyntax.AttributeLists)
-        {
-            foreach (AttributeSyntax attributeSyntax in attributeListSyntax.Attributes)
-            {
-                string name = attributeSyntax.Name.ToString();
-                if (name == "Form")
+    public void Initialize(IncrementalGeneratorInitializationContext context)
+    {
+        // GeneratorLogging.LogMessage("initialize form source generator");
+        IncrementalValuesProvider<ClassDeclarationSyntax> calculatorClassesProvider =
+            context.SyntaxProvider.CreateSyntaxProvider(
+                predicate: (SyntaxNode node, CancellationToken cancelToken) =>
                 {
-                    return (classDeclarationSyntax, name, true);            
+                    return node is ClassDeclarationSyntax classDeclarationSyntax && IsForm(classDeclarationSyntax);
+                },
+                transform: (ctx, cancelToken) =>
+                {
+                    var classDeclaration = (ClassDeclarationSyntax)ctx.Node;
+                    return classDeclaration;
                 }
-            }
+            );
+        
+        // GeneratorLogging.LogMessage("register source output");
+        context.RegisterSourceOutput(calculatorClassesProvider,
+            (sourceProductionContext, calculatorClass) => Execute(calculatorClass, sourceProductionContext));
+    }
+
+    /// <summary>
+    /// This method is where the real work of the generator is done
+    /// This ensures optimal performance by only executing the generator when needed
+    /// The method can be named whatever you want but Execute seems to be the standard 
+    /// </summary>
+    /// <param name="formClass"></param>
+    /// <param name="context"></param>
+    public void Execute(ClassDeclarationSyntax formClass, SourceProductionContext context)
+    {
+        // GeneratorLogging.SetLogFilePath("C:/tmp/FormGenLog.txt");
+        // GeneratorLogging.LogMessage($"generating form for {formClass.Identifier.Text}");
+        
+        var inputs = GetInputs(formClass);
+        // GeneratorLogging.LogMessage($"found {inputs.Count} inputs");
+
+        var className = formClass.Identifier.Text;
+        //The previous Descendent Node check has been removed as it was only intended to help produce the error seen in logging
+        BaseNamespaceDeclarationSyntax? formNamespace = formClass.Ancestors().OfType<NamespaceDeclarationSyntax>().FirstOrDefault();
+        formNamespace ??= formClass.Ancestors().OfType<FileScopedNamespaceDeclarationSyntax>().FirstOrDefault();
+            
+        if(formNamespace is null)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+                new DiagnosticDescriptor(
+                    "FormGeneratorErrors.NS_NOT_FOUND",
+                    $"Could not find namespace for {className}",
+                    "Form {0} has no namespace",
+                    "form",
+                    DiagnosticSeverity.Error,
+                    true), formClass.GetLocation(), formClass.Identifier.Text));
         }
-        return (null, null, false);
+        
+        var isPartial =
+            formClass.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
+        
+        // GeneratorLogging.LogMessage($"{className} {(isPartial ? "is" : "is not")} partial");
+        
+        if (!isPartial)
+        {
+            context.ReportDiagnostic(Diagnostic.Create(
+                new DiagnosticDescriptor(
+                    "FormGeneratorErrors.NOT_PARTIAL",
+                    "Form is not partial",
+                    "Form {0} is not partial",
+                    "form",
+                    DiagnosticSeverity.Error,
+                    true), formClass.GetLocation(), formClass.Identifier.Text));
+        }
+
+        var dummySource = $@"
+using interactiveCLI;
+using interactiveCLI.forms;
+
+namespace {formNamespace?.Name};
+ 
+public partial class {className} {{
+    
+   public void Ask() {{
+   
+        Prompt prompt = new Prompt();
+        ";
+        // GeneratorLogging.LogMessage("starting inputs generation");
+        foreach (Input input in inputs)
+        {
+            // GeneratorLogging.LogMessage($"generating input {input.Name}");
+            var inputSourceCode = InputGenerator.Generate(input);
+            dummySource += @$"
+//
+// field {input.Name}
+//
+{inputSourceCode}";
+        }
+        // GeneratorLogging.LogMessage("finished inputs generation");
+
+        dummySource += @"
+   }
+}
+";
+        context.AddSource($"Generated{className}.g.cs", dummySource);
+
     }
 
 
-    
-    
     private static List<Input> GetInputs(ClassDeclarationSyntax classDeclarationSyntax)
     {
         Dictionary<string, Input> inputs = new Dictionary<string, Input>();
@@ -177,7 +152,7 @@ dummySource +=@"
 
             return null;
         };
-        
+
         var members = classDeclarationSyntax.Members;
         foreach (var member in members)
         {
@@ -198,22 +173,24 @@ dummySource +=@"
 
             if (member is MethodDeclarationSyntax methodDeclarationSyntax)
             {
-                SetMethod("Validator",methodDeclarationSyntax, getInputOrCreateNew,
-                    (input,method) => input.Validator = methodDeclarationSyntax);
-                
-                SetMethod("Converter",methodDeclarationSyntax, getInputOrCreateNew,
-                    (input,method) => input.Converter = methodDeclarationSyntax);
-                
-                SetMethod("DataSource",methodDeclarationSyntax, getInputOrCreateNew,
-                    (input,method) => input.DataSource = methodDeclarationSyntax);
+                SetMethod("Validator", methodDeclarationSyntax, getInputOrCreateNew,
+                    (input, method) => input.Validator = methodDeclarationSyntax);
+
+                SetMethod("Converter", methodDeclarationSyntax, getInputOrCreateNew,
+                    (input, method) => input.Converter = methodDeclarationSyntax);
+
+                SetMethod("DataSource", methodDeclarationSyntax, getInputOrCreateNew,
+                    (input, method) => input.DataSource = methodDeclarationSyntax);
             }
         }
+
         ;
         return inputs.Values.ToList();
 
     }
 
-    private static void SetMethod(string attributeName, MethodDeclarationSyntax methodDeclarationSyntax, Func<string, Input> getInputOrCreateNew, Action<Input,MethodDeclarationSyntax> setter  )
+    private static void SetMethod(string attributeName, MethodDeclarationSyntax methodDeclarationSyntax,
+        Func<string, Input> getInputOrCreateNew, Action<Input, MethodDeclarationSyntax> setter)
     {
         var dataSourceAttribute = methodDeclarationSyntax.GetAttribute(attributeName);
         if (dataSourceAttribute != null)
@@ -224,12 +201,12 @@ dummySource +=@"
                 var input = getInputOrCreateNew(name);
                 if (input != null)
                 {
-                    setter(input,methodDeclarationSyntax);
+                    setter(input, methodDeclarationSyntax);
                 }
             }
         }
     }
+}
+
 
     
-    
-}
