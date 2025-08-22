@@ -36,6 +36,8 @@ public class SelectPrompt
             Console.SetCursorPosition(startPosition.left, startPosition.top + i);
             Console.Write(item);
         }
+        Console.WriteLine();
+        
     }
 
     public string? Select()

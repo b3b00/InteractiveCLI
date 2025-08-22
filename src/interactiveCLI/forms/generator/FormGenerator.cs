@@ -30,7 +30,6 @@ public class FormGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // GeneratorLogging.LogMessage("initialize form source generator");
         IncrementalValuesProvider<ClassDeclarationSyntax> calculatorClassesProvider =
             context.SyntaxProvider.CreateSyntaxProvider(
                 predicate: (SyntaxNode node, CancellationToken cancelToken) =>
@@ -44,7 +43,6 @@ public class FormGenerator : IIncrementalGenerator
                 }
             );
         
-        // GeneratorLogging.LogMessage("register source output");
         context.RegisterSourceOutput(calculatorClassesProvider,
             (sourceProductionContext, calculatorClass) => Execute(calculatorClass, sourceProductionContext));
     }
