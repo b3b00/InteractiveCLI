@@ -5,7 +5,7 @@ using interactiveCLI.forms;
 namespace TestProject;
 
 
-[Form]
+[Form("\x1b[1;31mInvalid input.\x1b[0m")]
 public partial class TestForm
 {
 

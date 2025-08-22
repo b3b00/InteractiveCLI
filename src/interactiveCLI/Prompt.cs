@@ -42,7 +42,7 @@ public class Prompt
                 return answer;
             }
 
-            Console.Error.WriteLine("Invalid answer.");
+            Console.Error.WriteLine(InvalidInputMessage ?? "Invalid answer.");
             answer = AskText(label, validator, pattern);
         }
     }

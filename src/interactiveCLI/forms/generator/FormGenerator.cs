@@ -58,11 +58,14 @@ public class FormGenerator : IIncrementalGenerator
     /// <param name="context"></param>
     public void Execute(ClassDeclarationSyntax formClass, SourceProductionContext context)
     {
-        // GeneratorLogging.SetLogFilePath("C:/tmp/FormGenLog.txt");
-        // GeneratorLogging.LogMessage($"generating form for {formClass.Identifier.Text}");
+        string invalidInputMessage = null;
+        var formAttribute = formClass.GetAttribute("Form");
+        if (formAttribute != null)
+        {
+            invalidInputMessage = formAttribute.GetNthStringArg(0);
+        }
         
         var inputs = GetInputs(formClass);
-        // GeneratorLogging.LogMessage($"found {inputs.Count} inputs");
 
         var className = formClass.Identifier.Text;
         //The previous Descendent Node check has been removed as it was only intended to help produce the error seen in logging
@@ -98,22 +101,25 @@ public class FormGenerator : IIncrementalGenerator
                     true), formClass.GetLocation(), formClass.Identifier.Text));
         }
 
+        string invalidError = invalidInputMessage == null ? "null" : $@"""{invalidInputMessage}""";
+
         var dummySource = $@"
 using interactiveCLI;
 using interactiveCLI.forms;
 
 namespace {formNamespace?.Name};
  
+
+
 public partial class {className} {{
     
    public void Ask() {{
    
-        Prompt prompt = new Prompt();
+        Prompt prompt = new Prompt({invalidError});
         ";
-        // GeneratorLogging.LogMessage("starting inputs generation");
+        
         foreach (Input input in inputs)
         {
-            // GeneratorLogging.LogMessage($"generating input {input.Name}");
             var inputSourceCode = InputGenerator.Generate(input);
             dummySource += @$"
 //
@@ -121,7 +127,6 @@ public partial class {className} {{
 //
 {inputSourceCode}";
         }
-        // GeneratorLogging.LogMessage("finished inputs generation");
 
         dummySource += @"
    }
