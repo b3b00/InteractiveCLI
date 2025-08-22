@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using interactiveCLI.forms;
 
 namespace TestProject;
@@ -7,10 +8,6 @@ namespace TestProject;
 [Form]
 internal partial class TestForm
 {
-   public void Main()
-   {
-      Console.WriteLine("Hello generator!");
-   }
 
    [Input("bool (yes|y /no|n)")]
    public bool YesOrNo {get; set;}
@@ -31,6 +28,8 @@ internal partial class TestForm
    [DataSource(nameof(SelectMe))]
    public string[] SelectMeDataSource() => ["Orange","Apple","Banana","Apricot"]; 
    
+   [Input("nom : ")]
+   public string Name {get; set;}
    
 [Input("date :","__/__/____")]
 DateTime BirthDay {get; set;}
@@ -48,5 +47,16 @@ DateTime ConvertDate(string s)
 
       return DateTime.Now;
    }
+
+public override string ToString()
+{
+    StringBuilder b = new StringBuilder();
+    b.Append("number = ").AppendLine(Number.ToString())
+        .Append("name : ").AppendLine(Name)
+        .Append("yes/no = ").AppendLine(YesOrNo.ToString())
+        .Append("fruit = ").AppendLine(SelectMe)
+        .Append("birth = ").AppendLine(BirthDay.ToString("dd/MM/yyyy"));
+    return b.ToString();
+}
 
 }

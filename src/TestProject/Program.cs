@@ -6,8 +6,10 @@ public class Program
     {
         TestForm form = new TestForm();
         Bar bar = new Bar();
-        bar.Ask();
-        Console.WriteLine(bar);
+        //bar.Ask();
+        //Console.WriteLine(bar);
+
+        form.Ask();
         
     }
 }

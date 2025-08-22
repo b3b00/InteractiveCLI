@@ -6,16 +6,17 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
         <OutputType>Exe</OutputType>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>.\GeneratedFiles</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
 
     <ItemGroup>        
+      
     </ItemGroup>
 
-
-
-    <ItemGroup>
-      <ProjectReference Include="..\FormGenerator\FormGenerator.csproj" OutputItemType="Analyser" ReferenceOutputAssembly="false" />
-      <ProjectReference Include="..\interactiveCLI\interactiveCLI.csproj"  />
+    <ItemGroup>      
+      <ProjectReference Include="..\interactiveCLI\interactiveCLI.csproj" />      
+      <ProjectReference Include="..\InteractiveFormGenerator\InteractiveFormGenerator.csproj"  ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>
 
 </Project>

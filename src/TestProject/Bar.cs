@@ -6,7 +6,7 @@ using interactiveCLI.forms;
 namespace TestProject;
 
 
-[Form]
+//[Form]
 public partial class Bar
 {
     public void Main()

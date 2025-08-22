@@ -56,15 +56,16 @@ public class FormGenerator : IIncrementalGenerator
         };
         
         var formDeclarations = declarations.Where(x => IsForm(x as ClassDeclarationSyntax)).ToList();
-
+context.Log($" found {formDeclarations.Count} forms");
 
         Dictionary<string, SyntaxNode> declarationsByName = formDeclarations.ToDictionary(x => getName(x));
         
         foreach (var declarationSyntax in formDeclarations)
         {
+            
             if (declarationSyntax is ClassDeclarationSyntax classDeclarationSyntax)
             {
-                
+                context.Log($"processing form class {classDeclarationSyntax.Identifier.Text.ToString()}");
                 var inputs = GetInputs(classDeclarationSyntax);
                 
 
@@ -107,9 +108,10 @@ dummySource +=@"
 }
 ";
                 context.AddSource($"Generated{className}.g.cs",dummySource);
-                // context.AddSource($"Generated{parserDecl.Identifier.Text}.g.cs", SourceText.From(generatedParser.sourceCode, Encoding.UTF8));
-                // context.AddSource($"{className}.g.cs", SourceText.From(generatedGenerator, Encoding.UTF8));
-
+            }
+            else
+            {
+                context.Log($"FormGenerator : {declarationSyntax.ToString()} is not a class declaration");
             }
         }
     }
