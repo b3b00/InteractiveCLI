@@ -4,19 +4,21 @@ namespace interactiveCLI.forms;
 
 public class Input
 {
+    private string _name;
+
     public string Name { get; set; }
-    
+
     public string Pattern { get; set; }
     
     public PropertyDeclarationSyntax Field { get; set; }
     
-    public MethodDeclarationSyntax Validator { get; set; }
+    public string Validator { get; set; }
     
-    public MethodDeclarationSyntax Converter {get; set;}
+    public string Converter {get; set;}
     
-    public MethodDeclarationSyntax DataSource {get; set;}
+    public string DataSource {get; set;}
     
-    public MethodDeclarationSyntax CharValidator {get; set;}
+    public string CharValidator {get; set;}
     
     public AttributeSyntax InputAttribute { get; set; }
     public int Index { get; set; }
@@ -26,8 +28,8 @@ public class Input
         Name = name;
     }
     
-    public Input(string name, PropertyDeclarationSyntax field, MethodDeclarationSyntax validator,
-        MethodDeclarationSyntax converter, MethodDeclarationSyntax dataSource) : this(name)
+    public Input(string name, PropertyDeclarationSyntax field, string validator,
+        string converter, string dataSource) : this(name)
     {
         Field = field;
         Validator = validator;
