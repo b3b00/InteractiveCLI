@@ -21,7 +21,7 @@ public class Prompt
         InvalidInputMessage = invalidInputMessage;
     }
 
-    public string AskText(string label, Predicate<string>? validator = null, string pattern = null,
+    public string AskText(string label, Func<string,(bool ok, string errorMessage)> validator = null, string pattern = null,
         Predicate<(int, char)>? charValidator = null)
     {
         Console.WriteLine(label);
@@ -37,12 +37,21 @@ public class Prompt
 
         while (true)
         {
-            if (validator == null || validator(answer))
+            var errorMessage = InvalidInputMessage ?? "Invalid answer.";
+            if (validator != null)
             {
-                return answer;
+                var avalidation = validator(answer);
+                if (avalidation.ok)
+                {
+                    return answer;
+                }
+                else
+                {
+                    errorMessage ??= avalidation.errorMessage;
+                }
             }
 
-            Console.Error.WriteLine(InvalidInputMessage ?? "Invalid answer.");
+            Console.Error.WriteLine(errorMessage);
             answer = AskText(label, validator, pattern);
         }
     }
@@ -141,21 +150,26 @@ public class Prompt
     }
 
 
-    public int AskInt(string label, Predicate<string>? validator = null)
+    public int AskInt(string label, Func<string,(bool ok, string errorMessage)>? validator = null)
     {
         bool IntValidator(string s)
         {
             return int.TryParse(s, out var x);
         }
 
-        bool CompoundValidator(string s)
+        (bool ok, string errorMessage) CompoundValidator(string s)
         {
             if (validator != null)
             {
-                return IntValidator(s) && validator(s);
+                var validation = validator(s);
+                if (IntValidator(s) && validation.ok)
+                {
+                    return (true, null);
+                }
+                return (false,validation.errorMessage);
             }
 
-            return IntValidator(s);
+            return (IntValidator(s),null);
         }
 
         var answer = AskText(label, CompoundValidator);
@@ -170,10 +184,11 @@ public class Prompt
         }
     }
 
-    public Result<T> Ask<T>(string label, string pattern = null,string[] possibleValues = null, Predicate<string>? validator = null,
+    public Result<T> Ask<T>(string label, string pattern = null,string[] possibleValues = null, Func<string,(bool ok, string errorMessage)>? validator = null,
         Func<string, T>? converter = null, Func<string[]> dataSource = null, Predicate<(int, char)>? charValidator = null)
     {
         while (true)
+            
         {
             Console.Write(label);
             string input = null;
@@ -196,11 +211,14 @@ public class Prompt
 
             var typeConverter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
             bool isValid = false;
+            string errorMessage = null;
             try
             {
                 if (validator != null)
                 {
-                    isValid = validator(input);
+                    var validation = validator(input);
+                    isValid = validation.ok;
+                    errorMessage = validation.errorMessage;
                 }
                 else
                 {
@@ -240,33 +258,39 @@ public class Prompt
                 }
             }
 
-            Console.Error.WriteLine(InvalidInputMessage ?? "Invalid answer.");
+            Console.Error.WriteLine(errorMessage ?? (InvalidInputMessage ?? "Invalid answer."));
             //return new Result<T>() { Ok = false };
         }
     }
 
-    public double AskDouble(string label, Predicate<string>? validator = null)
+    public double AskDouble(string label, Func<string,(bool ok, string errorMessage)>? validator = null)
     {
         bool DoubleValidator(string s)
         {
             return double.TryParse(s, out var x);
         }
 
-        bool CompoundValidator(string s)
+        (bool ok, string errorMessage) CompoundValidator(string s)
         {
             if (validator != null)
             {
-                return DoubleValidator(s) && validator(s);
+                var validation = validator(s);
+                if (DoubleValidator(s) && validation.ok)
+                {
+                    return (true,null);
+                }
+
+                return (false, validation.errorMessage);
             }
 
-            return DoubleValidator(s);
+            return (DoubleValidator(s),null);
         }
 
         var answer = AskText(label, CompoundValidator);
         return double.Parse(answer);
     }
 
-    public bool AskBool(string label, string[] trueValues, string[] falseValues, Predicate<string>? validator = null)
+    public bool AskBool(string label, string[] trueValues, string[] falseValues, Func<string,(bool ok, string errorMessage)>? validator = null)
     {
         Func<string, (bool ok, bool value)> tryparse = s =>
         {
@@ -283,15 +307,21 @@ public class Prompt
             return (false, false);
         };
 
-        bool CompoundValidator(string s)
+        (bool ok, string errorMessage) CompoundValidator(string s)
         {
             var (ok, _tried) = tryparse(s);
             if (validator != null && ok)
             {
-                return validator(s);
+                var validation = validator(s);
+                if (validation.ok && ok)
+                {
+                    return (true, null);
+                }
+
+                return (false, validation.errorMessage);
             }
 
-            return ok;
+            return (ok,null);
         }
 
         StringBuilder prompt = new StringBuilder();

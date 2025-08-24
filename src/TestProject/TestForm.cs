@@ -13,7 +13,11 @@ public partial class TestForm
     public bool YesOrNo { get; set; }
 
 
-    public bool YesOrNoValidation(string v) => v == "yes" || v == "no" || v == "y" || v == "n";
+    public (bool ok,string errorMessage) YesOrNoValidation(string v)
+    {
+        var ok = v == "yes" || v == "no" || v == "y" || v == "n";
+        return (ok, ok ? null : "this is not yes or no ! make a choice !!!");
+    } 
 
 
     public bool YesOrNoConverter(string v) => v == "yes";
@@ -44,7 +48,11 @@ public partial class TestForm
     }
 
 
-    bool ValidateDate(string s) => DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
+    (bool ok, string errorMessage) ValidateDate(string s)
+    {
+        var ok = DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
+        return (ok, ok ? null : "this is not a valid date");
+    }
 
 
     DateTime ConvertDate(string s)
