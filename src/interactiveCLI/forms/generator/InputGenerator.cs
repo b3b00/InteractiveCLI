@@ -33,17 +33,17 @@ public class InputGenerator
         return ask;
     }
 
-    public static string GenerateMethod(MethodDeclarationSyntax inputMethod, string argument = "string",bool withArgument = true)
+    public static string GenerateMethod(string methodName, string argument = "string",bool withArgument = true)
     {
-        if (inputMethod == null)
+        if (string.IsNullOrEmpty(methodName))
         {
             return "null";
         }
 
         if (withArgument)
         {
-            return $"({argument} s) => {inputMethod.Identifier.ValueText}(s)";
+            return $"({argument} s) => {methodName}(s)";
         }
-        return $"() => {inputMethod.Identifier.ValueText}()";
+        return $"() => {methodName}()";
     }
 }

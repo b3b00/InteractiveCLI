@@ -173,22 +173,21 @@ public partial class {className} {{
                         int index = inputAttribute.GetNthIntArg(0);
                         input.Index = index;
                     }
-                }
-            }
-
-            if (member is MethodDeclarationSyntax methodDeclarationSyntax)
-            {
-                SetMethod("Validator", methodDeclarationSyntax, getInputOrCreateNew,
-                    (input, method) => input.Validator = methodDeclarationSyntax);
-
-                SetMethod("Converter", methodDeclarationSyntax, getInputOrCreateNew,
-                    (input, method) => input.Converter = methodDeclarationSyntax);
-
-                SetMethod("DataSource", methodDeclarationSyntax, getInputOrCreateNew,
-                    (input, method) => input.DataSource = methodDeclarationSyntax);
                 
-                SetMethod("CharValidator", methodDeclarationSyntax, getInputOrCreateNew,
-                    (input, method) => input.CharValidator = methodDeclarationSyntax);
+
+           
+                SetMethod("Validator", propertyDeclarationSyntax, getInputOrCreateNew,
+                    (method) => input.Validator = method);
+
+                SetMethod("Converter", propertyDeclarationSyntax, getInputOrCreateNew,
+                    (method) => input.Converter = method);
+
+                SetMethod("DataSource", propertyDeclarationSyntax, getInputOrCreateNew,
+                    (method) => input.DataSource = method);
+                
+                SetMethod("CharValidator", propertyDeclarationSyntax, getInputOrCreateNew,
+                    ( method) => input.CharValidator = method);
+                }
             }
         }
 
@@ -198,20 +197,17 @@ public partial class {className} {{
 
     }
 
-    private static void SetMethod(string attributeName, MethodDeclarationSyntax methodDeclarationSyntax,
-        Func<string, Input> getInputOrCreateNew, Action<Input, MethodDeclarationSyntax> setter)
+    private static void SetMethod(string attributeName, PropertyDeclarationSyntax propertyDeclarationSyntax,
+        Func<string, Input> getInputOrCreateNew, Action<string> setter)
     {
-        var dataSourceAttribute = methodDeclarationSyntax.GetAttribute(attributeName);
-        if (dataSourceAttribute != null)
+        var callbackAttribute = propertyDeclarationSyntax.GetAttribute(attributeName);
+        if (callbackAttribute != null)
         {
-            var name = dataSourceAttribute.GetNthStringArg(0);
+            var name = callbackAttribute.GetNthStringArg(0);
+            
             if (!string.IsNullOrEmpty(name))
             {
-                var input = getInputOrCreateNew(name);
-                if (input != null)
-                {
-                    setter(input, methodDeclarationSyntax);
-                }
+                    setter(name);
             }
         }
     }

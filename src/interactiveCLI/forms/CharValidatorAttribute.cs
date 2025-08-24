@@ -1,10 +1,10 @@
-namespace interactiveCLI.forms;
+﻿namespace interactiveCLI.forms;
 
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-public class ConverterAttribute : Attribute
+public class CharValidatorAttribute : Attribute
 {
     public string Name { get; set; } 
-    public ConverterAttribute(string name)
+    public CharValidatorAttribute(string name)
     {
         Name = name;
     }

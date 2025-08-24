@@ -1,6 +1,6 @@
 namespace interactiveCLI.forms;
 
-[AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
 public class DataSourceAttribute : Attribute
 {
     public string Name { get; set; } 
