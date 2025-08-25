@@ -22,6 +22,19 @@ public static class Extensions
         return null;
     }
     
+    public static IEnumerable<AttributeSyntax> GetAttributes(this MemberDeclarationSyntax memberDeclarationSyntax, string attributeName)
+    {
+        var attributes = memberDeclarationSyntax.AttributeLists.SelectMany(x =>
+            x.Attributes.Where(x => x.Name.ToString() == attributeName));
+
+        if (attributes.Any())
+        {
+            return attributes;
+        }
+        
+        return null;
+    }
+    
     public static string GetNthStringArg(this AttributeSyntax attributeSyntax, int nth)
     {
         var arguments = attributeSyntax?.ArgumentList?.Arguments;

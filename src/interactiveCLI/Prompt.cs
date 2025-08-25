@@ -188,7 +188,7 @@ public class Prompt
 
     public Result<T> Ask<T>(string label, string pattern = null,string[] possibleValues = null, Func<string,(bool ok, string errorMessage)>? validator = null,
         Func<string, T>? converter = null, Func<string[]> dataSource = null, Predicate<(int, char)>? charValidator = null,
-        Func<bool> condition=null)
+        Func<bool> condition=null, params Action<T>[] callbacks)
     {
         if (condition != null && !condition())
         {
@@ -259,8 +259,17 @@ public class Prompt
                     {
                         if (typeConverter != null)
                         {
+                            T convertedValue = (T)typeConverter.ConvertFrom(input);
+                            if (callbacks != null && callbacks.Length > 0)
+                            {
+                                foreach (var callback in callbacks)
+                                {
+                                    callback(convertedValue);
+                                }
+                            }
+                            
                             return new Result<T>()
-                                { Ok = true, Value = (T)typeConverter.ConvertFrom(input) };
+                                { Ok = true, Value = convertedValue };
                         }
                     }
                     catch
@@ -372,7 +381,7 @@ public class Prompt
         return false;
     }
 
-    public Result<string> AskPassword(string label, char hiddenChar = '*', Func<bool> condition = null)
+    public Result<string> AskPassword(string label, char hiddenChar = '*', Func<bool> condition = null, params Action<string>[] callbacks)
     {
         if (condition != null && !condition())
         {
@@ -403,6 +412,14 @@ public class Prompt
             {
                 password.Append(key.KeyChar);
                 Console.Write(hiddenChar);
+            }
+        }
+
+        if (callbacks != null && callbacks.Length > 0)
+        {
+            foreach (var callback in callbacks)
+            {
+                callback(password.ToString());
             }
         }
 

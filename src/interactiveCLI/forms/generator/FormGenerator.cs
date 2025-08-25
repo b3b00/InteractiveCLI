@@ -42,7 +42,7 @@ public class FormGenerator : IIncrementalGenerator
                     return classDeclaration;
                 }
             );
-        
+
         context.RegisterSourceOutput(calculatorClassesProvider,
             (sourceProductionContext, calculatorClass) => Execute(calculatorClass, sourceProductionContext));
     }
@@ -62,15 +62,16 @@ public class FormGenerator : IIncrementalGenerator
         {
             invalidInputMessage = formAttribute.GetNthStringArg(0);
         }
-        
+
         var inputs = GetInputs(formClass);
 
         var className = formClass.Identifier.Text;
         //The previous Descendent Node check has been removed as it was only intended to help produce the error seen in logging
-        BaseNamespaceDeclarationSyntax? formNamespace = formClass.Ancestors().OfType<NamespaceDeclarationSyntax>().FirstOrDefault();
+        BaseNamespaceDeclarationSyntax? formNamespace =
+            formClass.Ancestors().OfType<NamespaceDeclarationSyntax>().FirstOrDefault();
         formNamespace ??= formClass.Ancestors().OfType<FileScopedNamespaceDeclarationSyntax>().FirstOrDefault();
-            
-        if(formNamespace is null)
+
+        if (formNamespace is null)
         {
             context.ReportDiagnostic(Diagnostic.Create(
                 new DiagnosticDescriptor(
@@ -81,12 +82,12 @@ public class FormGenerator : IIncrementalGenerator
                     DiagnosticSeverity.Error,
                     true), formClass.GetLocation(), formClass.Identifier.Text));
         }
-        
+
         var isPartial =
             formClass.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
-        
+
         // GeneratorLogging.LogMessage($"{className} {(isPartial ? "is" : "is not")} partial");
-        
+
         if (!isPartial)
         {
             context.ReportDiagnostic(Diagnostic.Create(
@@ -115,7 +116,7 @@ public partial class {className} {{
    
         Prompt prompt = new Prompt({invalidError});
         ";
-        
+
         foreach (Input input in inputs)
         {
             var inputSourceCode = InputGenerator.Generate(input);
@@ -188,9 +189,11 @@ public partial class {className} {{
 
                     SetMethod("CharValidator", propertyDeclarationSyntax, getInputOrCreateNew,
                         (method) => input.CharValidator = method);
-                    
+
                     SetMethod("Condition", propertyDeclarationSyntax, getInputOrCreateNew,
                         (method) => input.Condition = method);
+
+                    SetGenericCallbacks(propertyDeclarationSyntax, getInputOrCreateNew, input);
                 }
             }
         }
@@ -208,14 +211,28 @@ public partial class {className} {{
         if (callbackAttribute != null)
         {
             var name = callbackAttribute.GetNthStringArg(0);
-            
+
             if (!string.IsNullOrEmpty(name))
             {
-                    setter(name);
+                setter(name);
             }
         }
     }
+
+    private static void SetGenericCallbacks(PropertyDeclarationSyntax propertyDeclarationSyntax,
+        Func<string, Input> getInputOrCreateNew, Input input)
+    {
+        var callbackAttributes = propertyDeclarationSyntax.GetAttributes("Callback");
+        if (callbackAttributes != null && callbackAttributes.Any())
+        {
+            var callbacks = callbackAttributes.Select(x => x.GetNthStringArg(0)).ToArray();
+
+            input.Callbacks = callbacks;
+        }
+    }
+
 }
+
 
 
     

@@ -24,6 +24,8 @@ public class Input
     
     public string Condition {get; set;}
     
+    public string[] Callbacks { get; set; }
+    
     public AttributeSyntax InputAttribute { get; set; }
     public int Index { get; set; }
 

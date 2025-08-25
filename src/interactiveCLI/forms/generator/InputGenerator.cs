@@ -19,6 +19,16 @@ public class InputGenerator
         string dataSource = GenerateMethod(input.DataSource,withArgument:false);
         string charValidator = GenerateMethod(input.CharValidator,argument:"(int position, char c)");
         string condition = GenerateMethod(input.Condition,withArgument:false);
+        string callbacks = null;
+        if (input.Callbacks != null && input.Callbacks.Length > 0)
+        {
+            callbacks = string.Join(", ", input.Callbacks.Select(x => $@"(string s) => {x}(s)"));
+        }
+        else
+        {
+            callbacks = "null";
+        }
+        
         string type = input.Field.Type.ToString();
         if (type == "bool" | type == "Boolean" 
             && (string.IsNullOrEmpty(validator) && string.IsNullOrEmpty(converter) && string.IsNullOrEmpty(charValidator)))
@@ -35,7 +45,7 @@ public class InputGenerator
             var hide = input.InputAttribute.GetNthCharArg(0);
             ask = $@"
 
-    var {input.Name}Result = prompt.AskPassword(""{label}"",hiddenChar:'{(hide.HasValue ? hide.Value : "*")}', condition:{condition});
+    var {input.Name}Result = prompt.AskPassword(""{label}"",hiddenChar:'{(hide.HasValue ? hide.Value : "*")}', condition:{condition}, callbacks:new Action<string>[] {{ {callbacks} }});
     if ({input.Name}Result.IsApplicable) {{
         {input.Name} = {input.Name}Result.Value;
     }}
@@ -44,7 +54,7 @@ public class InputGenerator
         else
         {
             ask = $@"
-    var {input.Name}Result = prompt.Ask<{type}>(""{label}"",pattern:{pattern},possibleValues:{possibleValues}, validator:{validator},converter:{converter},dataSource:{dataSource}, charValidator:{charValidator}, condition:{condition});
+    var {input.Name}Result = prompt.Ask<{type}>(""{label}"",pattern:{pattern},possibleValues:{possibleValues}, validator:{validator},converter:{converter},dataSource:{dataSource}, charValidator:{charValidator}, condition:{condition}, callbacks:{callbacks});
     if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
         {input.Name} = {input.Name}Result.Value;
     }}
