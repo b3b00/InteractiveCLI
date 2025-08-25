@@ -10,6 +10,8 @@ public class Result<T>
     public T Value { get; set; }
 
     public bool Ok { get; set; }
+    
+    public bool IsApplicable { get; set; }
 }
 
 public class Prompt
@@ -185,10 +187,15 @@ public class Prompt
     }
 
     public Result<T> Ask<T>(string label, string pattern = null,string[] possibleValues = null, Func<string,(bool ok, string errorMessage)>? validator = null,
-        Func<string, T>? converter = null, Func<string[]> dataSource = null, Predicate<(int, char)>? charValidator = null)
+        Func<string, T>? converter = null, Func<string[]> dataSource = null, Predicate<(int, char)>? charValidator = null,
+        Func<bool> condition=null)
     {
+        if (condition != null && !condition())
+        {
+            return new  Result<T> { IsApplicable = false };
+        } 
+        
         while (true)
-            
         {
             Console.Write(label);
             string input = null;

@@ -18,6 +18,7 @@ public class InputGenerator
         string converter = GenerateMethod(input.Converter);
         string dataSource = GenerateMethod(input.DataSource,withArgument:false);
         string charValidator = GenerateMethod(input.CharValidator,argument:"(int position, char c)");
+        string condition = GenerateMethod(input.Condition);
         string type = input.Field.Type.ToString();
         if (type == "bool" | type == "Boolean" 
             && (string.IsNullOrEmpty(validator) && string.IsNullOrEmpty(converter) && string.IsNullOrEmpty(charValidator)))
@@ -41,7 +42,7 @@ public class InputGenerator
         {
             ask = $@"
     var {input.Name}Result = prompt.Ask<{type}>(""{label}"",pattern:{pattern},possibleValues:{possibleValues}, validator:{validator},converter:{converter},dataSource:{dataSource}, charValidator:{charValidator});
-    if ({input.Name}Result.Ok) {{
+    if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
         {input.Name} = {input.Name}Result.Value;
     }}
 ";
