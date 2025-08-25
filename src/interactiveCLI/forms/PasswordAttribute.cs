@@ -2,7 +2,10 @@
 
 public class PasswordAttribute : InputAttribute
 {
-    public PasswordAttribute(string label, int index = -1) : base(label, index:index)
+    private char HiddenChar { get; set; }
+    
+    public PasswordAttribute(string label, char hiddenChar = '*', int index = -1) : base(label, index:index)
     {
+        HiddenChar = hiddenChar;
     }
 }

@@ -31,8 +31,9 @@ public class InputGenerator
         string ask = "";
         if (input.IsPasword)
         {
+            var hide = input.InputAttribute.GetNthCharArg(0);
             ask = $@"
-    var {input.Name}Result = prompt.AskPassword(""{label}"");
+    var {input.Name}Result = prompt.AskPassword(""{label}"",'{(hide.HasValue ? hide.Value : "*")}');
     {input.Name} = {input.Name}Result;
 ";
         }

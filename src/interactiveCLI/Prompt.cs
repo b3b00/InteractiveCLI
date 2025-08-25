@@ -365,7 +365,7 @@ public class Prompt
         return false;
     }
 
-    public string? AskPassword(string label)
+    public string? AskPassword(string label, char hiddenChar = '*')
     {
         Console.Write(label);
         var password = new StringBuilder();
@@ -388,7 +388,7 @@ public class Prompt
             else if (!char.IsControl(key.KeyChar))
             {
                 password.Append(key.KeyChar);
-                Console.Write("*");
+                Console.Write(hiddenChar);
             }
         }
 

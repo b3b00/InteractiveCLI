@@ -94,6 +94,32 @@ public static class Extensions
         }
         return -1;
     }
+    
+    public static char? GetNthCharArg(this AttributeSyntax attributeSyntax, int nth)
+    {
+        var arguments = attributeSyntax?.ArgumentList?.Arguments;
+        if (arguments.HasValue)
+        {
+            var expressions = arguments.Value.GetAttributeArgumentExpressions();
+            Predicate<ExpressionSyntax> isCharLiteral = expr =>
+            {
+                return expr is LiteralExpressionSyntax s && s.Kind() == SyntaxKind.CharacterLiteralExpression;
+            };
+            
+            
+
+            var charExpressions = expressions.Where(x => isCharLiteral(x)).ToList();
+            if (charExpressions != null && charExpressions.Any() && charExpressions.Count >= nth + 1)
+            {
+                var nthArg = charExpressions[nth];
+                if (nthArg is LiteralExpressionSyntax literal)
+                {
+                    return literal.Token.ValueText[0];
+                }
+            }
+        }
+        return null;
+    }
 
     public static List<ExpressionSyntax> GetAttributeArgumentExpressions(
         this SeparatedSyntaxList<AttributeArgumentSyntax> attributesArgs)

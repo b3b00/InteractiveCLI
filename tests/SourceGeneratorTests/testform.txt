@@ -18,7 +18,7 @@ public partial class TestForm
     [Converter(nameof(YesOrNoConverter))]
     public Boolean YesOrNo { get; set; }
     
-    [Password("password : ", index:3)]
+    [Password("password : ", hiddenChar:'%',index:3)]
     public string Password { get; set; }
     
     public (bool ok,string errorMessage) YesOrNoValidation(string v)
