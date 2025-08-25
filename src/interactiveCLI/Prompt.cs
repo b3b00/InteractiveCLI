@@ -204,6 +204,10 @@ public class Prompt
             {
                 input = AskText(label,validator,pattern,charValidator:charValidator);
             }
+            else if (typeof(T) == typeof(bool) || typeof(T) == typeof(Boolean))
+            {
+                input = Check<T>(label, validator);
+            }
             else
             {
                 input = Console.ReadLine();
@@ -261,6 +265,27 @@ public class Prompt
             Console.Error.WriteLine(errorMessage ?? (InvalidInputMessage ?? "Invalid answer."));
             //return new Result<T>() { Ok = false };
         }
+    }
+
+    private string Check<T>(string label, Func<string, (bool ok, string errorMessage)>? validator)
+    {
+        bool isChecked = false;
+        var position = Console.GetCursorPosition();
+        Console.Write(" ❎");
+        var key = Console.ReadKey(true);
+        while (key.Key !=  ConsoleKey.Enter)
+        {
+            if (key.Key == ConsoleKey.Spacebar)
+            {
+                isChecked = !isChecked;
+                Console.SetCursorPosition(position.Left, position.Top);
+                //Console.Write(" ");
+                Console.Write(isChecked ? " ✅":" ❎");
+                key = Console.ReadKey(true);
+            }
+        }
+        Console.WriteLine();
+        return isChecked.ToString();
     }
 
     public double AskDouble(string label, Func<string,(bool ok, string errorMessage)>? validator = null)
