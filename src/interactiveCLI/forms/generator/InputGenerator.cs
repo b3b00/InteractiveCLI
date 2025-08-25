@@ -19,6 +19,10 @@ public class InputGenerator
         string dataSource = GenerateMethod(input.DataSource,withArgument:false);
         string charValidator = GenerateMethod(input.CharValidator,argument:"(int position, char c)");
         string type = input.Field.Type.ToString();
+        if (type == "bool" | type == "Boolean")
+        {
+            converter = @"(s) => s == true.ToString()";
+        }
         string label = input.InputAttribute.GetNthStringArg(0);
         string pattern = input.InputAttribute.GetNthStringArg(1);
         pattern = !string.IsNullOrEmpty(pattern) ? $"\"{pattern}\"" : "null";
