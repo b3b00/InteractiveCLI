@@ -163,30 +163,31 @@ public partial class {className} {{
             {
                 var name = propertyDeclarationSyntax.Identifier.ToString();
                 var inputAttribute = propertyDeclarationSyntax.GetAttribute("Input");
-                if (inputAttribute != null)
+                var passwordAttribute = propertyDeclarationSyntax.GetAttribute("Password");
+                if (inputAttribute != null || passwordAttribute != null)
                 {
                     var input = getInputOrCreateNew(name);
                     if (input != null)
                     {
                         input.Field = propertyDeclarationSyntax;
-                        input.InputAttribute = inputAttribute;
-                        int index = inputAttribute.GetNthIntArg(0);
+                        input.InputAttribute = inputAttribute ?? passwordAttribute;
+                        int index = input.InputAttribute.GetNthIntArg(0);
                         input.Index = index;
                     }
-                
 
-           
-                SetMethod("Validator", propertyDeclarationSyntax, getInputOrCreateNew,
-                    (method) => input.Validator = method);
+                    input.IsPasword = inputAttribute == null && passwordAttribute != null;
 
-                SetMethod("Converter", propertyDeclarationSyntax, getInputOrCreateNew,
-                    (method) => input.Converter = method);
+                    SetMethod("Validator", propertyDeclarationSyntax, getInputOrCreateNew,
+                        (method) => input.Validator = method);
 
-                SetMethod("DataSource", propertyDeclarationSyntax, getInputOrCreateNew,
-                    (method) => input.DataSource = method);
-                
-                SetMethod("CharValidator", propertyDeclarationSyntax, getInputOrCreateNew,
-                    ( method) => input.CharValidator = method);
+                    SetMethod("Converter", propertyDeclarationSyntax, getInputOrCreateNew,
+                        (method) => input.Converter = method);
+
+                    SetMethod("DataSource", propertyDeclarationSyntax, getInputOrCreateNew,
+                        (method) => input.DataSource = method);
+
+                    SetMethod("CharValidator", propertyDeclarationSyntax, getInputOrCreateNew,
+                        (method) => input.CharValidator = method);
                 }
             }
         }

@@ -10,6 +10,8 @@ public class Input
 
     public string Pattern { get; set; }
     
+    public bool IsPasword { get; set; }
+    
     public PropertyDeclarationSyntax Field { get; set; }
     
     public string Validator { get; set; }

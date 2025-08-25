@@ -18,6 +18,9 @@ public partial class TestForm
     [Converter(nameof(YesOrNoConverter))]
     public Boolean YesOrNo { get; set; }
     
+    [Password("password : ", index:3)]
+    public string Password { get; set; }
+    
     public (bool ok,string errorMessage) YesOrNoValidation(string v)
     {
         var ok = v == "yes" || v == "no" || v == "y" || v == "n";
@@ -79,6 +82,7 @@ public partial class TestForm
             .Append("check = ").AppendLine(CheckBool.ToString())
             .Append("check Boolean = ").AppendLine(CheckBoolean.ToString())
             .Append("ok ? = ").AppendLine(YesOrNo.ToString())
+            .Append("Password : ").AppendLine(Password)
             .Append("fruit = ").AppendLine(SelectMe)
             .Append("birth = ").AppendLine(BirthDay.ToString("f"));
         return b.ToString();

@@ -27,14 +27,25 @@ public class InputGenerator
         string label = input.InputAttribute.GetNthStringArg(0);
         string pattern = input.InputAttribute.GetNthStringArg(1);
         pattern = !string.IsNullOrEmpty(pattern) ? $"\"{pattern}\"" : "null";
-        
-        var ask = $@"
+
+        string ask = "";
+        if (input.IsPasword)
+        {
+            ask = $@"
+    var {input.Name}Result = prompt.AskPassword(""{label}"");
+    {input.Name} = {input.Name}Result;
+";
+        }
+        else
+        {
+            ask = $@"
     var {input.Name}Result = prompt.Ask<{type}>(""{label}"",pattern:{pattern},possibleValues:{possibleValues}, validator:{validator},converter:{converter},dataSource:{dataSource}, charValidator:{charValidator});
     if ({input.Name}Result.Ok) {{
         {input.Name} = {input.Name}Result.Value;
     }}
 ";
-        
+        }
+
         return ask;
     }
 
