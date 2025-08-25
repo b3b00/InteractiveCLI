@@ -40,4 +40,38 @@ jobs:
           NUGET_KEY: ${{secrets.NUGET_KEY}}
           VERSION_FILE_PATH: ${{env.MAIN_CSPROJ}}
           INCLUDE_SYMBOLS: true
+    - name: Create Release
+      if: ${{ success() && matrix.os == 'windows-latest' && steps.publish_nuget.outputs.VERSION != ''  && steps.publish_nuget.outputs.VERSION != null }}
+      id: create_release
+      uses: b3b00/create-release@1.0.7
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
+      with:
+        tag_name: ${{ steps.publish_nuget.outputs.VERSION }}
+        release_name: Release ${{ steps.publish_nuget.outputs.VERSION }}
+        draft: false
+        prerelease: false
+        failsOnCreationError: false
+    - name: Upload Release nuget Asset
+      if: ${{ success() && matrix.os == 'windows-latest' && steps.create_release.outputs.upload_url != ''  && steps.create_release.outputs.upload_url != null }}
+      id: upload-release-nuget-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ steps.publish_nuget.outputs.PACKAGE_PATH }}
+        asset_name: ${{ steps.publish_nuget.outputs.PACKAGE_NAME }}
+        asset_content_type: application/zip
+    - name: Upload Release symbols nuget Asset
+      if: ${{ success() && matrix.os == 'windows-latest' && steps.create_release.outputs.upload_url != ''  && steps.create_release.outputs.upload_url != null }}
+      id: upload-release-nuget-symbols-asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_PAT }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ steps.publish_nuget.outputs.SYMBOLS_PACKAGE_PATH }}
+        asset_name: ${{ steps.publish_nuget.outputs.SYMBOLS_PACKAGE_NAME }}
+        asset_content_type: application/zip
 
