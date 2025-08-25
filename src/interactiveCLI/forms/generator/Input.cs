@@ -22,6 +22,8 @@ public class Input
     
     public string CharValidator {get; set;}
     
+    public string Condition {get; set;}
+    
     public AttributeSyntax InputAttribute { get; set; }
     public int Index { get; set; }
 

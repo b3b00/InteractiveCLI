@@ -18,6 +18,7 @@ public class InputGenerator
         string converter = GenerateMethod(input.Converter);
         string dataSource = GenerateMethod(input.DataSource,withArgument:false);
         string charValidator = GenerateMethod(input.CharValidator,argument:"(int position, char c)");
+        string condition = GenerateMethod(input.Condition,withArgument:false);
         string type = input.Field.Type.ToString();
         if (type == "bool" | type == "Boolean" 
             && (string.IsNullOrEmpty(validator) && string.IsNullOrEmpty(converter) && string.IsNullOrEmpty(charValidator)))
@@ -33,15 +34,18 @@ public class InputGenerator
         {
             var hide = input.InputAttribute.GetNthCharArg(0);
             ask = $@"
-    var {input.Name}Result = prompt.AskPassword(""{label}"",'{(hide.HasValue ? hide.Value : "*")}');
-    {input.Name} = {input.Name}Result;
+
+    var {input.Name}Result = prompt.AskPassword(""{label}"",hiddenChar:'{(hide.HasValue ? hide.Value : "*")}', condition:{condition});
+    if ({input.Name}Result.IsApplicable) {{
+        {input.Name} = {input.Name}Result.Value;
+    }}
 ";
         }
         else
         {
             ask = $@"
-    var {input.Name}Result = prompt.Ask<{type}>(""{label}"",pattern:{pattern},possibleValues:{possibleValues}, validator:{validator},converter:{converter},dataSource:{dataSource}, charValidator:{charValidator});
-    if ({input.Name}Result.Ok) {{
+    var {input.Name}Result = prompt.Ask<{type}>(""{label}"",pattern:{pattern},possibleValues:{possibleValues}, validator:{validator},converter:{converter},dataSource:{dataSource}, charValidator:{charValidator}, condition:{condition});
+    if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
         {input.Name} = {input.Name}Result.Value;
     }}
 ";

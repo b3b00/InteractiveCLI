@@ -188,6 +188,9 @@ public partial class {className} {{
 
                     SetMethod("CharValidator", propertyDeclarationSyntax, getInputOrCreateNew,
                         (method) => input.CharValidator = method);
+                    
+                    SetMethod("Condition", propertyDeclarationSyntax, getInputOrCreateNew,
+                        (method) => input.Condition = method);
                 }
             }
         }
