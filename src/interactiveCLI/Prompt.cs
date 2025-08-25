@@ -10,8 +10,8 @@ public class Result<T>
     public T Value { get; set; }
 
     public bool Ok { get; set; }
-    
-    public bool IsApplicable { get; set; }
+
+    public bool IsApplicable { get; set; } = true;
 }
 
 public class Prompt
@@ -372,8 +372,15 @@ public class Prompt
         return false;
     }
 
-    public string? AskPassword(string label, char hiddenChar = '*')
+    public Result<string> AskPassword(string label, char hiddenChar = '*', Func<bool> condition = null)
     {
+        if (condition != null && !condition())
+        {
+            return new Result<string>()
+            {
+                IsApplicable = false
+            };
+        }
         Console.Write(label);
         var password = new StringBuilder();
         while (true)
@@ -399,7 +406,11 @@ public class Prompt
             }
         }
 
-        return password.ToString();
+        return new Result<string>()
+        {
+            Value = password.ToString(),
+            IsApplicable = true
+        };
     }
 
     public string? Select(string label, Func<string, bool, string> formatter = null, string[] choices = null)
