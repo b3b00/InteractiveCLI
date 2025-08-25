@@ -204,7 +204,8 @@ public class Prompt
             {
                 input = AskText(label,validator,pattern,charValidator:charValidator);
             }
-            else if (typeof(T) == typeof(bool) || typeof(T) == typeof(Boolean))
+            else if ((typeof(T) == typeof(bool) || typeof(T) == typeof(Boolean)) 
+                     && (charValidator == null && validator == null && converter == null))
             {
                 input = Check<T>(label, validator);
             }
