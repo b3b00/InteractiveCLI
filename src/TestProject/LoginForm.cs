@@ -22,8 +22,19 @@ public partial class LoginForm
     
     public bool IsNotAnonymous() =>  !this.Anonymous;
 
-    public bool ValidatePassword(string password) => password == Login;
+    public (bool ok, string errorMessage) ValidatePassword(string password)
+    {
+        if (password == Login)
+        {
+            return (true, string.Empty);
+        }
+        else
+        {
+            return (false, $"ERROR ! Invalid password: {password}");
+        }
+    }
 
+    
     public void CompromisePassword(string password)
     {
         Console.WriteLine($"your {password} password is now compromised");

@@ -381,7 +381,7 @@ public class Prompt
         return false;
     }
 
-    public Result<string> AskPassword(string label, char hiddenChar = '*', Func<bool> condition = null, params Action<string>[] callbacks)
+    public Result<string> AskPassword(string label, char hiddenChar = '*', Func<string,(bool ok, string errorMessage)>? validator = null, Func<bool> condition = null, params Action<string>[] callbacks)
     {
         if (condition != null && !condition())
         {
@@ -390,44 +390,76 @@ public class Prompt
                 IsApplicable = false
             };
         }
-        Console.Write(label);
-        var password = new StringBuilder();
+
         while (true)
         {
-            var key = Console.ReadKey(true);
-            if (key.Key == ConsoleKey.Enter)
+            Console.Write(label);
+            var password = new StringBuilder();
+            while (true)
             {
-                Console.WriteLine();
-                break;
-            }
-            else if (key.Key == ConsoleKey.Backspace)
-            {
-                if (password.Length > 0)
+                var key = Console.ReadKey(true);
+                if (key.Key == ConsoleKey.Enter)
                 {
-                    password.Length--;
-                    Console.Write("\b \b");
+                    Console.WriteLine();
+                    break;
+                }
+                else if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (password.Length > 0)
+                    {
+                        password.Length--;
+                        Console.Write("\b \b");
+                    }
+                }
+                else if (!char.IsControl(key.KeyChar))
+                {
+                    password.Append(key.KeyChar);
+                    Console.Write(hiddenChar);
                 }
             }
-            else if (!char.IsControl(key.KeyChar))
+
+            if (callbacks != null && callbacks.Length > 0)
             {
-                password.Append(key.KeyChar);
-                Console.Write(hiddenChar);
+                foreach (var callback in callbacks)
+                {
+                    callback(password.ToString());
+                }
+            }
+
+
+            if (validator != null)
+            {
+                var errorMessage = InvalidInputMessage ?? "Invalid answer.";
+                if (validator != null)
+                {
+                    var validation = validator(password.ToString());
+                    if (validation.ok)
+                    {
+                        return new Result<string>()
+                        {
+                            Ok = true,
+                            Value = password.ToString(),
+                            IsApplicable = true
+                        };
+                    }
+                    else
+                    {
+                        errorMessage = validation.errorMessage ?? errorMessage; 
+                        Console.Error.WriteLine(errorMessage);
+                    }
+                }
+            }
+            else
+            {
+                return new Result<string>()
+                {
+                    Ok = true,
+                    Value = password.ToString(),
+                    IsApplicable = true
+                };
             }
         }
 
-        if (callbacks != null && callbacks.Length > 0)
-        {
-            foreach (var callback in callbacks)
-            {
-                callback(password.ToString());
-            }
-        }
-
-        return new Result<string>()
-        {
-            Value = password.ToString(),
-            IsApplicable = true
-        };
     }
 
     public string? Select(string label, Func<string, bool, string> formatter = null, string[] choices = null)
