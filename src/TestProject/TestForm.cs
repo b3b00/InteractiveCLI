@@ -19,15 +19,21 @@ public partial class TestForm
     public Boolean YesOrNo { get; set; }
     
     [Password("password : ", hiddenChar:'%',index:3)]
+    [Callback(nameof(LeakPassword))]
     public string Password { get; set; }
     
     public (bool ok,string errorMessage) YesOrNoValidation(string v)
     {
         var ok = v == "yes" || v == "no" || v == "y" || v == "n";
         return (ok, ok ? null : "this is not yes or no ! make a choice !!!");
-    } 
+    }
 
 
+    public void LeakPassword(string v)
+    {
+        Console.WriteLine($"your password is {v}");
+    }
+    
     public bool YesOrNoConverter(string v) => v == "yes" || v == "y" ;
 
 

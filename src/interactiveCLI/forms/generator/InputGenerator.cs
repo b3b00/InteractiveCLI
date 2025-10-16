@@ -45,7 +45,7 @@ public class InputGenerator
             var hide = input.InputAttribute.GetNthCharArg(0);
             ask = $@"
 
-    var {input.Name}Result = prompt.AskPassword(""{label}"",hiddenChar:'{(hide.HasValue ? hide.Value : "*")}', validator:{validator}, condition:{condition}, callbacks:new Action<string>[] {{ {callbacks} }});
+    var {input.Name}Result = prompt.AskPassword(""{label}"",hiddenChar:'{(hide.HasValue ? hide.Value : "*")}', validator:{validator}, condition:{condition}, callbacks:{callbacks});
     if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
         {input.Name} = {input.Name}Result.Value;
     }}

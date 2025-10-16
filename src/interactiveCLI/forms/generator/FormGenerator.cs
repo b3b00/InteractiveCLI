@@ -1,51 +1,57 @@
 ﻿using System.Text;
 //using generatorLogging;
 using interactiveCLI.forms;
+using interactiveCLI.forms.generator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace formGenerator;
 
+
+
+
+
+
 [Generator]
-public class FormGenerator : IIncrementalGenerator
+public class FormGenerator : AbstractIncrementalGeneratorForTaggedClasses<FormAttribute>
 {
 
-    private static bool IsForm(ClassDeclarationSyntax classDeclarationSyntax)
-    {
-        foreach (AttributeListSyntax attributeListSyntax in classDeclarationSyntax.AttributeLists)
-        {
-            foreach (AttributeSyntax attributeSyntax in attributeListSyntax.Attributes)
-            {
-                string name = attributeSyntax.Name.ToString();
-                if (name == "Form")
-                {
-                    return true;
-                }
-            }
-        }
+    // private static bool IsForm(ClassDeclarationSyntax classDeclarationSyntax)
+    // {
+    //     foreach (AttributeListSyntax attributeListSyntax in classDeclarationSyntax.AttributeLists)
+    //     {
+    //         foreach (AttributeSyntax attributeSyntax in attributeListSyntax.Attributes)
+    //         {
+    //             string name = attributeSyntax.Name.ToString();
+    //             if (name == "Form")
+    //             {
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //
+    //     return false;
+    // }
 
-        return false;
-    }
-
-    public void Initialize(IncrementalGeneratorInitializationContext context)
-    {
-        IncrementalValuesProvider<ClassDeclarationSyntax> calculatorClassesProvider =
-            context.SyntaxProvider.CreateSyntaxProvider(
-                predicate: (SyntaxNode node, CancellationToken cancelToken) =>
-                {
-                    return node is ClassDeclarationSyntax classDeclarationSyntax && IsForm(classDeclarationSyntax);
-                },
-                transform: (ctx, cancelToken) =>
-                {
-                    var classDeclaration = (ClassDeclarationSyntax)ctx.Node;
-                    return classDeclaration;
-                }
-            );
-
-        context.RegisterSourceOutput(calculatorClassesProvider,
-            (sourceProductionContext, calculatorClass) => Execute(calculatorClass, sourceProductionContext));
-    }
+    // public void Initialize(IncrementalGeneratorInitializationContext context)
+    // {
+    //     IncrementalValuesProvider<ClassDeclarationSyntax> calculatorClassesProvider =
+    //         context.SyntaxProvider.CreateSyntaxProvider(
+    //             predicate: (SyntaxNode node, CancellationToken cancelToken) =>
+    //             {
+    //                 return node is ClassDeclarationSyntax classDeclarationSyntax && IsForm(classDeclarationSyntax);
+    //             },
+    //             transform: (ctx, cancelToken) =>
+    //             {
+    //                 var classDeclaration = (ClassDeclarationSyntax)ctx.Node;
+    //                 return classDeclaration;
+    //             }
+    //         );
+    //
+    //     context.RegisterSourceOutput(calculatorClassesProvider,
+    //         (sourceProductionContext, calculatorClass) => Execute(calculatorClass, sourceProductionContext));
+    // }
 
     /// <summary>
     /// This method is where the real work of the generator is done
@@ -54,7 +60,7 @@ public class FormGenerator : IIncrementalGenerator
     /// </summary>
     /// <param name="formClass"></param>
     /// <param name="context"></param>
-    public void Execute(ClassDeclarationSyntax formClass, SourceProductionContext context)
+    public override void Execute(ClassDeclarationSyntax formClass, SourceProductionContext context)
     {
         string invalidInputMessage = null;
         var formAttribute = formClass.GetAttribute("Form");
