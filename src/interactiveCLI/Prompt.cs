@@ -288,7 +288,7 @@ public class Prompt
     {
         bool isChecked = false;
         var position = Console.GetCursorPosition();
-        Console.Write(" ❎");
+        Console.Write("❌");
         var key = Console.ReadKey(true);
         while (key.Key !=  ConsoleKey.Enter)
         {
@@ -297,7 +297,7 @@ public class Prompt
                 isChecked = !isChecked;
                 Console.SetCursorPosition(position.Left, position.Top);
                 //Console.Write(" ");
-                Console.Write(isChecked ? " ✅":" ❎");
+                Console.Write(isChecked ? "✔️" : "❌");
                 key = Console.ReadKey(true);
             }
         }
