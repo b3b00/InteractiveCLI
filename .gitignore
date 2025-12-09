@@ -59,3 +59,4 @@ GeneratedFiles/
 # VS and rider
 .vs/
 .idea
+debug.txt
