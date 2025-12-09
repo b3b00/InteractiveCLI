@@ -48,10 +48,11 @@ public partial class TestForm
 
     [Input("nom : ", index: 10)] public string Name { get; set; }
 
-    [Input("date :", "__/__/____", 3)]
-    [CharValidator(nameof(IsCharValid))]
-    [Validator(nameof(ValidateDate))]
-    [Converter(nameof(ConvertDate))]
+    [Input("date :", "____-__-__", 3)]
+    [CharValidator(nameof(IsCharValid))]  // limit chars to digits only
+    [Validator(nameof(ValidateDate))] // validate the full date
+    [Converter(nameof(ConvertDate))] // convert string to DateTime
+    [Callback(nameof(DisplayDate))] // display the selected date
     DateTime BirthDay { get; set; }
 
 
@@ -64,19 +65,22 @@ public partial class TestForm
 
     (bool ok, string errorMessage) ValidateDate(string s)
     {
-        var ok = DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
+        var ok = DateTime.TryParseExact(s, "yyyy-MM-dd", null, DateTimeStyles.None, out var d);
         return (ok, ok ? null : "this is not a valid date");
     }
 
 
     DateTime ConvertDate(string s)
     {
-        if (DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d))
+        if (DateTime.TryParseExact(s, "yyyy-MM-dd", null, DateTimeStyles.None, out var d))
         {
             return d;
         }
-
         return DateTime.Now;
+    }
+
+    void DisplayDate(DateTime date)     {
+        Console.WriteLine($"you selected the date {date:f}");
     }
 
     public override string ToString()

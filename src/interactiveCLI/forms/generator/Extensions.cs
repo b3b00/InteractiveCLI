@@ -35,11 +35,32 @@ public static class Extensions
         return null;
     }
     
-    public static string GetNthStringArg(this AttributeSyntax attributeSyntax, int nth)
+    public static string GetNthStringArg(this AttributeSyntax attributeSyntax,  int nth, string name=null)
     {
         var arguments = attributeSyntax?.ArgumentList?.Arguments;
         if (arguments.HasValue)
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var byName = arguments.Value.GetAttributeArgumentSyntaxByName(name);
+                if (byName != null)
+                {
+                    var expr = byName.Expression;
+                    if (expr is LiteralExpressionSyntax literal && literal.Kind() == SyntaxKind.StringLiteralExpression)
+                    {
+                        return literal.Token.ValueText;
+                    }
+                    if (expr is InvocationExpressionSyntax invocation)
+                    {
+                        if (invocation.Expression is IdentifierNameSyntax identifier && identifier.ToString() == "nameof")
+                        {
+                            var first = invocation.ArgumentList.Arguments.First();
+                            return first.ToString();
+                        }
+                    }
+                }
+            }
+
             var expressions = arguments.Value.GetAttributeArgumentExpressions();
             Predicate<ExpressionSyntax> isStringLiteral = expr =>
             {
@@ -82,19 +103,22 @@ public static class Extensions
         return null;
     }
     
-    public static int GetNthIntArg(this AttributeSyntax attributeSyntax, string name, int nth)
+    public static int GetNthIntArg(this AttributeSyntax attributeSyntax, int nth, string name = null)
     {
         var arguments = attributeSyntax?.ArgumentList?.Arguments;
         if (arguments.HasValue)
         {
 
-            var byName = arguments.Value.GetAttributeArgumentSyntaxByName(name);
-            if (byName != null)
+            if (!string.IsNullOrEmpty(name))
             {
-                var expr = byName.Expression;
-                if (expr is LiteralExpressionSyntax literal && literal.Kind() == SyntaxKind.NumericLiteralExpression)
+                var byName = arguments.Value.GetAttributeArgumentSyntaxByName(name);
+                if (byName != null)
                 {
-                    return int.Parse(literal.Token.ValueText);
+                    var expr = byName.Expression;
+                    if (expr is LiteralExpressionSyntax literal && literal.Kind() == SyntaxKind.NumericLiteralExpression)
+                    {
+                        return int.Parse(literal.Token.ValueText);
+                    }
                 }
             }
 
@@ -122,11 +146,24 @@ public static class Extensions
         return -1;
     }
     
-    public static char? GetNthCharArg(this AttributeSyntax attributeSyntax, int nth)
+    public static char? GetNthCharArg(this AttributeSyntax attributeSyntax, int nth, string name = null)
     {
         var arguments = attributeSyntax?.ArgumentList?.Arguments;
         if (arguments.HasValue)
         {
+            if (!string.IsNullOrEmpty(name))
+            {
+                var byName = arguments.Value.GetAttributeArgumentSyntaxByName(name);
+                if (byName != null)
+                {
+                    var expr = byName.Expression;
+                    if (expr is LiteralExpressionSyntax literal && literal.Kind() == SyntaxKind.CharacterLiteralExpression)
+                    {
+                        return literal.Token.ValueText[0];
+                    }
+                }
+            }
+
             var expressions = arguments.Value.GetAttributeArgumentExpressions();
             Predicate<ExpressionSyntax> isCharLiteral = expr =>
             {

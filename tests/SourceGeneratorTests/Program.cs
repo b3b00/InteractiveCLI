@@ -39,6 +39,7 @@ public class Program
             foreach (var tree in trees)
             {
                 Console.WriteLine(tree.ToString());
+                File.WriteAllText("generated_" + Guid.NewGuid().ToString() + ".cs", tree.ToString());
             }
         }
         else

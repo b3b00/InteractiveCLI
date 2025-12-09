@@ -1,4 +1,6 @@
-﻿namespace TestProject;
+﻿using interactiveCLI;
+
+namespace TestProject;
 
 public class Program
 {
@@ -22,6 +24,10 @@ public class Program
     }
     public static void Main(string[] args)
     {
+        Prompt prompt = new Prompt();
+        //var BirthDayResult = prompt.Ask<DateTime>("date :", pattern: "____-__-__", possibleValues: null, validator: (string s) => (true,null), converter: (string s) => DateTime.Now, dataSource: null, charValidator: ((int position, char c) s) => Char.IsDigit(s.c), condition: null, callbacks: (string s) => DisplayDate(s));
+       
+
         Selector selector = new Selector();
         selector.Ask();
         switch (selector.Option)

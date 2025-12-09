@@ -41,10 +41,10 @@ public partial class LoginForm
 
 ### validations and callbacks
 
-Inputs can be added various behavioral attributes:
-- `[Condition("myCondition")]` : defines a Predicate to be used before asking for the input. `myCondition`must be a method of the `Form`class. Only 1 condition can be define for an input. ;
-- `[Callback("myCallback"]` : defines a method to be called after the input has been entered. `myCallback`muts be a method of the `Form`class. many callback may be used for an input;
-- `[Validator("myValidator")]` : defines a method to be called to validate the value. the method mus return a `(bool ok, string errorMessage)` tuple here òk`states if the value is ok and `errorMessage` is an error message to be displayed. `myValidator`muts be a method of the `Form`class. Only 1 validator can be defined for an input.
+Inputs can be attached to various behavioral attributes:
+- `[Condition("myCondition")]` : defines a `Predicate<string>` to be used before asking for the input. `myCondition`must be a method of the `Form`class. Only 1 condition can be define for an input. ;
+- `[Callback("myCallback"]` : defines a method to be called after the input has been entered. It's an `Action<T>` where T is the input type. `myCallback`muts be a method of the `Form`class. many callback may be used for an input;
+- `[Validator("myValidator")]` : defines a method to be called to validate the value. The method is a `Func<string,(bool ok, string errorMessage)>` that returns a `(bool ok, string errorMessage)` tuple where `ok` states if the value is ok and `errorMessage` is an error message to be displayed. `myValidator`muts be a method of the `Form`class. Only 1 validator can be defined for an input.
 
 Keeping the LoginForm we can define the following behavioral changes : 
 
@@ -101,6 +101,59 @@ public void SayHello(string login)
 ### input types
 
 #### basic inputs
+
+**char validators**
+
+You can limit possible character using a `[Charvalidator]`. This is a `Predicate<(int position, char c)>` that returns true if the char is allowed. the parameter is a tuple where first element is the char position in the currently entered value and the second is the entered character.
+
+**converters**
+
+Inputs accept any type as long as you provide a way to convert the input string to the desired type. A converter is a `Func<string,T>` where T is the inpuut type. 
+
+
+**pattern**
+a A pattern can be define to frorce input to a specific format. a format uses `_` as place for any char. Other chars are constant. For instance we can define the date pattern `____-__-__` to enter the date `2025-01-01`.
+Then the strig can be safely converted using a converter (see above)
+
+Here is an example of a `DateTime`  input :
+
+```csharp
+ [Input("date :", "____-__-__", 3)]
+ [CharValidator(nameof(IsCharValid))]  // limit chars to digits only
+ [Validator(nameof(ValidateDate))] // validate the full date
+ [Converter(nameof(ConvertDate))] // convert string to DateTime
+ [Callback(nameof(DisplayDate))] // display the selected date
+ DateTime BirthDay { get; set; }
+
+
+ public bool IsCharValid((int position, char c) t)
+ {
+     var isDigit = char.IsDigit(t.c);
+     return isDigit;
+ }
+
+
+ (bool ok, string errorMessage) ValidateDate(string s)
+ {
+     var ok = DateTime.TryParseExact(s, "yyyy-MM-dd", null, DateTimeStyles.None, out var d);
+     return (ok, ok ? null : "this is not a valid date");
+ }
+
+
+ DateTime ConvertDate(string s)
+ {
+     if (DateTime.TryParseExact(s, "yyyy-MM-dd", null, DateTimeStyles.None, out var d))
+     {
+         return d;
+     }
+     return DateTime.Now;
+ }
+
+ void DisplayDate(DateTime date)     {
+     Console.WriteLine($"you selected the date {date:f}");
+ }
+```
+
 
 > TODO : pattern, char validator, converter ....
 

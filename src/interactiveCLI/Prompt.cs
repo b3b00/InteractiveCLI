@@ -26,7 +26,7 @@ public class Prompt
     public string AskText(string label, Func<string,(bool ok, string errorMessage)> validator = null, string pattern = null,
         Predicate<(int, char)>? charValidator = null)
     {
-        Console.WriteLine(label);
+        Console.WriteLine();
         string answer = null;
         if (!string.IsNullOrWhiteSpace(pattern) && pattern.Contains("_"))
         {
