@@ -11,6 +11,6 @@ public partial class Selector
 
 
     public string[] options() => new string[] {
-        "test", "login"
+        "test", "login", "multi"
     };
 }

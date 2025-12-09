@@ -469,6 +469,122 @@ public class Prompt
         return choice;
     }
 
+    /// <summary>
+    /// Prompts the user for multi-line text input, similar to an HTML textarea.
+    /// Press Enter to create new lines, and Ctrl+Enter or Escape to finish input.
+    /// </summary>
+    /// <param name="label">The prompt label to display</param>
+    /// <param name="validator">Optional validator function</param>
+    /// <param name="maxLines">Maximum number of lines allowed (0 for unlimited)</param>
+    /// <param name="finishKey">Key combination to finish input (default: Ctrl+Enter)</param>
+    /// <returns>The multi-line text input</returns>
+    public Result<string> AskMultiLineText(string label, Func<string, (bool ok, string errorMessage)> validator = null,
+        int maxLines = 0, ConsoleKey finishKey = ConsoleKey.Enter)
+    {
+        while (true)
+        {
+            Console.WriteLine(label);
+            Console.WriteLine("(Press Ctrl+Enter to finish, Escape to cancel)");
+
+            var lines = new List<string>();
+            var currentLine = new StringBuilder();
+            int startTop = Console.CursorTop;
+
+            while (true)
+            {
+                var key = Console.ReadKey(true);
+
+                // Finish input with Ctrl+Enter
+                if (key.Key == finishKey && key.Modifiers == ConsoleModifiers.Control)
+                {
+                    if (currentLine.Length > 0)
+                    {
+                        lines.Add(currentLine.ToString());
+                    }
+                    Console.WriteLine();
+                    break;
+                }
+                // Cancel with Escape
+                else if (key.Key == ConsoleKey.Escape)
+                {
+                    Console.WriteLine();
+                    return new Result<string>()
+                    {
+                        IsApplicable = false,
+                        Ok = false
+                    };
+                }
+                // New line with Enter
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    if (maxLines > 0 && lines.Count >= maxLines - 1)
+                    {
+                        continue; // Don't allow more lines than maxLines
+                    }
+
+                    lines.Add(currentLine.ToString());
+                    currentLine.Clear();
+                    Console.WriteLine();
+                }
+                // Backspace
+                else if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (currentLine.Length > 0)
+                    {
+                        currentLine.Length--;
+                        Console.Write("\b \b");
+                    }
+                    else if (lines.Count > 0)
+                    {
+                        // Move to previous line
+                        currentLine = new StringBuilder(lines[^1]);
+                        lines.RemoveAt(lines.Count - 1);
+                        Console.SetCursorPosition(0, Console.CursorTop - 1);
+                        Console.Write(new string(' ', Console.WindowWidth));
+                        Console.SetCursorPosition(currentLine.Length, Console.CursorTop);
+                        Console.Write(currentLine.ToString());
+                    }
+                }
+                // Regular character input
+                else if (!char.IsControl(key.KeyChar))
+                {
+                    currentLine.Append(key.KeyChar);
+                    Console.Write(key.KeyChar);
+                }
+            }
+
+            var result = string.Join("\n", lines);
+
+            // Validation
+            if (validator != null)
+            {
+                var validation = validator(result);
+                if (validation.ok)
+                {
+                    return new Result<string>()
+                    {
+                        Value = result,
+                        Ok = true,
+                        IsApplicable = true
+                    };
+                }
+                else
+                {
+                    var errorMessage = validation.errorMessage ?? InvalidInputMessage ?? "Invalid input.";
+                    Console.Error.WriteLine(errorMessage);
+                    Console.WriteLine();
+                    return new Result<string>()
+                    {
+                        Ok = false,                        
+                    };
+                    continue;
+                }
+            }
+        }
+    }
+
+
+
     public T AskForm<T>()
     {
         FormBuilder<T> formBuilder = new FormBuilder<T>();

@@ -27,20 +27,27 @@ public class Program
         switch (selector.Option)
         {
             case "test":
-            {
-                Test();
-                break;
-            }
+                {
+                    Test();
+                    break;
+                }
             case "login":
-            {
-                Login();
-                break;
-            }
+                {
+                    Login();
+                    break;
+                }
+            case "multi":
+                {
+                    Multi form = new Multi();
+                    form.Ask();
+                    Console.WriteLine(form.ToString());
+                    break;
+                }
             default:
-            {
-                Console.WriteLine("I don't know what to do....");
-                break;
-            }
+                {
+                    Console.WriteLine($"I don't know what to do with {selector.Option}....");
+                    break;
+                }
         }
     }
 }

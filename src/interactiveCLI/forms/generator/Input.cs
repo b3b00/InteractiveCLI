@@ -28,6 +28,8 @@ public class Input
     
     public AttributeSyntax InputAttribute { get; set; }
     public int Index { get; set; }
+    public bool IsTextArea { get; internal set; }
+    public int MaxLines { get; internal set; }
 
     public Input(string name)
     {

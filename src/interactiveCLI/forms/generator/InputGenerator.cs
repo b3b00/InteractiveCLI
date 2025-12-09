@@ -51,6 +51,15 @@ public class InputGenerator
     }}
 ";
         }
+        else if (input.IsTextArea)
+        {
+            ask = $@"
+    var {input.Name}Result = prompt.AskMultiLineText(""{label}"", maxLines:{input.MaxLines});
+    if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
+        {input.Name} = {input.Name}Result.Value;
+    }}
+";
+        }
         else
         {
             ask = $@"

@@ -7,10 +7,11 @@
         <IsPackable>false</IsPackable>
         <OutputType>Exe</OutputType>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>generated</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
 
-    <ItemGroup>        
-      
+    <ItemGroup>
+      <Compile Remove="generated\**" />
     </ItemGroup>
 
     <ItemGroup>      
