@@ -1,9 +1,4 @@
-InteractiveCLI is a component that helps building interactive console applications. 
-It can be use 2 ways :
- - as a source generator
- - using class and method calls.
-
-## source generator
+InteractiveCLI is a source generator that helps building interactive console applications. 
 
 how to use :
 
