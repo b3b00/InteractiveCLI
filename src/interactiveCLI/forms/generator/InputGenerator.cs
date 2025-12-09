@@ -53,8 +53,13 @@ public class InputGenerator
         }
         else if (input.IsTextArea)
         {
+            if (input.FinishKey == ConsoleKey.None)
+            {
+                input.FinishKey = ConsoleKey.Enter;
+            }
+
             ask = $@"
-    var {input.Name}Result = prompt.AskMultiLineText(""{label}"", maxLines:{input.MaxLines});
+    var {input.Name}Result = prompt.AskMultiLineText(""{label}"", maxLines:{input.MaxLines}, finishKey:ConsoleKey.{input.FinishKey.ToString()});
     if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
         {input.Name} = {input.Name}Result.Value;
     }}

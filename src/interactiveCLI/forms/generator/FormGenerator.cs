@@ -17,41 +17,7 @@ namespace formGenerator;
 public class FormGenerator : AbstractIncrementalGeneratorForTaggedClasses<FormAttribute>
 {
 
-    // private static bool IsForm(ClassDeclarationSyntax classDeclarationSyntax)
-    // {
-    //     foreach (AttributeListSyntax attributeListSyntax in classDeclarationSyntax.AttributeLists)
-    //     {
-    //         foreach (AttributeSyntax attributeSyntax in attributeListSyntax.Attributes)
-    //         {
-    //             string name = attributeSyntax.Name.ToString();
-    //             if (name == "Form")
-    //             {
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //
-    //     return false;
-    // }
-
-    // public void Initialize(IncrementalGeneratorInitializationContext context)
-    // {
-    //     IncrementalValuesProvider<ClassDeclarationSyntax> calculatorClassesProvider =
-    //         context.SyntaxProvider.CreateSyntaxProvider(
-    //             predicate: (SyntaxNode node, CancellationToken cancelToken) =>
-    //             {
-    //                 return node is ClassDeclarationSyntax classDeclarationSyntax && IsForm(classDeclarationSyntax);
-    //             },
-    //             transform: (ctx, cancelToken) =>
-    //             {
-    //                 var classDeclaration = (ClassDeclarationSyntax)ctx.Node;
-    //                 return classDeclaration;
-    //             }
-    //         );
-    //
-    //     context.RegisterSourceOutput(calculatorClassesProvider,
-    //         (sourceProductionContext, calculatorClass) => Execute(calculatorClass, sourceProductionContext));
-    // }
+    
 
     /// <summary>
     /// This method is where the real work of the generator is done
@@ -188,6 +154,27 @@ public partial class {className} {{
                     input.IsPasword = inputAttribute == null && passwordAttribute != null;
                     input.IsTextArea = textAreaAttribute != null;
                     input.MaxLines = textAreaAttribute != null ? textAreaAttribute.GetNthIntArg(1, "maxLines") : 0;
+
+                    if (textAreaAttribute != null)
+                    {
+                        var finishKeyArg = textAreaAttribute.GetArgumentByName("finishKey");
+                        if (finishKeyArg != null)
+                        {
+                            var finishKeyValue = finishKeyArg.Expression.ToString();
+                            if (finishKeyArg.Expression is MemberAccessExpressionSyntax accessExpression)
+                            {
+                                finishKeyValue = accessExpression.Name.ToString();
+                            }
+                                
+                           
+
+                            if (Enum.TryParse<ConsoleKey>(finishKeyValue, out var finishKey))
+                            {
+                                input.FinishKey = finishKey;
+                            }
+                            ;
+                        }                        
+                    }
 
                     SetMethod("Validator", propertyDeclarationSyntax, getInputOrCreateNew,
                         (method) => input.Validator = method);

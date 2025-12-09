@@ -146,6 +146,17 @@ public static class Extensions
         return -1;
     }
     
+    public static AttributeArgumentSyntax GetArgumentByName(this AttributeSyntax attributeSyntax, string name)
+    {
+        var arguments = attributeSyntax?.ArgumentList?.Arguments;
+        if (arguments.HasValue)
+        {            
+            var x= arguments.Value.GetAttributeArgumentSyntaxByName(name);
+            return x;
+        }
+        return null;
+    }
+
     public static char? GetNthCharArg(this AttributeSyntax attributeSyntax, int nth, string name = null)
     {
         var arguments = attributeSyntax?.ArgumentList?.Arguments;

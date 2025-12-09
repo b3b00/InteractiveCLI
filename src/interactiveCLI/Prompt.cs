@@ -486,11 +486,12 @@ public class Prompt
     public Result<string> AskMultiLineText(string label, Func<string, (bool ok, string errorMessage)> validator = null,
         int maxLines = 0, ConsoleKey finishKey = ConsoleKey.Enter)
     {
+        LogM($"Entering AskMultiLineText with finish key = {finishKey.ToString()}");
         while (true)
         {
             LogM($"start outer while true ");
             Console.WriteLine(label);
-            Console.WriteLine("(Press Ctrl+Enter to finish, Escape to cancel)");
+            //Console.WriteLine("(Press Ctrl+Enter to finish, Escape to cancel)");
 
             var lines = new List<string>();
             var currentLine = new StringBuilder();
@@ -499,7 +500,7 @@ public class Prompt
             while (true)
             {
                 var key = Console.ReadKey(true);
-                
+                LogM("key : " + key.Modifiers.ToString() + " + "+key.Key.ToString());
                 // Finish input with Ctrl+Enter
                 if (key.Key == finishKey && key.Modifiers == ConsoleModifiers.Control)
                 {

@@ -31,6 +31,8 @@ public class Input
     public bool IsTextArea { get; internal set; }
     public int MaxLines { get; internal set; }
 
+    public ConsoleKey FinishKey { get; internal set; }
+
     public Input(string name)
     {
         Name = name;
