@@ -154,8 +154,9 @@ Here is an example of a `DateTime`  input :
  }
 ```
 
+<img width="205" height="49" alt="{1B18A4C8-6470-468B-80E8-C3B1AD9BD7FD}" src="https://github.com/user-attachments/assets/95e09b91-cd15-4393-9c02-1a498554e891" />
 
-> TODO : pattern, char validator, converter ....
+
 
 #### password
 
