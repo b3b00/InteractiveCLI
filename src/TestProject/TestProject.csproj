@@ -17,7 +17,7 @@
     <ItemGroup>      
       <ProjectReference Include="..\interactiveCLI\interactiveCLI.csproj" />      
       <ProjectReference Include="..\interactiveCLI\interactiveCLI.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-<!--        <PackageReference Include="interactiveCLI" Version="1.0.6"/>-->
+<!--        <PackageReference Include="interactiveCLI" Version="1.1.0"/>-->
     </ItemGroup>
 
 </Project>

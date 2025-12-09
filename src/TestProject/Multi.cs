@@ -10,17 +10,19 @@ namespace TestProject
     [Form("\x1b[1;31mInvalid input.\x1b[0m")]
     public partial class Multi
     {
-        //[Input("titre : ", index:1)]
-        //public string Title { get; set; }
+        [Input("titre : ", index: 1)]
+        public string Title { get; set; }
 
-        [TextArea("code : ", index: 0, maxLines: 0, finishKey: ConsoleKey.D)]
+        [TextArea("code : ", index: 2, maxLines: 0, finishKey: ConsoleKey.D)]
         public string Text { get; set; }
 
         public override string ToString()
         {
             StringBuilder b = new StringBuilder();
-            
-                b.AppendLine($"\x1b[23m{Text}\x1b[0m");
+            b.AppendLine("titre:").AppendLine("-----------------");
+            b.AppendLine($"\x1b[23m{Title}\x1b[0m").AppendLine("-----------------");
+            b.AppendLine("code:").AppendLine("-----------------");
+            b.AppendLine($"\x1b[23m{Text}\x1b[0m");
             return b.ToString();
         }
     }
