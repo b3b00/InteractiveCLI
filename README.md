@@ -18,6 +18,8 @@ Members of the Form class are tagged with attributes that declare them as inputs
 - `[Password]`
 - `[TextArea]`
 
+Each input can be given an index that defines the order they are prompted.
+
 Then the form can be called using the generated `Ask()` method.
 For example a real simple login form could be
 ```csharp
@@ -98,11 +100,40 @@ public void SayHello(string login)
 
 ### input types
 
-#### basic input
+#### basic inputs
+
+> TODO : pattern, char validator ....
 
 #### password
 
+```csharp
+// hiddenChar parameter defines the character to be displayed as a mask. default is '*'
+[Password("password : ", hiddenChar:'%',index:3)] 
+[Callback(nameof(LeakPassword))] // display the password
+public string Password { get; set; }
+
+public void LeakPassword(string v)
+{
+    Console.WriteLine($"your password is {v}");
+}
+```
+
+<img width="340" height="100" alt="{B41C1FD0-B07C-4944-BD43-EEBA81158E38}" src="https://github.com/user-attachments/assets/ca8a2546-216f-4d9d-a1aa-98a426fb15ec" />
+
+
 #### select
+
+Will display a list where to select a value. Values can be navigated using up and down arrows. Selection is done with `ENTER` key 
+
+```csharp
+ [Input("select a fruit :", index: 10)]
+ [DataSource(nameof(SelectMeDataSource))] // defines a datasource method
+ public string SelectMe { get; set; }
+ 
+ public string[] SelectMeDataSource() => ["Orange", "Apple", "Banana", "Apricot"];
+```
+<img width="287" height="116" alt="{7D99464C-657F-455D-9EE7-4BBCA484C2DC}" src="https://github.com/user-attachments/assets/9332ea3f-d9f8-4643-a872-1d1c27363279" />
+
 
 #### testarea
 
