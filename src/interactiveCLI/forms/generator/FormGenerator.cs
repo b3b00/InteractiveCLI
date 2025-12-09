@@ -179,7 +179,7 @@ public partial class {className} {{
                     {
                         input.Field = propertyDeclarationSyntax;
                         input.InputAttribute = (inputAttribute ?? passwordAttribute) ?? textAreaAttribute;
-                        int index = input.InputAttribute.GetNthIntArg(textAreaAttribute != null? 1 :0);
+                        int index = input.InputAttribute.GetNthIntArg(0);
                         input.Index = index;
                     }
 

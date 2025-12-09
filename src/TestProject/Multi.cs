@@ -13,14 +13,14 @@ namespace TestProject
         [Input("titre : ", index:1)]
         public string Title { get; set; }
 
-        [TextArea("text : ", maxLines:5, index:2)]
+        [TextArea("text : ", index: 2, maxLines: 0)]
         public string Text { get; set; }
 
         public override string ToString()
         {
             StringBuilder b = new StringBuilder();
-            b.AppendLine($"\x1b[1m{Title}\x1b[0m")
-                .AppendLine($"text = \x1b[3m{Text}\x1b[0m");
+            b.AppendLine($"\x1b[22m{Title}\x1b[0m")
+                .AppendLine($"\x1b[23m{Text}\x1b[0m");
             return b.ToString();
         }
     }

@@ -469,6 +469,11 @@ public class Prompt
         return choice;
     }
 
+    private void LogM(string message)
+    {
+        File.AppendAllLines("./debug.txt", [message]);
+    }
+
     /// <summary>
     /// Prompts the user for multi-line text input, similar to an HTML textarea.
     /// Press Enter to create new lines, and Ctrl+Enter or Escape to finish input.
@@ -483,6 +488,7 @@ public class Prompt
     {
         while (true)
         {
+            LogM($"start outer while true ");
             Console.WriteLine(label);
             Console.WriteLine("(Press Ctrl+Enter to finish, Escape to cancel)");
 
@@ -493,7 +499,7 @@ public class Prompt
             while (true)
             {
                 var key = Console.ReadKey(true);
-
+                
                 // Finish input with Ctrl+Enter
                 if (key.Key == finishKey && key.Modifiers == ConsoleModifiers.Control)
                 {
@@ -501,6 +507,7 @@ public class Prompt
                     {
                         lines.Add(currentLine.ToString());
                     }
+                    LogM($"key = finish key ctrl+{finishKey} => breaking;");
                     Console.WriteLine();
                     break;
                 }
@@ -517,8 +524,11 @@ public class Prompt
                 // New line with Enter
                 else if (key.Key == ConsoleKey.Enter)
                 {
+                    LogM("*** new Line detected ");
+                    LogM(string.Join("\n", lines));
                     if (maxLines > 0 && lines.Count >= maxLines - 1)
                     {
+                        LogM($" max lines reached {lines.Count} > {maxLines-1} => continuing");
                         continue; // Don't allow more lines than maxLines
                     }
 
@@ -553,14 +563,19 @@ public class Prompt
                 }
             }
 
+            LogM($"Finished input collection. with {lines.Count} lines");
             var result = string.Join("\n", lines);
+            LogM(result);
 
             // Validation
+            LogM($"trying validation ? {validator != null}");
             if (validator != null)
             {
+                LogM("Validating input...");
                 var validation = validator(result);
                 if (validation.ok)
                 {
+                    LogM("Validation succeeded.");
                     return new Result<string>()
                     {
                         Value = result,
@@ -570,8 +585,9 @@ public class Prompt
                 }
                 else
                 {
+                    LogM("Validation failed.");
                     var errorMessage = validation.errorMessage ?? InvalidInputMessage ?? "Invalid input.";
-                    Console.Error.WriteLine(errorMessage);
+                    Console.WriteLine(errorMessage);
                     Console.WriteLine();
                     return new Result<string>()
                     {
@@ -579,6 +595,16 @@ public class Prompt
                     };
                     continue;
                 }
+            }
+            else
+            {
+                LogM("no validation : succeeding.");
+                return new Result<string>()
+                {
+                    Value = result,
+                    Ok = true,
+                    IsApplicable = true
+                };
             }
         }
     }

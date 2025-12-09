@@ -43,6 +43,11 @@ public class Program
                     Console.WriteLine(form.ToString());
                     break;
                 }
+            case "quit":
+                {
+                    Console.WriteLine("Goodbye !");
+                    break;
+                }
             default:
                 {
                     Console.WriteLine($"I don't know what to do with {selector.Option}....");
