@@ -29,7 +29,7 @@ jobs:
     - name: Clean artifacts and nugets 
       run: dotnet clean  --configuration Release && dotnet nuget locals all --clear
     - name: Build with dotnet
-      run: dotnet build --configuration Release
+      run: dotnet build --configuration Release ${{env.MAIN_CSPROJ}}
     - name: publish nuget
       if:  ${{success() && matrix.os == 'ubuntu-latest' && env.PUBLISH_NUGET}}
       id: publish_nuget
