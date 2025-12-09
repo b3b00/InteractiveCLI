@@ -82,11 +82,22 @@ public static class Extensions
         return null;
     }
     
-    public static int GetNthIntArg(this AttributeSyntax attributeSyntax, int nth)
+    public static int GetNthIntArg(this AttributeSyntax attributeSyntax, string name, int nth)
     {
         var arguments = attributeSyntax?.ArgumentList?.Arguments;
         if (arguments.HasValue)
         {
+
+            var byName = arguments.Value.GetAttributeArgumentSyntaxByName(name);
+            if (byName != null)
+            {
+                var expr = byName.Expression;
+                if (expr is LiteralExpressionSyntax literal && literal.Kind() == SyntaxKind.NumericLiteralExpression)
+                {
+                    return int.Parse(literal.Token.ValueText);
+                }
+            }
+
             var expressions = arguments.Value.GetAttributeArgumentExpressions();
             Predicate<ExpressionSyntax> isIntLiteral = expr =>
             {
@@ -96,6 +107,9 @@ public static class Extensions
             
 
             var intExpressions = expressions.Where(x => isIntLiteral(x)).ToList();
+
+            
+
             if (intExpressions != null && intExpressions.Any() && intExpressions.Count >= nth + 1)
             {
                 var nthArg = intExpressions[nth];
@@ -144,8 +158,21 @@ public static class Extensions
         }
         return result;
     }
-    
-   
+
+    public static AttributeArgumentSyntax GetAttributeArgumentSyntaxByName(
+        this SeparatedSyntaxList<AttributeArgumentSyntax> attributesArgs, string name)
+    {
+        foreach (var arg in attributesArgs)
+        {
+            if (arg.NameColon != null && arg.NameColon.Name.Identifier.Text == name)
+            {
+                return arg;
+            }
+        }
+        return null;
+    }
+
+
 
     public static void Log(this SourceProductionContext context, string message, Location location = null)
     {

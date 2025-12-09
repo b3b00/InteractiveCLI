@@ -179,7 +179,7 @@ public partial class {className} {{
                     {
                         input.Field = propertyDeclarationSyntax;
                         input.InputAttribute = (inputAttribute ?? passwordAttribute) ?? textAreaAttribute;
-                        int index = input.InputAttribute.GetNthIntArg(0);
+                        int index = input.InputAttribute.GetNthIntArg("index",0);
                         input.Index = index;
                     }
 
@@ -187,7 +187,7 @@ public partial class {className} {{
                                         input.IsPasword = inputAttribute == null && passwordAttribute != null;
                     input.IsPasword = inputAttribute == null && passwordAttribute != null;
                     input.IsTextArea = textAreaAttribute != null;
-                    input.MaxLines = textAreaAttribute != null ? textAreaAttribute.GetNthIntArg(1) : 0;
+                    input.MaxLines = textAreaAttribute != null ? textAreaAttribute.GetNthIntArg("maxLines",1) : 0;
 
                     SetMethod("Validator", propertyDeclarationSyntax, getInputOrCreateNew,
                         (method) => input.Validator = method);

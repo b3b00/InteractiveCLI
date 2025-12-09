@@ -13,7 +13,7 @@ namespace TestProject
         [Input("titre : ", index:1)]
         public string Title { get; set; }
 
-        [TextArea("text : ", index: 2, maxLines: 0)]
+        [TextArea("text : ", maxLines:0, index: 2)]
         public string Text { get; set; }
 
         public override string ToString()

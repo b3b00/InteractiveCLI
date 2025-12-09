@@ -17,17 +17,16 @@ public partial class TestForm
     [Validator(nameof(YesOrNoValidation))]
     [Converter(nameof(YesOrNoConverter))]
     public Boolean YesOrNo { get; set; }
-    
-    [Password("password : ", hiddenChar:'%',index:3)]
-    [Callback(nameof(LeakPassword))]
-    public string Password { get; set; }
-    
-    public (bool ok,string errorMessage) YesOrNoValidation(string v)
+
+    public (bool ok, string errorMessage) YesOrNoValidation(string v)
     {
         var ok = v == "yes" || v == "no" || v == "y" || v == "n";
         return (ok, ok ? null : "this is not yes or no ! make a choice !!!");
     }
 
+    [Password("password : ", hiddenChar:'%',index:3)]
+    [Callback(nameof(LeakPassword))]
+    public string Password { get; set; }
 
     public void LeakPassword(string v)
     {
@@ -39,7 +38,7 @@ public partial class TestForm
 
     [Input("Nombre : ")] public double Number { get; set; }
 
-    [Input("select me :", index: 10)]
+    [Input("select a fruit :", index: 10)]
     [DataSource(nameof(SelectMeDataSource))]
     public string SelectMe { get; set; }
     

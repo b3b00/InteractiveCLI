@@ -43,7 +43,7 @@ public class SelectPrompt
     public string? Select()
     {
 
-        Console.WriteLine(_label);
+        Console.WriteLine();
         var (left, top) = Console.GetCursorPosition();
 
 

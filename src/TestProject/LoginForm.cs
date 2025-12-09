@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using interactiveCLI.forms;
+﻿using interactiveCLI.forms;
 
 namespace TestProject;
 
