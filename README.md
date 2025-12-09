@@ -102,7 +102,7 @@ public void SayHello(string login)
 
 #### basic inputs
 
-> TODO : pattern, char validator ....
+> TODO : pattern, char validator, converter ....
 
 #### password
 
