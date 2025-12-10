@@ -24,6 +24,9 @@ public class Program
     }
     public static void Main(string[] args)
     {
+        // Enable UTF-8 encoding for emoji support
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        
         Prompt prompt = new Prompt();
         //var BirthDayResult = prompt.Ask<DateTime>("date :", pattern: "____-__-__", possibleValues: null, validator: (string s) => (true,null), converter: (string s) => DateTime.Now, dataSource: null, charValidator: ((int position, char c) s) => Char.IsDigit(s.c), condition: null, callbacks: (string s) => DisplayDate(s));
        
