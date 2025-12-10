@@ -226,6 +226,10 @@ For example a check that use y/yes and n/no as checked / not checked values:
     // true if and only if equals to "y" or "yes"
     public bool YesOrNoConverter(string v) => v == "yes" || v == "y" ;
 ```
+<img width="145" height="27" alt="{6CF84BC5-C2D2-4F4F-9C4B-BB375B0ECF92}" src="https://github.com/user-attachments/assets/09de50e8-8973-4998-a173-55de5eb2ce07" />
+
+
+<img width="173" height="31" alt="{61DBD174-A31F-49A6-A5B2-4971C1228445}" src="https://github.com/user-attachments/assets/ca2fc4b6-f444-4104-8e3f-e95fec719c75" />
 
 
 # Use raw API
