@@ -24,7 +24,7 @@ public partial class TestForm
         return (ok, ok ? null : "this is not yes or no ! make a choice !!!");
     }
 
-    [Password("password : ", hiddenChar:'%',index:3)]
+    [Password("password : ", hiddenChar:'*',index:3)]
     [Callback(nameof(LeakPassword))]
     public string Password { get; set; }
 
@@ -48,7 +48,7 @@ public partial class TestForm
 
     [Input("nom : ", index: 10)] public string Name { get; set; }
 
-    [Input("date :", "____-__-__", 3)]
+    [Input("date :", "__/__/____", 3)]
     [CharValidator(nameof(IsCharValid))]  // limit chars to digits only
     [Validator(nameof(ValidateDate))] // validate the full date
     [Converter(nameof(ConvertDate))] // convert string to DateTime
@@ -65,14 +65,14 @@ public partial class TestForm
 
     (bool ok, string errorMessage) ValidateDate(string s)
     {
-        var ok = DateTime.TryParseExact(s, "yyyy-MM-dd", null, DateTimeStyles.None, out var d);
+        var ok = DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
         return (ok, ok ? null : "this is not a valid date");
     }
 
 
     DateTime ConvertDate(string s)
     {
-        if (DateTime.TryParseExact(s, "yyyy-MM-dd", null, DateTimeStyles.None, out var d))
+        if (DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d))
         {
             return d;
         }

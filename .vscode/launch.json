@@ -10,11 +10,14 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/testproject/bin/Debug/net9.0/testproject.exe",
+            "program": "${workspaceFolder}/src/testproject/bin/Debug/net9.0/testproject.dll",
             "args": [""],
             "cwd": "${workspaceFolder}",
-            "console": "internalConsole",
+            "console": "externalTerminal",
             "stopAtEntry": false
         }
+
+
+
     ]
 }

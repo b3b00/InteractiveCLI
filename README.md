@@ -186,3 +186,61 @@ Will display a list where to select a value. Values can be navigated using up an
 
 #### testarea
 
+# Use raw API
+
+If you don't want to use the source generator, but rather call prompting methods directly you can use the `Prompt`object.
+This can be useful when your `Form`is not static.
+
+```csharp
+
+public void RawAPI() {
+    // first create a Prompt
+    Prompt prompt = new Prompt();
+
+    // first ask for a string
+    Result<string> name = prompt.Ask<string>("name :");
+    if (name.Ok) {
+        Console.WriteLine($"Hello {name} !");
+    }
+    else {
+        Console.WriteLine($"invalid name : {name.Value}");
+    }
+
+
+    // then ask for an integer
+    var age = prompt.Ask<int>("age :", validator: (string s) =>
+    {
+        if (int.TryParse(s, out int value))
+        {
+            if (value < 0 || value > 120)
+            {
+                return (false, "age must be between 0 and 120");
+            }
+            return (true, null);
+        }
+        return (false, "age must be an integer");
+    });
+    if (age.Ok)
+    {
+        Console.WriteLine($"You are {age} years old !");
+    }
+    else
+    {
+        Console.WriteLine($"invalid age : {age.Value}");
+    }
+
+    // ask for a selection
+    var color = prompt.Ask<string>("favorite color :", possibleValues: new string[] { "red", "green", "blue" });
+        if (color.Ok)
+    {
+        Console.WriteLine($"I agree that {color.Value} is a nice color !");
+    }
+    else
+    {
+        Console.WriteLine($"invalid color : {color.Value}");
+    }
+}
+
+```
+
+Methods for `Prompt`should be enough clear to be used. 
