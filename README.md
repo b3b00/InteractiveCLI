@@ -186,6 +186,48 @@ Will display a list where to select a value. Values can be navigated using up an
 
 #### testarea
 
+A textarea is similar to the HTML TextArea. It allows to enter multi line strings.
+2 configuration options are available : 
+ - maxLines : maximum line number (0 = no limit)
+ - finishinKey : the `System.ConsoleKey` to be used together with ctrl key to validate the input. (default is `ENTER`)
+  
+example : a 5 lines text area validated by `ctrl+D`
+
+```csharp
+[TextArea("verbatim : ", index:2, maxLines:5, finishingKey : ConsoleKey.D)]
+public string Verbatim {get; set;}
+```
+
+#### boolean
+
+```csharp
+[Input("do you agree ?", index:3)]
+bool Agreement {get; set;} 
+```
+Similar to a checkbox. Default behavior shows ✅ and ❌ for reprensting (checked and not check values , respectively).
+
+To use other checked/not checked values you can use a converter, together with a validator.
+
+For example a check that use y/yes and n/no as checked / not checked values:
+
+```csharp
+[Input("ok  (yes|y /no|n) ? ",index:2)]
+    [Validator(nameof(YesOrNoValidation))]
+    [Converter(nameof(YesOrNoConverter))]
+    public Boolean YesOrNo { get; set; }
+
+    // do not accept anything else than y/yes or n/no
+    public (bool ok, string errorMessage) YesOrNoValidation(string v)
+    {
+        var ok = v == "yes" || v == "no" || v == "y" || v == "n";
+        return (ok, ok ? null : "this is not yes or no ! make a choice !!!");
+    }
+
+    // true if and only if equals to "y" or "yes"
+    public bool YesOrNoConverter(string v) => v == "yes" || v == "y" ;
+```
+
+
 # Use raw API
 
 If you don't want to use the source generator, but rather call prompting methods directly you can use the `Prompt`object.

@@ -24,6 +24,8 @@ public partial class TestForm
         return (ok, ok ? null : "this is not yes or no ! make a choice !!!");
     }
 
+    public bool YesOrNoConverter(string v) => v == "yes" || v == "y" ;
+
     [Password("password : ", hiddenChar:'*',index:3)]
     [Callback(nameof(LeakPassword))]
     public string Password { get; set; }
@@ -32,8 +34,6 @@ public partial class TestForm
     {
         Console.WriteLine($"your password is {v}");
     }
-    
-    public bool YesOrNoConverter(string v) => v == "yes" || v == "y" ;
 
 
     [Input("Nombre : ")] public double Number { get; set; }
