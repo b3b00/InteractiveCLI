@@ -243,4 +243,4 @@ public void RawAPI() {
 
 ```
 
-Methods for `Prompt`should be enough clear to be used. 
+Methods for `Prompt`should be self explicative enough. 
