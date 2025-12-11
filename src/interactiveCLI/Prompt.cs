@@ -469,10 +469,6 @@ public class Prompt
         return choice;
     }
 
-    private void LogM(string message)
-    {
-        File.AppendAllLines("./debug.txt", [message]);
-    }
 
     /// <summary>
     /// Prompts the user for multi-line text input, similar to an HTML textarea.
@@ -486,10 +482,8 @@ public class Prompt
     public Result<string> AskMultiLineText(string label, Func<string, (bool ok, string errorMessage)> validator = null,
         int maxLines = 0, ConsoleKey finishKey = ConsoleKey.Enter)
     {
-        LogM($"Entering AskMultiLineText with finish key = {finishKey.ToString()}");
         while (true)
         {
-            LogM($"start outer while true ");
             Console.WriteLine(label);
             //Console.WriteLine("(Press Ctrl+Enter to finish, Escape to cancel)");
 
@@ -500,7 +494,6 @@ public class Prompt
             while (true)
             {
                 var key = Console.ReadKey(true);
-                LogM("key : " + key.Modifiers.ToString() + " + "+key.Key.ToString());
                 // Finish input with Ctrl+Enter
                 if (key.Key == finishKey && key.Modifiers == ConsoleModifiers.Control)
                 {
@@ -508,7 +501,6 @@ public class Prompt
                     {
                         lines.Add(currentLine.ToString());
                     }
-                    LogM($"key = finish key ctrl+{finishKey} => breaking;");
                     Console.WriteLine();
                     break;
                 }
@@ -525,11 +517,8 @@ public class Prompt
                 // New line with Enter
                 else if (key.Key == ConsoleKey.Enter)
                 {
-                    LogM("*** new Line detected ");
-                    LogM(string.Join("\n", lines));
                     if (maxLines > 0 && lines.Count >= maxLines - 1)
                     {
-                        LogM($" max lines reached {lines.Count} > {maxLines-1} => continuing");
                         continue; // Don't allow more lines than maxLines
                     }
 
@@ -551,8 +540,6 @@ public class Prompt
                         currentLine = new StringBuilder(lines[^1]);
                         lines.RemoveAt(lines.Count - 1);
                         Console.SetCursorPosition(0, Console.CursorTop - 1);
-                        Console.Write(new string(' ', Console.WindowWidth));
-                        Console.SetCursorPosition(currentLine.Length, Console.CursorTop);
                         Console.Write(currentLine.ToString());
                     }
                 }
@@ -564,19 +551,14 @@ public class Prompt
                 }
             }
 
-            LogM($"Finished input collection. with {lines.Count} lines");
             var result = string.Join("\n", lines);
-            LogM(result);
 
             // Validation
-            LogM($"trying validation ? {validator != null}");
             if (validator != null)
             {
-                LogM("Validating input...");
                 var validation = validator(result);
                 if (validation.ok)
                 {
-                    LogM("Validation succeeded.");
                     return new Result<string>()
                     {
                         Value = result,
@@ -586,7 +568,6 @@ public class Prompt
                 }
                 else
                 {
-                    LogM("Validation failed.");
                     var errorMessage = validation.errorMessage ?? InvalidInputMessage ?? "Invalid input.";
                     Console.WriteLine(errorMessage);
                     Console.WriteLine();
@@ -599,7 +580,6 @@ public class Prompt
             }
             else
             {
-                LogM("no validation : succeeding.");
                 return new Result<string>()
                 {
                     Value = result,
