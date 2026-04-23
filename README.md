@@ -1,3 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/b3b00/InteractiveCLI/badge.svg?branch=main)](https://coveralls.io/github/b3b00/InteractiveCLI?branch=main)
+
 InteractiveCLI is a source generator that helps building interactive console applications. 
 
 how to use :
