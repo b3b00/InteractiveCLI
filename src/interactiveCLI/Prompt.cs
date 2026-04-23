@@ -18,15 +18,18 @@ public class Prompt
 {
     public string InvalidInputMessage { get; set; }
 
-    public Prompt(string invalidInputMessage = null)
+    private readonly IConsole _console;
+
+    public Prompt(string invalidInputMessage = null, IConsole console = null)
     {
         InvalidInputMessage = invalidInputMessage;
+        _console = console ?? new SystemConsole();
     }
 
     public string AskText(string label, Func<string,(bool ok, string errorMessage)> validator = null, string pattern = null,
         Predicate<(int, char)>? charValidator = null)
     {
-        Console.WriteLine();
+        _console.WriteLine();
         string answer = null;
         if (!string.IsNullOrWhiteSpace(pattern) && pattern.Contains("_"))
         {
@@ -34,7 +37,7 @@ public class Prompt
         }
         else
         {
-            answer = Console.ReadLine();
+            answer = _console.ReadLine();
         }
 
         while (true)
@@ -42,18 +45,26 @@ public class Prompt
             var errorMessage = InvalidInputMessage ?? "Invalid answer.";
             if (validator != null)
             {
-                var avalidation = validator(answer);
-                if (avalidation.ok)
+                var validation = validator(answer);
+                if (validation.ok)
                 {
                     return answer;
                 }
                 else
                 {
-                    errorMessage ??= avalidation.errorMessage;
+                    if (!string.IsNullOrWhiteSpace(validation.errorMessage))
+                    {
+                        errorMessage = validation.errorMessage;
+                    }
+                    errorMessage ??= validation.errorMessage;
                 }
             }
+            else
+            {
+                return answer;
+            }
 
-            Console.Error.WriteLine(errorMessage);
+            _console.WriteError(errorMessage);
             answer = AskText(label, validator, pattern);
         }
     }
@@ -80,16 +91,16 @@ public class Prompt
                 editableIndexes[idx++] = i;
 
         int current = 0;
-        Console.Write(pattern);
-        Console.SetCursorPosition(editableIndexes[0], Console.CursorTop);
+        _console.Write(pattern);
+        _console.SetCursorPosition(editableIndexes[0], _console.CursorTop);
 
         while (true)
         {
-            var key = Console.ReadKey(true);
+            var key = _console.ReadKey(true);
 
             if (key.Key == ConsoleKey.Escape)
             {
-                Console.WriteLine("ESC");
+                _console.WriteLine("ESC");
                 return null;
             }
 
@@ -100,19 +111,18 @@ public class Prompt
                     if (current != editableIndexes.Length)
                     {
                         current--;
-                        //current--;
                         buffer[editableIndexes[current]] = '_';
-                        Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
-                        Console.Write('_');
-                        Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+                        _console.SetCursorPosition(editableIndexes[current], _console.CursorTop);
+                        _console.Write('_');
+                        _console.SetCursorPosition(editableIndexes[current], _console.CursorTop);
                     }
                     else
                     {
                         int index = editableIndexes[current - 1];
                         buffer[index] = '_';
-                        Console.SetCursorPosition(index, Console.CursorTop);
-                        Console.Write('_');
-                        Console.SetCursorPosition(index, Console.CursorTop);
+                        _console.SetCursorPosition(index, _console.CursorTop);
+                        _console.Write('_');
+                        _console.SetCursorPosition(index, _console.CursorTop);
                         current--;
                     }
                 }
@@ -120,13 +130,13 @@ public class Prompt
             else if (key.Key == ConsoleKey.LeftArrow && current > 0)
             {
                 current--;
-                Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+                _console.SetCursorPosition(editableIndexes[current], _console.CursorTop);
             }
             else if (key.Key == ConsoleKey.RightArrow && current < editableIndexes.Length)
             {
                 current++;
                 if (current < editableIndexes.Length)
-                    Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+                    _console.SetCursorPosition(editableIndexes[current], _console.CursorTop);
             }
             else if (key.Key == ConsoleKey.Enter)
             {
@@ -138,16 +148,16 @@ public class Prompt
                 if (isAllowed == null || isAllowed((pos, key.KeyChar)))
                 {
                     buffer[pos] = key.KeyChar;
-                    Console.SetCursorPosition(pos, Console.CursorTop);
-                    Console.Write(key.KeyChar);
+                    _console.SetCursorPosition(pos, _console.CursorTop);
+                    _console.Write(key.KeyChar);
                     current++;
                     if (current < editableIndexes.Length)
-                        Console.SetCursorPosition(editableIndexes[current], Console.CursorTop);
+                        _console.SetCursorPosition(editableIndexes[current], _console.CursorTop);
                 }
             }
         }
 
-        Console.WriteLine();
+        _console.WriteLine();
         return new string(buffer);
     }
 
@@ -197,7 +207,7 @@ public class Prompt
         
         while (true)
         {
-            Console.Write(label);
+            _console.Write(label);
             string input = null;
             if ((possibleValues != null && possibleValues.Length >= 2) || (dataSource !=null))
             {
@@ -218,7 +228,7 @@ public class Prompt
             }
             else
             {
-                input = Console.ReadLine();
+                input = _console.ReadLine();
             }
 
             var typeConverter = System.ComponentModel.TypeDescriptor.GetConverter(typeof(T));
@@ -242,7 +252,7 @@ public class Prompt
             }
             catch (ArgumentException e)
             {
-                Console.Error.WriteLine(e.Message);
+                _console.WriteError(e.Message);
                 isValid = false;
             }
 
@@ -279,7 +289,7 @@ public class Prompt
                 }
             }
 
-            Console.Error.WriteLine(errorMessage ?? (InvalidInputMessage ?? "Invalid answer."));
+            _console.WriteError(errorMessage ?? (InvalidInputMessage ?? "Invalid answer."));
             //return new Result<T>() { Ok = false };
         }
     }
@@ -287,21 +297,20 @@ public class Prompt
     private string Check<T>(string label, Func<string, (bool ok, string errorMessage)>? validator)
     {
         bool isChecked = false;
-        var position = Console.GetCursorPosition();
-        Console.Write("❌");
-        var key = Console.ReadKey(true);
+        var position = _console.GetCursorPosition();
+        _console.Write("❌");
+        var key = _console.ReadKey(true);
         while (key.Key !=  ConsoleKey.Enter)
         {
             if (key.Key == ConsoleKey.Spacebar)
             {
                 isChecked = !isChecked;
-                Console.SetCursorPosition(position.Left, position.Top);
-                //Console.Write(" ");
-                Console.Write(isChecked ? "✔️" : "❌");
-                key = Console.ReadKey(true);
+                _console.SetCursorPosition(position.Left, position.Top);
+                _console.Write(isChecked ? "✔️" : "❌");
+                key = _console.ReadKey(true);
             }
         }
-        Console.WriteLine();
+        _console.WriteLine();
         return isChecked.ToString();
     }
 
@@ -309,7 +318,8 @@ public class Prompt
     {
         bool DoubleValidator(string s)
         {
-            return double.TryParse(s, out var x);
+            return double.TryParse(s, System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out _);
         }
 
         (bool ok, string errorMessage) CompoundValidator(string s)
@@ -329,7 +339,7 @@ public class Prompt
         }
 
         var answer = AskText(label, CompoundValidator);
-        return double.Parse(answer);
+        return double.Parse(answer, System.Globalization.CultureInfo.InvariantCulture);
     }
 
     public bool AskBool(string label, string[] trueValues, string[] falseValues, Func<string,(bool ok, string errorMessage)>? validator = null)
@@ -393,14 +403,14 @@ public class Prompt
 
         while (true)
         {
-            Console.Write(label);
+            _console.Write(label);
             var password = new StringBuilder();
             while (true)
             {
-                var key = Console.ReadKey(true);
+                var key = _console.ReadKey(true);
                 if (key.Key == ConsoleKey.Enter)
                 {
-                    Console.WriteLine();
+                    _console.WriteLine();
                     break;
                 }
                 else if (key.Key == ConsoleKey.Backspace)
@@ -408,13 +418,13 @@ public class Prompt
                     if (password.Length > 0)
                     {
                         password.Length--;
-                        Console.Write("\b \b");
+                        _console.Write("\b \b");
                     }
                 }
                 else if (!char.IsControl(key.KeyChar))
                 {
                     password.Append(key.KeyChar);
-                    Console.Write(hiddenChar);
+                    _console.Write(hiddenChar);
                 }
             }
 
@@ -445,7 +455,7 @@ public class Prompt
                     else
                     {
                         errorMessage = validation.errorMessage ?? errorMessage; 
-                        Console.Error.WriteLine(errorMessage);
+                        _console.WriteError(errorMessage);
                     }
                 }
             }
@@ -464,7 +474,7 @@ public class Prompt
 
     public string? Select(string label, Func<string, bool, int, string> formatter = null, string[] choices = null, bool isIndexed = false)
     {
-        interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices, formatter, isIndexed);
+        interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices, formatter, isIndexed, _console);
         var choice = select.Select();
         return choice;
     }
@@ -484,16 +494,16 @@ public class Prompt
     {
         while (true)
         {
-            Console.WriteLine(label);
+            _console.WriteLine(label);
             //Console.WriteLine("(Press Ctrl+Enter to finish, Escape to cancel)");
 
             var lines = new List<string>();
             var currentLine = new StringBuilder();
-            int startTop = Console.CursorTop;
+            int startTop = _console.CursorTop;
 
             while (true)
             {
-                var key = Console.ReadKey(true);
+                var key = _console.ReadKey(true);
                 // Finish input with Ctrl+Enter
                 if (key.Key == finishKey && key.Modifiers == ConsoleModifiers.Control)
                 {
@@ -501,13 +511,13 @@ public class Prompt
                     {
                         lines.Add(currentLine.ToString());
                     }
-                    Console.WriteLine();
+                    _console.WriteLine();
                     break;
                 }
                 // Cancel with Escape
                 else if (key.Key == ConsoleKey.Escape)
                 {
-                    Console.WriteLine();
+                    _console.WriteLine();
                     return new Result<string>()
                     {
                         IsApplicable = false,
@@ -524,7 +534,7 @@ public class Prompt
 
                     lines.Add(currentLine.ToString());
                     currentLine.Clear();
-                    Console.WriteLine();
+                    _console.WriteLine();
                 }
                 // Backspace
                 else if (key.Key == ConsoleKey.Backspace)
@@ -532,22 +542,22 @@ public class Prompt
                     if (currentLine.Length > 0)
                     {
                         currentLine.Length--;
-                        Console.Write("\b \b");
+                        _console.Write("\b \b");
                     }
                     else if (lines.Count > 0)
                     {
                         // Move to previous line
                         currentLine = new StringBuilder(lines[^1]);
                         lines.RemoveAt(lines.Count - 1);
-                        Console.SetCursorPosition(0, Console.CursorTop - 1);
-                        Console.Write(currentLine.ToString());
+                        _console.SetCursorPosition(0, _console.CursorTop - 1);
+                        _console.Write(currentLine.ToString());
                     }
                 }
                 // Regular character input
                 else if (!char.IsControl(key.KeyChar))
                 {
                     currentLine.Append(key.KeyChar);
-                    Console.Write(key.KeyChar);
+                    _console.Write(key.KeyChar);
                 }
             }
 
@@ -569,8 +579,8 @@ public class Prompt
                 else
                 {
                     var errorMessage = validation.errorMessage ?? InvalidInputMessage ?? "Invalid input.";
-                    Console.WriteLine(errorMessage);
-                    Console.WriteLine();
+                    _console.WriteLine(errorMessage);
+                    _console.WriteLine();
                     return new Result<string>()
                     {
                         Ok = false,                        

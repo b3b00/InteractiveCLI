@@ -37,8 +37,8 @@ public class FormBuilder<T>
             {
                 actions.Add(instance =>
                 {
-                    var value = prompt.AskPassword(inputAttribute.Label);
-                    property.SetValue(instance, value);
+                    var result = prompt.AskPassword(inputAttribute.Label);
+                    property.SetValue(instance, result.Value);
                 });
             }
             else if (property.PropertyType == typeof(int))

@@ -4,13 +4,11 @@ namespace interactiveCLI;
 
 public class SelectPrompt
 {
-
-
-
     private string[] _choices;
     private string _label;
     Func<string, bool, int, string> _formatter;
     bool _isIndexed = false;
+    private readonly IConsole _console;
 
     public string DefaultFormatter(string value, bool selected, int index)
     {
@@ -25,32 +23,33 @@ public class SelectPrompt
     }
 
 
-    public SelectPrompt(string label, string[] choices, Func<string, bool, int, string> formatter = null, bool isIndexed = false)
+    public SelectPrompt(string label, string[] choices, Func<string, bool, int, string> formatter = null, bool isIndexed = false, IConsole console = null)
     {
         _isIndexed = isIndexed;
         _label = label;
         _choices = choices;
         _formatter = formatter ?? DefaultFormatter;
+        _console = console ?? new SystemConsole();
     }
 
     private void Print((int left, int top) startPosition, int position)
     {
-        Console.SetCursorPosition(startPosition.left, startPosition.top);
+        _console.SetCursorPosition(startPosition.left, startPosition.top);
         for (int i = 0; i < _choices.Length; i++)
         {
             var item = _formatter(_choices[i], i == position, i);
-            Console.SetCursorPosition(startPosition.left, startPosition.top + i);
-            Console.Write(item);
+            _console.SetCursorPosition(startPosition.left, startPosition.top + i);
+            _console.Write(item);
         }
-        Console.WriteLine();
+        _console.WriteLine();
         
     }
 
     public string? Select()
     {
 
-        Console.WriteLine();
-        var (left, top) = Console.GetCursorPosition();
+        _console.WriteLine();
+        var (left, top) = _console.GetCursorPosition();
 
 
         int position = 0;
@@ -59,15 +58,15 @@ public class SelectPrompt
         for (int i = 0; i < _choices.Length; i++)
         {
             var item = _formatter(_choices[i], i == position, i);
-            var bak = Console.ForegroundColor;
-            Console.WriteLine(item);
+            var bak = _console.ForegroundColor;
+            _console.WriteLine(item);
         }
-        var (l, t) = Console.GetCursorPosition();
+        var (l, t) = _console.GetCursorPosition();
         // compute start position from last item position (to correctly handle bottom of the console)
         top = t - _choices.Length;
 
 
-        ConsoleKeyInfo key = Console.ReadKey();
+        ConsoleKeyInfo key = _console.ReadKey();
 
         bool indexSelected = false;
         
@@ -104,13 +103,13 @@ public class SelectPrompt
 
             if (!indexSelected)
             {
-                key = Console.ReadKey();
+                key = _console.ReadKey();
             }
         }
         if (key.Key == ConsoleKey.Escape)
         {
 
-            Console.SetCursorPosition(left, top + _choices.Length);
+            _console.SetCursorPosition(left, top + _choices.Length);
             return null;
         }
 
