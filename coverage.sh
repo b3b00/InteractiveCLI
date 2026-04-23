@@ -53,6 +53,14 @@ yellow() { printf '\033[0;33m%s\033[0m\n' "$*"; }
 rm -rf "${COBERTURA_DIR}" "${REPORT_DIR}"
 mkdir -p "${COBERTURA_DIR}" "${REPORT_DIR}"
 
+# ── 1b. Rebuild interactiveCLI from source (clears any stale Windows artefacts
+#        that would cause a Roslyn version mismatch in WSL shared filesystems) ─
+cyan "==> Rebuilding interactiveCLI with local SDK..."
+dotnet build "${SCRIPT_DIR}/src/interactiveCLI/interactiveCLI.csproj" \
+    --configuration "${CONFIGURATION}" \
+    --force \
+    --nologo -v q
+
 # ── 2. Run tests with coverlet data collector ─────────────────────────────────
 echo ""
 cyan "==> Running tests with coverage collection..."
