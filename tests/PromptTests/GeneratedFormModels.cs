@@ -76,3 +76,76 @@ public partial class GenPasswordForm
     [Password("Secret")]
     public string Secret { get; set; } = string.Empty;
 }
+
+// ── Models for advanced-attribute tests ──────────────────────────────────────
+
+[Form]
+public partial class GenValidatorForm
+{
+    [Input("Username")]
+    [Validator(nameof(ValidateUsername))]
+    public string Username { get; set; } = string.Empty;
+
+    public (bool ok, string errorMessage) ValidateUsername(string s) =>
+        (s.Length >= 3, "username must be at least 3 characters");
+}
+
+[Form]
+public partial class GenConverterForm
+{
+    [Input("Value")]
+    [Validator(nameof(ValidateValue))]
+    [Converter(nameof(ConvertValue))]
+    public int Value { get; set; }
+
+    public (bool ok, string errorMessage) ValidateValue(string s) =>
+        (int.TryParse(s, out _), "not an integer");
+
+    public int ConvertValue(string s) => int.Parse(s) * 10;
+}
+
+[Form]
+public partial class GenConditionForm
+{
+    [Input("Name")]
+    public string Name { get; set; } = string.Empty;
+
+    [Input("Nickname")]
+    [Condition(nameof(NicknameCondition))]
+    public string Nickname { get; set; } = string.Empty;
+
+    // Toggled by tests
+    public bool ShowNickname { get; set; } = false;
+    public bool NicknameCondition() => ShowNickname;
+}
+
+[Form]
+public partial class GenCallbackForm
+{
+    [Input("Score")]
+    [Callback(nameof(OnScore))]
+    public int Score { get; set; }
+
+    public List<int> SeenValues { get; } = new();
+    public void OnScore(int v) => SeenValues.Add(v);
+}
+
+[Form]
+public partial class GenCharValidatorForm
+{
+    [Input("Code", "__-__")]
+    [CharValidator(nameof(IsDigit))]
+    public string Code { get; set; } = string.Empty;
+
+    public bool IsDigit((int position, char c) t) => char.IsDigit(t.c);
+}
+
+[Form]
+public partial class GenDataSourceForm
+{
+    [Input("Fruit")]
+    [DataSource(nameof(Fruits))]
+    public string Fruit { get; set; } = string.Empty;
+
+    public string[] Fruits() => ["Apple", "Banana", "Cherry"];
+}

@@ -41,8 +41,23 @@ public class FakeConsole : interactiveCLI.IConsole
         => _keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, false));
 
     public void EnqueueLeft() => EnqueueSpecialKey(ConsoleKey.LeftArrow);
-    
+
+    public void EnqueueLeft(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            EnqueueLeft();
+        }
+    }
     public void EnqueueRight() => EnqueueSpecialKey(ConsoleKey.RightArrow);
+    
+    public void EnqueueRight(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            EnqueueRight();
+        }
+    }
     
     public void EnqueueUp() => EnqueueSpecialKey(ConsoleKey.UpArrow);
     
@@ -60,10 +75,22 @@ public class FakeConsole : interactiveCLI.IConsole
     /// <summary>Enqueue Backspace key.</summary>
     public void EnqueueBackspace() => _keys.Enqueue(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false));
 
+    public void EnqueueBackspace(int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            EnqueueBackspace();
+        }
+    }
+
     /// <summary>Enqueue a Ctrl+key combination.</summary>
     public void EnqueueCtrlKey(ConsoleKey key)
         => _keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, true));
 
+    public void EnqueueCtrlKey(char c)
+        => _keys.Enqueue(new ConsoleKeyInfo(c, CharToConsoleKey(c), false, false, true));
+    
+    
     // ── Output inspection ─────────────────────────────────────────────
 
     public string Output => _output.ToString();

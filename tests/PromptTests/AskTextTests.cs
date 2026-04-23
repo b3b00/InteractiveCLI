@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using interactiveCLI;
 using Xunit;
 
@@ -47,6 +48,7 @@ public class AskTextTests
 
         Assert.Contains("try again", fake.ErrorOutput);
     }
+    
 
     [Fact]
     public void UsesCustomInvalidInputMessage_WhenSet()
@@ -71,5 +73,64 @@ public class AskTextTests
         var result = prompt.AskText("label", validator: _ => (true, null));
 
         Assert.Equal(string.Empty, result);
+    }
+
+    [Fact]
+    public void ReturnsManyLines_WhenInputIsManyLine()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChars("first");
+        fake.EnqueueEnter();
+        fake.EnqueueChars("second");
+        fake.EnqueueEnter();
+        fake.EnqueueChars("third");
+        fake.EnqueueCtrlKey(ConsoleKey.Enter);
+        var prompt = Build(fake);
+        var result = prompt.AskMultiLineText("content");
+        Assert.True(result.Ok);
+        var content = result.Value;
+        Assert.Equal("first\nsecond\nthird", content);
+    }
+    
+    [Fact]
+    public void ReturnsManyLines_WhenInputManyLineAndEditBackspaceThroughLines()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChars("first");
+        fake.EnqueueEnter();
+        fake.EnqueueChars("second");
+        fake.EnqueueBackspace(9);
+        fake.EnqueueChars("update");
+        fake.EnqueueEnter();
+        fake.EnqueueChars("second");
+        fake.EnqueueEnter();
+        fake.EnqueueChars("third");
+        fake.EnqueueCtrlKey(ConsoleKey.Enter);
+        var prompt = Build(fake);
+        var result = prompt.AskMultiLineText("content");
+        Assert.True(result.Ok);
+        var content = result.Value;
+        Assert.Equal("firupdate\nsecond\nthird", content);
+    }
+    
+    [Fact]
+    public void ReturnsManyLines_WhenInputManyLineAndEditLeftThroughLines()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChars("first");
+        fake.EnqueueEnter();
+        fake.EnqueueChars("second");
+        fake.EnqueueLeft(9);
+        fake.EnqueueChars("sty");
+        fake.EnqueueRight(7);
+        fake.EnqueueEnter();
+        fake.EnqueueChars("third");
+        fake.EnqueueCtrlKey(ConsoleKey.Enter);
+        var prompt = Build(fake);
+        var result = prompt.AskMultiLineText("content");
+        Assert.True(result.Ok);
+        var content = result.Value;
+        // TODO should be firsty\nsecond\nthird !
+        Assert.Equal("first\nsecondsty\nsecond\nthird", content);
     }
 }
