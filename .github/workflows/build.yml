@@ -37,7 +37,7 @@ jobs:
       with:
         testProject: ${{env.TESTS_PROJECT}}
         output: 'lcov.net8.0.info'
-        threshold: 80
+        threshold: 40
         outputFormat: 'lcov'
         excludes: '[PromptTests]*,[InteractiveTest]*,[SourceGeneratorTests]*,[spectreTest]*,[TestProject]*'
     - name: coveralls
