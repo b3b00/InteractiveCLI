@@ -16,6 +16,8 @@ jobs:
     env:
       PUBLISH_NUGET: true # if true a nuget will be published on version change
       MAIN_CSPROJ: 'src/interactiveCLI/interactiveCLI.csproj' # main project (for nuget packaging)
+      RUN_TESTS: true
+      TESTS_PROJECT: test/PromptTests/PromptTests.csproj
     runs-on: ${{ matrix.os }}
     strategy:
         matrix:
@@ -42,7 +44,7 @@ jobs:
         excludes: '[PromptTests]*,[InteractiveTest]*,[SourceGeneratorTests]*,[spectreTest]*,[TestProject]*'
     - name: coveralls
       uses: coverallsapp/github-action@v1.1.1
-      if: matrix.os == 'windows-latest' && env.RUN_TESTS
+      if: matrix.os == 'ubuntu-latest' && env.RUN_TESTS
       with:
         fail-on-error: false
         github-token: ${{secrets.GITHUB_TOKEN }}
