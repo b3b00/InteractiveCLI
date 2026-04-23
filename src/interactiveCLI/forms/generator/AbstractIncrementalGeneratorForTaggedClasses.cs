@@ -1,8 +1,10 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics.CodeAnalysis;
 
 namespace interactiveCLI.forms.generator;
 
+[ExcludeFromCodeCoverage]
 public abstract class AbstractIncrementalGeneratorForTaggedClasses<T> : IIncrementalGenerator
 {
     private static bool IsTagged(ClassDeclarationSyntax classDeclarationSyntax)

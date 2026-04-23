@@ -1,9 +1,11 @@
 ﻿using System.Text;
 using formGenerator;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics.CodeAnalysis;
 
 namespace interactiveCLI.forms;
 
+[ExcludeFromCodeCoverage]
 public class InputGenerator
 {
     public static string Generate(Input input)

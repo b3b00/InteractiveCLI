@@ -1,7 +1,9 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics.CodeAnalysis;
 
 namespace interactiveCLI.forms;
 
+[ExcludeFromCodeCoverage]
 public class Input
 {
     private string _name;

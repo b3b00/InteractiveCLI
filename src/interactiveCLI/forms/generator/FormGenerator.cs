@@ -5,6 +5,7 @@ using interactiveCLI.forms.generator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Diagnostics.CodeAnalysis;
 
 namespace formGenerator;
 
@@ -12,7 +13,7 @@ namespace formGenerator;
 
 
 
-
+[ExcludeFromCodeCoverage]
 [Generator]
 public class FormGenerator : AbstractIncrementalGeneratorForTaggedClasses<FormAttribute>
 {
