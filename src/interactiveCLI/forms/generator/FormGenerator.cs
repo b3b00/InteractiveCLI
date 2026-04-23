@@ -138,9 +138,12 @@ public partial class {className} {{
                 var inputAttribute = propertyDeclarationSyntax.GetAttribute("Input");
                 var passwordAttribute = propertyDeclarationSyntax.GetAttribute("Password");
                 var textAreaAttribute = propertyDeclarationSyntax.GetAttribute("TextArea");
+                var indexedAttribute = propertyDeclarationSyntax.GetAttribute("Indexed");
+                bool isIndexed = indexedAttribute != null;
                 if (inputAttribute != null || passwordAttribute != null || textAreaAttribute != null)
                 {
                     var input = getInputOrCreateNew(name);
+                    input.IsIndexed =  isIndexed;
                     if (input != null)
                     {
                         input.Field = propertyDeclarationSyntax;

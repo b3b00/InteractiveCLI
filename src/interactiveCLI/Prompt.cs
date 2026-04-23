@@ -188,7 +188,7 @@ public class Prompt
 
     public Result<T> Ask<T>(string label, string pattern = null,string[] possibleValues = null, Func<string,(bool ok, string errorMessage)>? validator = null,
         Func<string, T>? converter = null, Func<string[]> dataSource = null, Predicate<(int, char)>? charValidator = null,
-        Func<bool> condition=null, params Action<T>[] callbacks)
+        Func<bool> condition=null, bool isIndexed=false, params Action<T>[] callbacks)
     {
         if (condition != null && !condition())
         {
@@ -205,7 +205,7 @@ public class Prompt
                 {
                     possibleValues = dataSource();
                 }
-                input = Select(label, choices: possibleValues);
+                input = Select(label, choices: possibleValues, isIndexed:isIndexed);
             }
             else if (!string.IsNullOrEmpty(pattern))
             {
@@ -462,9 +462,9 @@ public class Prompt
 
     }
 
-    public string? Select(string label, Func<string, bool, string> formatter = null, string[] choices = null)
+    public string? Select(string label, Func<string, bool, int, string> formatter = null, string[] choices = null, bool isIndexed = false)
     {
-        interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices, formatter);
+        interactiveCLI.SelectPrompt select = new interactiveCLI.SelectPrompt(label, choices, formatter, isIndexed);
         var choice = select.Select();
         return choice;
     }

@@ -6,6 +6,8 @@ public class Input
 {
     private string _name;
 
+    public bool IsIndexed { get; set; }
+    
     public string Name { get; set; }
 
     public string Pattern { get; set; }

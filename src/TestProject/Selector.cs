@@ -6,7 +6,8 @@ namespace TestProject;
 public partial class Selector
 {
     [Input("select a test : ",index : 0 )]
-    [DataSource("options")] 
+    [DataSource("options")]
+    [Indexed]
     public string Option { get; set; }
 
 

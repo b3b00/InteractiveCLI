@@ -76,7 +76,9 @@ public class InputGenerator
         dataSource:{dataSource},
         charValidator:{charValidator},
         condition:{condition},
-        callbacks:{callbacks});
+        isIndexed:{input.IsIndexed.ToString().ToLower()},
+        callbacks:{callbacks}
+        );
     if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
         {input.Name} = {input.Name}Result.Value;
     }}
