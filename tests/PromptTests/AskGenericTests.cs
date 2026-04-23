@@ -207,8 +207,7 @@ public class AskGenericTests
         bool called = false;
         prompt.Ask<string>("label",
             condition: () => false,
-            callbacks: [_ => called = true]);
-
+            callbacks: [(string v) => called = true ]);
         Assert.False(called);
     }
 
@@ -373,7 +372,7 @@ public class AskGenericTests
         bool fired = false;
         var result = prompt.Ask<string>("label",
             condition: () => false,
-            callbacks: [_ => fired = true]);
+            callbacks: [(string v) => fired = true]);
 
         Assert.False(fired);
         Assert.False(result.IsApplicable);

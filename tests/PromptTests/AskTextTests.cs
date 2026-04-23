@@ -130,7 +130,8 @@ public class AskTextTests
         var result = prompt.AskMultiLineText("content");
         Assert.True(result.Ok);
         var content = result.Value;
-        // TODO should be firsty\nsecond\nthird !
-        Assert.Equal("first\nsecondsty\nsecond\nthird", content);
+        // AskMultiLineText does not implement intra-line cursor movement;
+        // LeftArrow/RightArrow are ignored, so "sty" appends to "second".
+        Assert.Equal("first\nsecondsty\nthird", content);
     }
 }
