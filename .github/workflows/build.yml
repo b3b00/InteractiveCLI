@@ -17,7 +17,7 @@ jobs:
       PUBLISH_NUGET: true # if true a nuget will be published on version change
       MAIN_CSPROJ: 'src/interactiveCLI/interactiveCLI.csproj' # main project (for nuget packaging)
       RUN_TESTS: true
-      TESTS_PROJECT: test/PromptTests/PromptTests.csproj
+      TESTS_PROJECT: tests/PromptTests/PromptTests.csproj
     runs-on: ${{ matrix.os }}
     strategy:
         matrix:
