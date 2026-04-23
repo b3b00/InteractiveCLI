@@ -48,7 +48,7 @@ public partial class TestForm
 
     [Input("nom : ", index: 10)] public string Name { get; set; }
 
-    [Input("date :", "__/__/____", 3)]
+    [Input("date :", "::__/__/____", 3)]
     [CharValidator(nameof(IsCharValid))]  // limit chars to digits only
     [Validator(nameof(ValidateDate))] // validate the full date
     [Converter(nameof(ConvertDate))] // convert string to DateTime
@@ -65,7 +65,7 @@ public partial class TestForm
 
     (bool ok, string errorMessage) ValidateDate(string s)
     {
-        var ok = DateTime.TryParseExact(s, "dd/MM/yyyy", null, DateTimeStyles.None, out var d);
+        var ok = DateTime.TryParseExact(s, "::dd/MM/yyyy", null, DateTimeStyles.None, out var d);
         return (ok, ok ? null : "this is not a valid date");
     }
 

@@ -18,9 +18,66 @@ public class ReadPatternTests
         fake.EnqueueEnter();
         var prompt = Build(fake);
 
-        var result = prompt.ReadPatternCopilot("__/__/____");
+        var result = prompt.AskText("date:",pattern:"__/__/____");
 
         Assert.Equal("23/04/2026", result);
+    }
+    
+    [Fact]
+    public void FillsAllSlotsAndEdit_AndReturnsFilledPattern()
+    {
+        // Pattern __/__/____  → dd/MM/yyyy
+        var fake = new FakeConsole();
+        fake.EnqueueChar('2'); fake.EnqueueChar('3'); // day
+        fake.EnqueueChar('0'); fake.EnqueueChar('4'); // month
+        fake.EnqueueChar('2'); fake.EnqueueChar('0'); fake.EnqueueChar('2'); fake.EnqueueChar('6'); // year
+        fake.EnqueueLeft(); fake.EnqueueLeft(); 
+        fake.EnqueueLeft(); fake.EnqueueLeft();
+        fake.EnqueueChars("2027");
+        fake.EnqueueEnter();
+        var prompt = Build(fake);
+
+        var result = prompt.AskText("date:",pattern:"__/__/____");
+
+        Assert.Equal("23/04/2027", result);
+    }
+    
+    [Fact]
+    public void FillsAllSlotsAndEdit_AndReturnsFilledPattern2()
+    {
+        // Pattern __/__/____  → dd/MM/yyyy
+        var fake = new FakeConsole();
+        fake.EnqueueChar('2'); fake.EnqueueChar('3'); // day
+        fake.EnqueueChar('0'); fake.EnqueueChar('4'); // month
+        fake.EnqueueChar('2'); fake.EnqueueChar('0'); fake.EnqueueChar('2'); fake.EnqueueChar('6'); // year
+        fake.EnqueueLeft(); fake.EnqueueLeft(); 
+        fake.EnqueueRight(); 
+        fake.EnqueueChar('7');
+        fake.EnqueueEnter();
+        var prompt = Build(fake);
+
+        var result = prompt.AskText("date:",pattern:"__/__/____");
+
+        Assert.Equal("23/04/2027", result);
+    }
+    
+    [Fact]
+    public void FillsAllSlotsThenFixLast_AndReturnsFilledPattern()
+    {
+        // Pattern ::__/__/____  → ::dd/MM/yyyy
+        var fake = new FakeConsole();
+        fake.EnqueueBackspace();
+        fake.EnqueueChar('2'); fake.EnqueueChar('3'); // day
+        fake.EnqueueChar('0'); fake.EnqueueChar('4'); // month
+        fake.EnqueueChar('2'); fake.EnqueueChar('0'); fake.EnqueueChar('2'); fake.EnqueueChar('6'); // year
+        fake.EnqueueBackspace();
+        fake.EnqueueChar('7');
+        fake.EnqueueEnter();
+        var prompt = Build(fake);
+
+        var result = prompt.AskText("date:",pattern:"::__/__/____");
+
+        Assert.Equal("::23/04/2027", result);
     }
 
     [Fact]

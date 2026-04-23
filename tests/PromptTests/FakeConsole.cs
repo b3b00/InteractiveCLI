@@ -40,6 +40,14 @@ public class FakeConsole : interactiveCLI.IConsole
     public void EnqueueSpecialKey(ConsoleKey key)
         => _keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, false));
 
+    public void EnqueueLeft() => EnqueueSpecialKey(ConsoleKey.LeftArrow);
+    
+    public void EnqueueRight() => EnqueueSpecialKey(ConsoleKey.RightArrow);
+    
+    public void EnqueueUp() => EnqueueSpecialKey(ConsoleKey.UpArrow);
+    
+    public void EnqueueDown() => EnqueueSpecialKey(ConsoleKey.DownArrow);
+    
     /// <summary>Enqueue Enter key.</summary>
     public void EnqueueEnter() => EnqueueSpecialKey(ConsoleKey.Enter);
 

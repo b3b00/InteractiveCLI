@@ -69,12 +69,6 @@ public class Prompt
         }
     }
 
-    private void Log(string message)
-    {
-        File.AppendAllLines("c:/tmp/debug.txt", [message]);
-    }
-
-
     /// <summary>
     /// This method has been generated with Github Copilot.
     /// It displays a pattern that he user must fill. (ex __/__/____ for a date following the format dd/MM/yyyy)
