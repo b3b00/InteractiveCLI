@@ -84,9 +84,9 @@ namespace {formNamespace?.Name};
 
 public partial class {className} {{
     
-   public void Ask() {{
+   public void Ask(Prompt prompt = null) {{
    
-        Prompt prompt = new Prompt({invalidError});
+        prompt ??= new Prompt({invalidError});
         ";
 
         foreach (Input input in inputs)

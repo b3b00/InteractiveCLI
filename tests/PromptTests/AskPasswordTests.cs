@@ -11,10 +11,7 @@ public class AskPasswordTests
     public void ReturnsTypedPassword_WhenEnterPressed()
     {
         var fake = new FakeConsole();
-        fake.EnqueueChar('p');
-        fake.EnqueueChar('a');
-        fake.EnqueueChar('s');
-        fake.EnqueueChar('s');
+        fake.EnqueueChars(@"pass");
         fake.EnqueueEnter();
         var prompt = Build(fake);
 
@@ -71,24 +68,21 @@ public class AskPasswordTests
     public void ReturnsApplicable_WhenConditionIsTrue()
     {
         var fake = new FakeConsole();
-        fake.EnqueueChar('s');
-        fake.EnqueueChar('e');
-        fake.EnqueueChar('c');
+        fake.EnqueueChars("secret");
         fake.EnqueueEnter();
         var prompt = Build(fake);
 
         var result = prompt.AskPassword("Password: ", condition: () => true);
 
         Assert.True(result.IsApplicable);
-        Assert.Equal("sec", result.Value);
+        Assert.Equal("secret", result.Value);
     }
 
     [Fact]
     public void InvokesCallbacks_AfterPasswordEntered()
     {
         var fake = new FakeConsole();
-        fake.EnqueueChar('a');
-        fake.EnqueueChar('b');
+        fake.EnqueueChars(@"ab");
         fake.EnqueueEnter();
         var prompt = Build(fake);
 
@@ -102,15 +96,13 @@ public class AskPasswordTests
     public void MasksOutput_WithHiddenChar()
     {
         var fake = new FakeConsole();
-        fake.EnqueueChar('s');
-        fake.EnqueueChar('e');
-        fake.EnqueueChar('c');
+        fake.EnqueueChars("secret");
         fake.EnqueueEnter();
         var prompt = Build(fake);
 
         prompt.AskPassword("Password: ", hiddenChar: '#');
 
-        Assert.Contains("###", fake.Output);
-        Assert.DoesNotContain("sec", fake.Output);
+        Assert.Contains("######", fake.Output);
+        Assert.DoesNotContain("secret", fake.Output);
     }
 }

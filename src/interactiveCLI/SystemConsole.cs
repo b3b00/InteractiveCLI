@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace interactiveCLI;
 
+[ExcludeFromCodeCoverage]
 public class SystemConsole : IConsole
 {
     public string? ReadLine() => Console.ReadLine();

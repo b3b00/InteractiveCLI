@@ -1,5 +1,8 @@
-﻿namespace interactiveCLI.forms;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace interactiveCLI.forms;
+
+[ExcludeFromCodeCoverage]
 public class PasswordAttribute : InputAttribute
 {
     private char HiddenChar { get; set; }

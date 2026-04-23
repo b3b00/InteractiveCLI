@@ -175,14 +175,12 @@ public class FormChainTests
     public void FillsPasswordField_WithTypedCharacters()
     {
         var fake = new FakeConsole();
-        fake.EnqueueChar('s');
-        fake.EnqueueChar('e');
-        fake.EnqueueChar('c');
+        fake.EnqueueChars("secret");
         fake.EnqueueEnter();
 
         var result = BuildAndAsk<PasswordForm>(fake);
 
-        Assert.Equal("sec", result.Secret);
+        Assert.Equal("secret", result.Secret);
     }
 
     // ── Chained / multi-step form ────────────────────────────────────────

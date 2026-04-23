@@ -31,6 +31,11 @@ public class FakeConsole : interactiveCLI.IConsole
     public void EnqueueChar(char c)
         => _keys.Enqueue(new ConsoleKeyInfo(c, CharToConsoleKey(c), false, false, false));
 
+    public void EnqueueChars(string value)
+    {
+        foreach(var c in value) EnqueueChar(c);
+    }
+    
     /// <summary>Enqueue a special key (arrow, Enter, Escape, etc.).</summary>
     public void EnqueueSpecialKey(ConsoleKey key)
         => _keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, false));

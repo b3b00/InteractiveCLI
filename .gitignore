@@ -60,3 +60,6 @@ GeneratedFiles/
 .vs/
 .idea
 debug.txt
+*.user
+**/coverage*/*
+**/coverage-report/*
