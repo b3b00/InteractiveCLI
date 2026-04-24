@@ -1,4 +1,5 @@
 using System.Text;
+using interactiveCLI;
 
 namespace PromptTests;
 
@@ -12,6 +13,11 @@ public class FakeConsole : interactiveCLI.IConsole
     private readonly Queue<ConsoleKeyInfo> _keys = new();
     private readonly StringBuilder _output = new();
     private readonly StringBuilder _errorOutput = new();
+
+    public Prompt GetPrompt()
+    {
+        return new Prompt(console: this);
+    }
 
     // ── Input helpers ──────────────────────────────────────────────────
 
@@ -90,11 +96,14 @@ public class FakeConsole : interactiveCLI.IConsole
     public void EnqueueCtrlKey(char c)
         => _keys.Enqueue(new ConsoleKeyInfo(c, CharToConsoleKey(c), false, false, true));
     
+    public void EnqueueCtrlEnter() => EnqueueCtrlKey(ConsoleKey.Enter);
+    
     
     // ── Output inspection ─────────────────────────────────────────────
 
     public string Output => _output.ToString();
     public string ErrorOutput => _errorOutput.ToString();
+    public string[] OutputLines => GetOutputLines();
 
     // ── IConsole implementation ───────────────────────────────────────
 
@@ -134,5 +143,20 @@ public class FakeConsole : interactiveCLI.IConsole
         if (char.IsAsciiDigit(c))
             return (ConsoleKey)('D' - 'A' + (int)ConsoleKey.D0 + (c - '0'));
         return ConsoleKey.Oem1; // fallback for symbols
+    }
+
+    private string[] GetOutputLines()
+    {
+        List<string> lines = new List<string>();
+        using (var reader = new StringReader(Output))
+        {
+            string line = reader.ReadLine();
+            while (line != null)
+            {
+                lines.Add(line);
+                line = reader.ReadLine();
+            }
+        }
+        return lines.ToArray();
     }
 }

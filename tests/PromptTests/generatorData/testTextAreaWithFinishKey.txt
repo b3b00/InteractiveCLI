@@ -1,0 +1,12 @@
+using System.Globalization;
+using System.Text;
+using interactiveCLI.forms;
+
+namespace TestProject;
+
+[Form("\x1b[1;31mInvalid input.\x1b[0m")]
+public partial class TestTextAreaWithFinishKey
+{
+   [TextArea("content : ", index: 0, maxLines:5, finishKey: ConsoleKey.D)]
+   public string Test { get; set; }
+}

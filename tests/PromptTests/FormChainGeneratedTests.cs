@@ -9,8 +9,6 @@ namespace PromptTests;
 /// </summary>
 public class FormChainGeneratedTests
 {
-    private static Prompt Prompt(FakeConsole fake) => new Prompt(console: fake);
-
     // ── Simple text form ────────────────────────────────────────────────
 
     [Fact]
@@ -21,7 +19,7 @@ public class FormChainGeneratedTests
         fake.EnqueueLine("Paris");
         var form = new GenSimpleTextForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("Alice", form.Name);
         Assert.Equal("Paris", form.City);
@@ -35,7 +33,7 @@ public class FormChainGeneratedTests
         fake.EnqueueLine("London");
         var form = new GenSimpleTextForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("Bob", form.Name);
         Assert.Equal("London", form.City);
@@ -52,7 +50,7 @@ public class FormChainGeneratedTests
         fake.EnqueueLine("9.5");
         var form = new GenMixedTypesForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("charlie", form.Username);
         Assert.Equal(30, form.Age);
@@ -69,7 +67,7 @@ public class FormChainGeneratedTests
         fake.EnqueueLine("7.0");
         var form = new GenMixedTypesForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal(25, form.Age);
     }
@@ -83,7 +81,7 @@ public class FormChainGeneratedTests
         fake.EnqueueLine("yes");
         var form = new GenBoolForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.True(form.Agree);
     }
@@ -95,7 +93,7 @@ public class FormChainGeneratedTests
         fake.EnqueueLine("no");
         var form = new GenBoolForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.False(form.Agree);
     }
@@ -109,7 +107,7 @@ public class FormChainGeneratedTests
         fake.EnqueueEnter();
         var form = new GenSelectForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("Red", form.Colour);
     }
@@ -122,7 +120,7 @@ public class FormChainGeneratedTests
         fake.EnqueueEnter();
         var form = new GenSelectForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("Green", form.Colour);
     }
@@ -139,7 +137,7 @@ public class FormChainGeneratedTests
         fake.EnqueueEnter();
         var form = new GenPasswordForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("sec", form.Secret);
     }

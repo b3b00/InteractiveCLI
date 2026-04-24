@@ -1,0 +1,11 @@
+﻿using System.Globalization;
+using System.Text;
+using interactiveCLI.forms;
+
+
+[Form]
+public partial class TestNotPartial
+{
+    [Input("code : ", index: 0)]
+    public string Test { get; set; }
+}

@@ -9,16 +9,14 @@ namespace PromptTests;
 /// </summary>
 public class AskGenericTests
 {
-    private static Prompt Build(FakeConsole fake) => new Prompt(console: fake);
 
-    // ── validator ─────────────────────────────────────────────────────────────
 
     [Fact]
     public void Validator_ReturnsValue_WhenValidationPasses()
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("hello");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             validator: s => (s.Length >= 3, "too short"));
@@ -33,7 +31,7 @@ public class AskGenericTests
         var fake = new FakeConsole();
         fake.EnqueueLine("ab");      // too short — rejected
         fake.EnqueueLine("abc");     // accepted
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             validator: s => (s.Length >= 3, "too short"));
@@ -48,7 +46,7 @@ public class AskGenericTests
         var fake = new FakeConsole();
         fake.EnqueueLine("bad");
         fake.EnqueueLine("good-enough");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         prompt.Ask<string>("label",
             validator: s => (s.StartsWith("good"), "must start with 'good'"));
@@ -62,7 +60,7 @@ public class AskGenericTests
         var fake = new FakeConsole();
         fake.EnqueueLine("0");    // out of range
         fake.EnqueueLine("5");    // in range
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<int>("label",
             validator: s => int.TryParse(s, out var v) && v > 0
@@ -79,7 +77,7 @@ public class AskGenericTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("hello");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             validator: _ => (true, null),
@@ -93,7 +91,7 @@ public class AskGenericTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("42");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<int>("label",
             validator: s => (int.TryParse(s, out _), "not an int"),
@@ -108,7 +106,7 @@ public class AskGenericTests
         var fake = new FakeConsole();
         fake.EnqueueLine("bad");
         fake.EnqueueLine("ok");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         int converterCallCount = 0;
         prompt.Ask<string>("label",
@@ -124,7 +122,7 @@ public class AskGenericTests
     public void Condition_False_ReturnsNotApplicable_WithoutReadingInput()
     {
         var fake = new FakeConsole();   // no input queued — would throw if read
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             condition: () => false);
@@ -137,7 +135,7 @@ public class AskGenericTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("hi");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             condition: () => true);
@@ -152,7 +150,7 @@ public class AskGenericTests
         bool show = false;
         var fake = new FakeConsole();
         fake.EnqueueLine("visible");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         // First call: condition false → not applicable, no input consumed
         var r1 = prompt.Ask<string>("label", condition: () => show);
@@ -172,7 +170,7 @@ public class AskGenericTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("42");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         int captured = -1;
         prompt.Ask<int>("label", callbacks: [v => captured = v]);
@@ -185,7 +183,7 @@ public class AskGenericTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("7");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var log = new List<string>();
         prompt.Ask<int>("label",
@@ -202,7 +200,7 @@ public class AskGenericTests
     public void Callback_IsNotInvoked_WhenConditionIsFalse()
     {
         var fake = new FakeConsole();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         bool called = false;
         prompt.Ask<string>("label",
@@ -216,7 +214,7 @@ public class AskGenericTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("hello");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         string? seen = null;
         prompt.Ask<string>("label",
@@ -236,7 +234,7 @@ public class AskGenericTests
     {
         var fake = new FakeConsole();
         fake.EnqueueEnter();          // select first item
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             dataSource: () => ["Apricot", "Banana", "Cherry"]);
@@ -250,7 +248,7 @@ public class AskGenericTests
         var fake = new FakeConsole();
         fake.EnqueueDown();
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             dataSource: () => ["Apricot", "Banana", "Cherry"]);
@@ -263,7 +261,7 @@ public class AskGenericTests
     {
         var fake = new FakeConsole();
         fake.EnqueueEscape();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         // Select returns null on Escape; Ask<T> will loop and try again.
         // Enqueue a valid selection for the retry so the test terminates.
@@ -284,7 +282,7 @@ public class AskGenericTests
         fake.EnqueueDown();
         fake.EnqueueDown();
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             possibleValues: ["X", "Y", "Z"]);
@@ -297,7 +295,7 @@ public class AskGenericTests
     {
         var fake = new FakeConsole();
         fake.EnqueueChar('2');
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             possibleValues: ["Alpha", "Beta", "Gamma"],
@@ -317,7 +315,7 @@ public class AskGenericTests
         fake.EnqueueChar('1');    // accepted slot 0
         fake.EnqueueChar('2');    // accepted slot 1
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             pattern: "__",
@@ -333,7 +331,7 @@ public class AskGenericTests
         fake.EnqueueChar('A');
         fake.EnqueueChar('z');
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.Ask<string>("label",
             pattern: "__",
@@ -350,7 +348,7 @@ public class AskGenericTests
         var fake = new FakeConsole();
         fake.EnqueueLine("nope");    // fails validation
         fake.EnqueueLine("42");      // passes
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         int convertCalls = 0;
         var result = prompt.Ask<int>("label",
@@ -367,7 +365,7 @@ public class AskGenericTests
     public void Condition_False_CallbackNeverFires_InputNeverRead()
     {
         var fake = new FakeConsole();   // empty queue
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         bool fired = false;
         var result = prompt.Ask<string>("label",

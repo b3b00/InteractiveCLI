@@ -5,7 +5,6 @@ namespace PromptTests;
 
 public class AskPasswordTests
 {
-    private static Prompt Build(FakeConsole console) => new Prompt(console: console);
 
     [Fact]
     public void ReturnsTypedPassword_WhenEnterPressed()
@@ -13,7 +12,7 @@ public class AskPasswordTests
         var fake = new FakeConsole();
         fake.EnqueueChars(@"pass");
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskPassword("Password: ");
 
@@ -32,7 +31,7 @@ public class AskPasswordTests
         fake.EnqueueBackspace();     // erase typo
         fake.EnqueueChar('s');
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskPassword("Password: ");
 
@@ -46,7 +45,7 @@ public class AskPasswordTests
         fake.EnqueueBackspace();     // backspace on empty — should be ignored
         fake.EnqueueChar('a');
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskPassword("Password: ");
 
@@ -57,7 +56,7 @@ public class AskPasswordTests
     public void ReturnsNotApplicable_WhenConditionIsFalse()
     {
         var fake = new FakeConsole();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskPassword("Password: ", condition: () => false);
 
@@ -70,7 +69,7 @@ public class AskPasswordTests
         var fake = new FakeConsole();
         fake.EnqueueChars("secret");
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();;
 
         var result = prompt.AskPassword("Password: ", condition: () => true);
 
@@ -84,7 +83,7 @@ public class AskPasswordTests
         var fake = new FakeConsole();
         fake.EnqueueChars(@"ab");
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         string? captured = null;
         prompt.AskPassword("Password: ", callbacks: [s => captured = s]);
@@ -98,11 +97,32 @@ public class AskPasswordTests
         var fake = new FakeConsole();
         fake.EnqueueChars("secret");
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         prompt.AskPassword("Password: ", hiddenChar: '#');
 
         Assert.Contains("######", fake.Output);
         Assert.DoesNotContain("secret", fake.Output);
+    }
+    
+    [Fact]
+    public void MasksOutput_ValidationFails()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChars("12345");
+        fake.EnqueueEnter();
+        var prompt = fake.GetPrompt();
+
+        var errorMessage = "password is damn simple !";
+        var result = prompt.AskPassword("Password: ", validator: (string v) =>
+        {
+            bool ok = v != "12345";
+            return (ok, ok ? null : errorMessage);
+        });
+        
+        Assert.DoesNotContain("secret", fake.Output);
+        Assert.False(result.Ok);
+        Assert.Contains(errorMessage, fake.ErrorOutput);
+        
     }
 }

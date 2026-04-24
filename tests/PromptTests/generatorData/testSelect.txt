@@ -1,0 +1,17 @@
+using System.Globalization;
+using System.Text;
+using interactiveCLI.forms;
+
+namespace TestProject;
+
+[Form]
+public partial class TestSelect
+{
+   [Input("select a fruit :", index: 10)]
+       [DataSource(nameof(SelectMeDataSource))]
+       public string SelectMe { get; set; }
+       
+   
+   
+       public string[] SelectMeDataSource() => ["Orange", "Apple", "Banana", "Apricot"];
+}

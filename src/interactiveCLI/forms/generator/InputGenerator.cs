@@ -5,17 +5,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace interactiveCLI.forms;
 
-[ExcludeFromCodeCoverage]
 public class InputGenerator
 {
     public static string Generate(Input input)
 
     {
         StringBuilder builder = new StringBuilder();
-        var attribute = input.Field.GetAttribute("Input");
         string type = input.Field.Type.ToString();
         string possibleValues = "null";
-        var inputAttribute = input.Field.GetAttribute("Input");
         string validator = GenerateMethod(input.Validator);
         string converter = GenerateMethod(input.Converter);
         string dataSource = GenerateMethod(input.DataSource,withArgument:false);
@@ -61,7 +58,7 @@ public class InputGenerator
             }
 
             ask = $@"
-    var {input.Name}Result = prompt.AskMultiLineText(""{label}"", maxLines:{input.MaxLines}, finishKey:ConsoleKey.{input.FinishKey.ToString()});
+    var {input.Name}Result = prompt.AskMultiLineText(""{label}"", maxLines:{input.MaxLines}, finishKey:ConsoleKey.{input.FinishKey.ToString()}, validator:{validator}, condition:{condition}, {callbacks});
     if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
         {input.Name} = {input.Name}Result.Value;
     }}

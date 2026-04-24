@@ -5,7 +5,7 @@ namespace PromptTests;
 
 public class ReadPatternTests
 {
-    private static Prompt Build(FakeConsole console) => new Prompt(console: console);
+    
 
     [Fact]
     public void FillsAllSlots_AndReturnsFilledPattern()
@@ -16,7 +16,7 @@ public class ReadPatternTests
         fake.EnqueueChar('0'); fake.EnqueueChar('4'); // month
         fake.EnqueueChar('2'); fake.EnqueueChar('0'); fake.EnqueueChar('2'); fake.EnqueueChar('6'); // year
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskText("date:",pattern:"__/__/____");
 
@@ -35,7 +35,7 @@ public class ReadPatternTests
         fake.EnqueueLeft(); fake.EnqueueLeft();
         fake.EnqueueChars("2027");
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskText("date:",pattern:"__/__/____");
 
@@ -54,7 +54,7 @@ public class ReadPatternTests
         fake.EnqueueRight(); 
         fake.EnqueueChar('7');
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskText("date:",pattern:"__/__/____");
 
@@ -73,7 +73,7 @@ public class ReadPatternTests
         fake.EnqueueBackspace();
         fake.EnqueueChar('7');
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskText("date:",pattern:"::__/__/____");
 
@@ -86,7 +86,7 @@ public class ReadPatternTests
         var fake = new FakeConsole();
         fake.EnqueueChar('1');
         fake.EnqueueEscape();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.ReadPatternCopilot("__/__/____");
 
@@ -105,7 +105,7 @@ public class ReadPatternTests
         fake.EnqueueChar('C');
         fake.EnqueueChar('D');
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.ReadPatternCopilot("__-__");
 
@@ -121,7 +121,7 @@ public class ReadPatternTests
         fake.EnqueueChar('1');   // accepted
         fake.EnqueueChar('2');   // accepted
         fake.EnqueueEnter();
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.ReadPatternCopilot(
             "__",

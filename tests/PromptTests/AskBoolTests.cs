@@ -8,7 +8,6 @@ public class AskBoolTests
     private static readonly string[] TrueValues  = ["yes", "y"];
     private static readonly string[] FalseValues = ["no",  "n"];
 
-    private static Prompt Build(FakeConsole console) => new Prompt(console: console);
 
     [Theory]
     [InlineData("yes")]
@@ -17,7 +16,7 @@ public class AskBoolTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine(input);
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskBool("label", TrueValues, FalseValues);
 
@@ -31,7 +30,7 @@ public class AskBoolTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine(input);
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskBool("label", TrueValues, FalseValues);
 
@@ -44,7 +43,7 @@ public class AskBoolTests
         var fake = new FakeConsole();
         fake.EnqueueLine("maybe");   // neither true nor false
         fake.EnqueueLine("yes");     // valid
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskBool("label", TrueValues, FalseValues);
 
@@ -57,7 +56,7 @@ public class AskBoolTests
         var fake = new FakeConsole();
         fake.EnqueueLine("blah");
         fake.EnqueueLine("no");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         prompt.AskBool("label", TrueValues, FalseValues);
 
@@ -70,10 +69,42 @@ public class AskBoolTests
         var fake = new FakeConsole();
         fake.EnqueueLine("invalid");
         fake.EnqueueLine("n");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskBool("label", TrueValues, FalseValues);
 
         Assert.False(result);
     }
+
+    [Fact]
+    public void CheckToggleWithSpace()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueSpace();
+        fake.EnqueueEnter();
+        var prompt = fake.GetPrompt();
+
+        var result = prompt.Ask<bool>("toggle");
+        Assert.Contains("toggle❌✔️", fake.Output);
+        Assert.True(result.Value);
+        ;
+    }
+    
+    [Fact]
+    public void CheckDoubleToggleWithSpace()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueSpace();
+        fake.EnqueueSpace();
+        fake.EnqueueEnter();
+        var prompt = fake.GetPrompt();
+
+        var result = prompt.Ask<bool>("toggle");
+        Assert.Contains("toggle❌✔️❌", fake.Output);
+        Assert.False(result.Value);
+        ;
+    }
+    
+    
+    
 }

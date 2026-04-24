@@ -1,0 +1,26 @@
+using System.Globalization;
+using System.Text;
+using interactiveCLI.forms;
+
+namespace TestProject;
+
+[Form("\x1b[1;31mInvalid input.\x1b[0m")]
+public partial class TestTextWithCallbacks
+{
+    public bool Called1 {get; set;}
+
+    public void CallBack1(string value) {
+        Called1 = true;
+    }
+    
+    public bool Called2 {get; set;}
+    
+    public void CallBack2(string value) {
+        Called2 = true;
+    }
+
+   [Input("text : ", index: 0, maxLines:5, finishKey: ConsoleKey.D)]
+   [Callback(nameof(CallBack1)]
+   [Callback(nameof(CallBack2)]
+   public string Test { get; set; }
+}

@@ -10,15 +10,21 @@ using System.Diagnostics.CodeAnalysis;
 namespace formGenerator;
 
 
+public enum FormGeneratorErrors
+{
+    NS_NOT_FOUND,
+    NOT_PARTIAL,
+}
 
 
-
-[ExcludeFromCodeCoverage]
 [Generator]
 public class FormGenerator : AbstractIncrementalGeneratorForTaggedClasses<FormAttribute>
 {
 
-    
+    private string GetErrorId(FormGeneratorErrors error)
+    {
+        return $"FORM_ERROR_{error}";
+    }
 
     /// <summary>
     /// This method is where the real work of the generator is done
@@ -48,7 +54,7 @@ public class FormGenerator : AbstractIncrementalGeneratorForTaggedClasses<FormAt
         {
             context.ReportDiagnostic(Diagnostic.Create(
                 new DiagnosticDescriptor(
-                    "FormGeneratorErrors.NS_NOT_FOUND",
+                    GetErrorId(FormGeneratorErrors.NS_NOT_FOUND),
                     $"Could not find namespace for {className}",
                     "Form {0} has no namespace",
                     "form",
@@ -59,13 +65,11 @@ public class FormGenerator : AbstractIncrementalGeneratorForTaggedClasses<FormAt
         var isPartial =
             formClass.Modifiers.Any(modifier => modifier.IsKind(SyntaxKind.PartialKeyword));
 
-        // GeneratorLogging.LogMessage($"{className} {(isPartial ? "is" : "is not")} partial");
-
         if (!isPartial)
         {
             context.ReportDiagnostic(Diagnostic.Create(
                 new DiagnosticDescriptor(
-                    "FormGeneratorErrors.NOT_PARTIAL",
+                    GetErrorId(FormGeneratorErrors.NOT_PARTIAL),
                     "Form is not partial",
                     "Form {0} is not partial",
                     "form",

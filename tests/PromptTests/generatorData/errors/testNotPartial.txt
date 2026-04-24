@@ -1,0 +1,12 @@
+﻿using System.Globalization;
+using System.Text;
+using interactiveCLI.forms;
+
+namespace TestProject;
+
+[Form]
+public class TestNotPartial
+{
+    [Input("code : ", index: 0)]
+    public string Test { get; set; }
+}

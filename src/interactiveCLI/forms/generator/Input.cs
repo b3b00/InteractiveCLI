@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace interactiveCLI.forms;
 
-[ExcludeFromCodeCoverage]
+
 public class Input
 {
     private string _name;
@@ -11,8 +11,6 @@ public class Input
     public bool IsIndexed { get; set; }
     
     public string Name { get; set; }
-
-    public string Pattern { get; set; }
     
     public bool IsPasword { get; set; }
     
@@ -41,13 +39,5 @@ public class Input
     {
         Name = name;
     }
-    
-    public Input(string name, PropertyDeclarationSyntax field, string validator,
-        string converter, string dataSource) : this(name)
-    {
-        Field = field;
-        Validator = validator;
-        Converter = converter;
-        DataSource = dataSource;
-    } 
+ 
 }

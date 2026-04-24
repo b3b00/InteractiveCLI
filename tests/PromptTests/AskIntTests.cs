@@ -5,14 +5,14 @@ namespace PromptTests;
 
 public class AskIntTests
 {
-    private static Prompt Build(FakeConsole console) => new Prompt(console: console);
+    
 
     [Fact]
     public void ReturnsParsedInteger_WhenInputIsValid()
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("42");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskInt("label");
 
@@ -25,7 +25,7 @@ public class AskIntTests
         var fake = new FakeConsole();
         fake.EnqueueLine("abc");   // invalid
         fake.EnqueueLine("7");     // valid
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskInt("label");
 
@@ -38,7 +38,7 @@ public class AskIntTests
         var fake = new FakeConsole();
         fake.EnqueueLine("3.14");
         fake.EnqueueLine("3");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskInt("label");
 
@@ -51,7 +51,7 @@ public class AskIntTests
         var fake = new FakeConsole();
         fake.EnqueueLine("3");    // valid int, but fails range check
         fake.EnqueueLine("10");   // valid int, passes range check
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskInt(
             "label",
@@ -68,10 +68,25 @@ public class AskIntTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("-99");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskInt("label");
 
         Assert.Equal(-99, result);
+    }
+    
+    [Fact]
+    public void LowerThan5()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueLine("10");
+        fake.EnqueueLine("2");
+        var prompt = fake.GetPrompt();
+        
+        IntValidation validation = new IntValidation();
+        validation.Ask(prompt);
+        Assert.Equal(2, validation.Integer);
+        
+        
     }
 }

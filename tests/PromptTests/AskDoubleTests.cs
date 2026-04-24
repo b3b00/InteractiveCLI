@@ -5,14 +5,12 @@ namespace PromptTests;
 
 public class AskDoubleTests
 {
-    private static Prompt Build(FakeConsole console) => new Prompt(console: console);
-
     [Fact]
     public void ReturnsParsedDouble_WhenInputIsValid()
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("3.14");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskDouble("label");
 
@@ -25,7 +23,7 @@ public class AskDoubleTests
         var fake = new FakeConsole();
         fake.EnqueueLine("not-a-number");
         fake.EnqueueLine("2.5");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskDouble("label");
 
@@ -37,7 +35,7 @@ public class AskDoubleTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("10");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskDouble("label");
 
@@ -50,7 +48,7 @@ public class AskDoubleTests
         var fake = new FakeConsole();
         fake.EnqueueLine("-1.5");  // negative — rejected
         fake.EnqueueLine("0.5");   // positive — accepted
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskDouble(
             "label",

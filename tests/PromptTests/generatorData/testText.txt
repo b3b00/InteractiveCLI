@@ -1,0 +1,12 @@
+using System.Globalization;
+using System.Text;
+using interactiveCLI.forms;
+
+namespace TestProject;
+
+[Form("\x1b[1;31mInvalid input.\x1b[0m")]
+public partial class TestText
+{
+   [Input("code : ", index: 0)]
+   public string Test { get; set; }
+}

@@ -49,12 +49,11 @@ public class PasswordForm
 
 public class FormChainTests
 {
-    // Helpers
-    private static Prompt Prompt(FakeConsole fake) => new Prompt(console: fake);
+    
 
     private static T BuildAndAsk<T>(FakeConsole fake) where T : new()
     {
-        var prompt = Prompt(fake);
+        var prompt = fake.GetPrompt();
         var builder = new FormBuilder<T>();
         var instance = new T();
         var form = builder.Build(instance, prompt);
@@ -193,7 +192,7 @@ public class FormChainTests
         fake.EnqueueLine("20");
         fake.EnqueueLine("8.8");
 
-        var prompt = Prompt(fake);
+        var prompt = fake.GetPrompt();
         var result = prompt.AskForm<MixedTypesForm>();
 
         Assert.Equal("eve", result.Username);

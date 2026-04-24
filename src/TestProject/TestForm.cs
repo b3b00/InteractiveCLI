@@ -49,14 +49,14 @@ public partial class TestForm
     [Input("nom : ", index: 10)] public string Name { get; set; }
 
     [Input("date :", "__/__/____", 3)]
-    [CharValidator(nameof(IsCharValid))]  // limit chars to digits only
+    [CharValidator(nameof(OnlyDigits))]  // limit chars to digits only
     [Validator(nameof(ValidateDate))] // validate the full date
     [Converter(nameof(ConvertDate))] // convert string to DateTime
     [Callback(nameof(DisplayDate))] // display the selected date
     DateTime BirthDay { get; set; }
 
 
-    public bool IsCharValid((int position, char c) t)
+    public bool OnlyDigits((int position, char c) t)
     {
         var isDigit = char.IsDigit(t.c);
         return isDigit;

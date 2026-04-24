@@ -185,8 +185,6 @@ public class Prompt
             {
                 return value;
             }
-
-            answer = AskText(label, CompoundValidator);
         }
     }
 
@@ -448,8 +446,12 @@ public class Prompt
                     }
                     else
                     {
-                        errorMessage = validation.errorMessage ?? errorMessage; 
+                        errorMessage = validation.errorMessage ?? errorMessage;
                         _console.WriteError(errorMessage);
+                        return new Result<string>()
+                        {
+                            Ok = false,
+                        };
                     }
                 }
             }
@@ -479,13 +481,25 @@ public class Prompt
     /// Press Enter to create new lines, and Ctrl+Enter or Escape to finish input.
     /// </summary>
     /// <param name="label">The prompt label to display</param>
-    /// <param name="validator">Optional validator function</param>
     /// <param name="maxLines">Maximum number of lines allowed (0 for unlimited)</param>
     /// <param name="finishKey">Key combination to finish input (default: Ctrl+Enter)</param>
+    /// <param name="validator">Optional validator function</param>
+    /// <param name="condition"></param>
+    /// <param name="callbacks"></param>
     /// <returns>The multi-line text input</returns>
-    public Result<string> AskMultiLineText(string label, Func<string, (bool ok, string errorMessage)> validator = null,
-        int maxLines = 0, ConsoleKey finishKey = ConsoleKey.Enter)
+    ///
+    public Result<string> AskMultiLineText(string label,
+        int maxLines = 0,
+        ConsoleKey finishKey = ConsoleKey.Enter,
+        Func<string, (bool ok, string errorMessage)>? validator = null,
+        Func<bool>? condition=null,
+        params Action<string>[] callbacks)
     {
+        if (condition != null && !condition())
+        {
+            return new  Result<string> { IsApplicable = false };
+        } 
+        
         while (true)
         {
             _console.WriteLine(label);
@@ -563,6 +577,14 @@ public class Prompt
                 var validation = validator(result);
                 if (validation.ok)
                 {
+                    if (callbacks != null && callbacks.Length > 0)
+                    {
+                        foreach (var callback in callbacks)
+                        {
+                            callback(result);
+                        }
+                    }
+                    
                     return new Result<string>()
                     {
                         Value = result,
@@ -584,6 +606,14 @@ public class Prompt
             }
             else
             {
+                if (callbacks != null && callbacks.Length > 0)
+                {
+                    foreach (var callback in callbacks)
+                    {
+                        callback(result);
+                    }
+                }
+                
                 return new Result<string>()
                 {
                     Value = result,

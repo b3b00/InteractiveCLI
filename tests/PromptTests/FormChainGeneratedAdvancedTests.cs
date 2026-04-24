@@ -9,7 +9,6 @@ namespace PromptTests;
 /// </summary>
 public class FormChainGeneratedAdvancedTests
 {
-    private static Prompt Prompt(FakeConsole fake) => new Prompt(console: fake);
 
     // ── [Validator] ───────────────────────────────────────────────────────────
 
@@ -21,7 +20,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueLine("alice");    // valid
         var form = new GenValidatorForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("alice", form.Username);
     }
@@ -34,7 +33,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueLine("xyz");
         var form = new GenValidatorForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Contains("username must be at least 3 characters", fake.ErrorOutput);
     }
@@ -46,7 +45,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueLine("abc");
         var form = new GenValidatorForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("abc", form.Username);
     }
@@ -60,7 +59,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueLine("5");
         var form = new GenConverterForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal(50, form.Value);   // converter multiplies by 10
     }
@@ -73,7 +72,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueLine("3");              // passes
         var form = new GenConverterForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal(30, form.Value);
     }
@@ -88,7 +87,7 @@ public class FormChainGeneratedAdvancedTests
         // Nickname condition is false — queue only has one line
         var form = new GenConditionForm { ShowNickname = false };
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("main-name", form.Name);
         Assert.Equal(string.Empty, form.Nickname);   // not set
@@ -102,7 +101,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueLine("nick");
         var form = new GenConditionForm { ShowNickname = true };
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("main-name", form.Name);
         Assert.Equal("nick", form.Nickname);
@@ -115,7 +114,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueLine("bob");
         var form = new GenConditionForm { ShowNickname = false, Nickname = "preset" };
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("preset", form.Nickname);
     }
@@ -129,7 +128,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueLine("99");
         var form = new GenCallbackForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal(99, form.Score);
         Assert.Contains(99, form.SeenValues);
@@ -143,7 +142,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueLine("7");      // accepted
         var form = new GenCallbackForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Single(form.SeenValues);
         Assert.Equal(7, form.SeenValues[0]);
@@ -164,7 +163,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueEnter();
         var form = new GenCharValidatorForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("12-34", form.Code);
     }
@@ -178,7 +177,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueEscape();
         var form = new GenCharValidatorForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal(string.Empty, form.Code);
     }
@@ -192,7 +191,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueEnter();
         var form = new GenDataSourceForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("Apple", form.Fruit);
     }
@@ -206,7 +205,7 @@ public class FormChainGeneratedAdvancedTests
         fake.EnqueueEnter();
         var form = new GenDataSourceForm();
 
-        form.Ask(Prompt(fake));
+        form.Ask(fake.GetPrompt());
 
         Assert.Equal("Cherry", form.Fruit);
     }

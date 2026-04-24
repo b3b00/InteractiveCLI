@@ -6,14 +6,13 @@ namespace PromptTests;
 
 public class AskTextTests
 {
-    private static Prompt Build(FakeConsole console) => new Prompt(console: console);
 
     [Fact]
     public void ReturnsEnteredText_WhenValidatorAccepts()
     {
         var fake = new FakeConsole();
         fake.EnqueueLine("hello");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskText("label", validator: s => (true, null));
 
@@ -26,7 +25,7 @@ public class AskTextTests
         var fake = new FakeConsole();
         fake.EnqueueLine("bad");    // first attempt — rejected
         fake.EnqueueLine("good");   // second attempt — accepted
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskText(
             "label",
@@ -42,7 +41,7 @@ public class AskTextTests
         var fake = new FakeConsole();
         fake.EnqueueLine("bad");
         fake.EnqueueLine("ok");
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         prompt.AskText("label", validator: s => (s == "ok", "try again"));
 
@@ -68,7 +67,7 @@ public class AskTextTests
     {
         var fake = new FakeConsole();
         fake.EnqueueLine(string.Empty);
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
 
         var result = prompt.AskText("label", validator: _ => (true, null));
 
@@ -85,7 +84,7 @@ public class AskTextTests
         fake.EnqueueEnter();
         fake.EnqueueChars("third");
         fake.EnqueueCtrlKey(ConsoleKey.Enter);
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
         var result = prompt.AskMultiLineText("content");
         Assert.True(result.Ok);
         var content = result.Value;
@@ -106,7 +105,7 @@ public class AskTextTests
         fake.EnqueueEnter();
         fake.EnqueueChars("third");
         fake.EnqueueCtrlKey(ConsoleKey.Enter);
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
         var result = prompt.AskMultiLineText("content");
         Assert.True(result.Ok);
         var content = result.Value;
@@ -126,7 +125,7 @@ public class AskTextTests
         fake.EnqueueEnter();
         fake.EnqueueChars("third");
         fake.EnqueueCtrlKey(ConsoleKey.Enter);
-        var prompt = Build(fake);
+        var prompt = fake.GetPrompt();
         var result = prompt.AskMultiLineText("content");
         Assert.True(result.Ok);
         var content = result.Value;
