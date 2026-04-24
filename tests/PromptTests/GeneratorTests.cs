@@ -138,6 +138,18 @@ public class GeneratorTests
         ];
         var test = GenerateAndCheckExpectations("testTextWithCallBacks.txt", expectations);
     }
+    
+    [Fact]
+    public void TestCharValidator()
+    {
+        string[] expectations =
+        [
+            "partial class TestTextWithCharValidator {",
+            "prompt.Ask<string>(\"code : \"",
+            "charValidator:((int position, char c) s) => OnlySpecials(s),"
+        ];
+        var test = GenerateAndCheckExpectations("testTextWithcharvalidator.txt", expectations);
+    }
 
     
     private string GetErrorId(FormGeneratorErrors error)

@@ -1,0 +1,16 @@
+using System.Globalization;
+using System.Text;
+using interactiveCLI.forms;
+
+namespace TestProject;
+
+[Form("\x1b[1;31mInvalid input.\x1b[0m")]
+public partial class TestTextWithCharValidator
+{
+
+    public bool OnlyDigits((int position, char c) t) => ['@','%','#','$'].Contains(t.c);
+
+   [Input("code : ", index: 0)]
+   [CharValidator(nameof(OnlySpecials)]
+   public string Test { get; set; }
+}
