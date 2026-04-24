@@ -1,5 +1,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/b3b00/InteractiveCLI/badge.svg?branch=main)](https://coveralls.io/github/b3b00/InteractiveCLI?branch=main)
 
+
+a more complete documentation ca neb found here : https://github.com/b3b00/InteractiveCLI/blob/main/doc/input-types.md
+
 InteractiveCLI is a source generator that helps building interactive console applications. 
 
 how to use :
