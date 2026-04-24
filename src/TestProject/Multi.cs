@@ -14,7 +14,15 @@ namespace TestProject
         public string Title { get; set; }
 
         [TextArea("code : ", index: 2, maxLines: 0, finishKey: ConsoleKey.D)]
+        [Validator(nameof(ValidateText))]
         public string Text { get; set; }
+
+        public (bool, string) ValidateText(string text)
+        {
+            bool ok = !text.Contains("fuck", StringComparison.InvariantCultureIgnoreCase);
+            var message = ok ? null : "be polite please 😡😡😡.";
+            return (ok, message);
+        }
 
         public override string ToString()
         {

@@ -158,8 +158,6 @@ public partial class {className} {{
                     }
 
                     input.IsPasword = inputAttribute == null && passwordAttribute != null;
-                                        input.IsPasword = inputAttribute == null && passwordAttribute != null;
-                    input.IsPasword = inputAttribute == null && passwordAttribute != null;
                     input.IsTextArea = textAreaAttribute != null;
                     input.MaxLines = textAreaAttribute != null ? textAreaAttribute.GetNthIntArg(1, "maxLines") : 0;
 

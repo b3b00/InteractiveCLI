@@ -29,7 +29,7 @@ public class InputGenerator
         }
         
         
-        if (type == "bool" | type == "Boolean" 
+        if ((type == "bool" || type == "Boolean") 
             && (string.IsNullOrEmpty(validator) && string.IsNullOrEmpty(converter) && string.IsNullOrEmpty(charValidator)))
         {
             converter = @"(s) => s == true.ToString()";

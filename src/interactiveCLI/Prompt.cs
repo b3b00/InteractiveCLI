@@ -179,13 +179,8 @@ public class Prompt
         }
 
         var answer = AskText(label, CompoundValidator);
-        while (true)
-        {
-            if (int.TryParse(answer, out var value))
-            {
-                return value;
-            }
-        }
+        int.TryParse(answer, out var value);
+        return value;
     }
 
     public Result<T> Ask<T>(string label, string pattern = null,string[] possibleValues = null, Func<string,(bool ok, string errorMessage)>? validator = null,
@@ -595,12 +590,7 @@ public class Prompt
                 else
                 {
                     var errorMessage = validation.errorMessage ?? InvalidInputMessage ?? "Invalid input.";
-                    _console.WriteLine(errorMessage);
-                    _console.WriteLine();
-                    return new Result<string>()
-                    {
-                        Ok = false,                        
-                    };
+                    _console.WriteError(errorMessage);
                     continue;
                 }
             }

@@ -91,20 +91,25 @@ public class TextAreaTests
     }
 
     [Fact]
-    public void TestArea_ValidateFails()
+    public void TestArea_ValidateFails_ThenRetries()
     {
         var fake = new FakeConsole();
+        // First attempt: contains "suck" → rejected by validator
         fake.EnqueueChars("this");
         fake.EnqueueEnter();
         fake.EnqueueChars("thing");
         fake.EnqueueEnter();
         fake.EnqueueChars("sucks");
         fake.EnqueueCtrlEnter();
+        // Second attempt: valid
+        fake.EnqueueChars("this is fine");
+        fake.EnqueueCtrlEnter();
         var prompt = fake.GetPrompt();
 
         TextAreaTester tester = new TextAreaTester();
         tester.Ask(prompt);
-        Assert.Null(tester.Content);
+        Assert.Equal("this is fine", tester.Content);
+        Assert.NotEmpty(fake.ErrorOutput);
     }
     
     [Fact]
