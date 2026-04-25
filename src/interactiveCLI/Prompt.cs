@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using interactiveCLI;
 using interactiveCLI.forms;
 
@@ -500,26 +500,65 @@ public class Prompt
             _console.WriteLine(label);
             //Console.WriteLine("(Press Ctrl+Enter to finish, Escape to cancel)");
 
-            var lines = new List<string>();
-            var currentLine = new StringBuilder();
+            var lines = new List<StringBuilder>();
+            lines.Add(new StringBuilder());
+            int cursorX = 0;
+            int cursorY = 0;
             int startTop = _console.CursorTop;
+            bool isInsertMode = true;
+            int originalCursorSize = _console.CursorSize;
+            _console.CursorSize = 25;
+
+            void UpdateCursorPosition()
+            {
+                try { _console.SetCursorPosition(cursorX, startTop + cursorY); } catch { }
+            }
+
+            void RedrawLine(int y)
+            {
+                try 
+                {
+                    _console.SetCursorPosition(0, startTop + y);
+                    _console.Write(lines[y].ToString() + "   ");
+                    UpdateCursorPosition();
+                } 
+                catch { }
+            }
+
+            void RedrawFrom(int y)
+            {
+                try
+                {
+                    for (int i = y; i <= lines.Count; i++)
+                    {
+                        _console.SetCursorPosition(0, startTop + i);
+                        if (i < lines.Count)
+                            _console.Write(lines[i].ToString() + new string(' ', 10)); // clear extra chars
+                        else
+                            _console.Write(new string(' ', 80)); // clear the line below
+                    }
+                    UpdateCursorPosition();
+                }
+                catch { }
+            }
 
             while (true)
             {
                 var key = _console.ReadKey(true);
+                
                 // Finish input with Ctrl+Enter
                 if (key.Key == finishKey && key.Modifiers == ConsoleModifiers.Control)
                 {
-                    if (currentLine.Length > 0)
-                    {
-                        lines.Add(currentLine.ToString());
-                    }
+                    _console.CursorSize = originalCursorSize;
+                    _console.SetCursorPosition(0, startTop + lines.Count);
                     _console.WriteLine();
                     break;
                 }
                 // Cancel with Escape
                 else if (key.Key == ConsoleKey.Escape)
                 {
+                    _console.CursorSize = originalCursorSize;
+                    _console.SetCursorPosition(0, startTop + lines.Count);
                     _console.WriteLine();
                     return new Result<string>()
                     {
@@ -527,44 +566,138 @@ public class Prompt
                         Ok = false
                     };
                 }
+                // Toggle Insert/Overwrite mode
+                else if (key.Key == ConsoleKey.Insert)
+                {
+                    isInsertMode = !isInsertMode;
+                    _console.CursorSize = isInsertMode ? 25 : 100;
+                }
+                // Arrow keys
+                else if (key.Key == ConsoleKey.LeftArrow)
+                {
+                    if (cursorX > 0)
+                    {
+                        cursorX--;
+                        UpdateCursorPosition();
+                    }
+                    else if (cursorY > 0)
+                    {
+                        cursorY--;
+                        cursorX = lines[cursorY].Length;
+                        UpdateCursorPosition();
+                    }
+                }
+                else if (key.Key == ConsoleKey.RightArrow)
+                {
+                    if (cursorX < lines[cursorY].Length)
+                    {
+                        cursorX++;
+                        UpdateCursorPosition();
+                    }
+                    else if (cursorY < lines.Count - 1)
+                    {
+                        cursorY++;
+                        cursorX = 0;
+                        UpdateCursorPosition();
+                    }
+                }
+                else if (key.Key == ConsoleKey.UpArrow)
+                {
+                    if (cursorY > 0)
+                    {
+                        cursorY--;
+                        if (cursorX > lines[cursorY].Length) cursorX = lines[cursorY].Length;
+                        UpdateCursorPosition();
+                    }
+                }
+                else if (key.Key == ConsoleKey.DownArrow)
+                {
+                    if (cursorY < lines.Count - 1)
+                    {
+                        cursorY++;
+                        if (cursorX > lines[cursorY].Length) cursorX = lines[cursorY].Length;
+                        UpdateCursorPosition();
+                    }
+                }
                 // New line with Enter
                 else if (key.Key == ConsoleKey.Enter)
                 {
-                    if (maxLines > 0 && lines.Count >= maxLines - 1)
+                    if (maxLines > 0 && lines.Count >= maxLines)
                     {
-                        continue; // Don't allow more lines than maxLines
+                        continue;
                     }
 
-                    lines.Add(currentLine.ToString());
-                    currentLine.Clear();
-                    _console.WriteLine();
+                    string remainder = lines[cursorY].ToString().Substring(cursorX);
+                    lines[cursorY].Length = cursorX;
+                    lines.Insert(cursorY + 1, new StringBuilder(remainder));
+                    
+                    cursorY++;
+                    cursorX = 0;
+                    RedrawFrom(cursorY - 1);
                 }
                 // Backspace
                 else if (key.Key == ConsoleKey.Backspace)
                 {
-                    if (currentLine.Length > 0)
+                    if (cursorX > 0)
                     {
-                        currentLine.Length--;
-                        _console.Write("\b \b");
+                        cursorX--;
+                        lines[cursorY].Remove(cursorX, 1);
+                        RedrawLine(cursorY);
                     }
-                    else if (lines.Count > 0)
+                    else if (cursorY > 0)
                     {
-                        // Move to previous line
-                        currentLine = new StringBuilder(lines[^1]);
-                        lines.RemoveAt(lines.Count - 1);
-                        _console.SetCursorPosition(0, _console.CursorTop - 1);
-                        _console.Write(currentLine.ToString());
+                        string currentLineText = lines[cursorY].ToString();
+                        lines.RemoveAt(cursorY);
+                        cursorY--;
+                        cursorX = lines[cursorY].Length;
+                        lines[cursorY].Append(currentLineText);
+                        RedrawFrom(cursorY);
+                    }
+                }
+                // Delete
+                else if (key.Key == ConsoleKey.Delete)
+                {
+                    if (cursorX < lines[cursorY].Length)
+                    {
+                        lines[cursorY].Remove(cursorX, 1);
+                        RedrawLine(cursorY);
+                    }
+                    else if (cursorY < lines.Count - 1)
+                    {
+                        string nextLineText = lines[cursorY + 1].ToString();
+                        lines.RemoveAt(cursorY + 1);
+                        lines[cursorY].Append(nextLineText);
+                        RedrawFrom(cursorY);
                     }
                 }
                 // Regular character input
                 else if (!char.IsControl(key.KeyChar))
                 {
-                    currentLine.Append(key.KeyChar);
-                    _console.Write(key.KeyChar);
+                    if (isInsertMode)
+                    {
+                        lines[cursorY].Insert(cursorX, key.KeyChar);
+                        cursorX++;
+                        RedrawLine(cursorY);
+                    }
+                    else
+                    {
+                        if (cursorX < lines[cursorY].Length)
+                        {
+                            lines[cursorY][cursorX] = key.KeyChar;
+                            cursorX++;
+                            RedrawLine(cursorY);
+                        }
+                        else
+                        {
+                            lines[cursorY].Append(key.KeyChar);
+                            cursorX++;
+                            RedrawLine(cursorY);
+                        }
+                    }
                 }
             }
 
-            var result = string.Join("\n", lines);
+            var result = string.Join("\n", lines.Select(l => l.ToString()));
 
             // Validation
             if (validator != null)

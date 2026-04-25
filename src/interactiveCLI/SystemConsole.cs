@@ -15,6 +15,19 @@ public class SystemConsole : IConsole
     public (int Left, int Top) GetCursorPosition() => Console.GetCursorPosition();
     public void SetCursorPosition(int left, int top) => Console.SetCursorPosition(left, top);
     public int CursorTop => Console.CursorTop;
+    public int CursorSize
+    {
+        get
+        {
+            try { return Console.CursorSize; }
+            catch (PlatformNotSupportedException) { return 25; }
+        }
+        set
+        {
+            try { Console.CursorSize = value; }
+            catch (PlatformNotSupportedException) { }
+        }
+    }
     public ConsoleColor ForegroundColor
     {
         get => Console.ForegroundColor;
