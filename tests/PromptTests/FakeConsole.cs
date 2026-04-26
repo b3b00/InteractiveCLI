@@ -13,7 +13,7 @@ public class FakeConsole : interactiveCLI.IConsole
     private readonly Queue<ConsoleKeyInfo> _keys = new();
     private readonly StringBuilder _output = new();
     private readonly StringBuilder _errorOutput = new();
-
+    public int CursorSize { get; set; }
     public Prompt GetPrompt()
     {
         return new Prompt(console: this);
