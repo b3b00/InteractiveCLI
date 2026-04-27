@@ -31,8 +31,6 @@ public class ScrollingTests
         var result = prompt.AskMultiLineText("input:");
 
         // If it scrolled, the display should have moved up.
-        // We can check if SetCursorPosition was called with valid coordinates
-        // and if startTop was adjusted.
         
         Assert.True(result.Ok);
         Assert.Equal("hello\nworld", result.Value);
@@ -54,9 +52,6 @@ public class ScrollingTests
         var result = prompt.AskMultiLineText("in:");
 
         Assert.True(result.Ok);
-        // line1 + X at pos 3 -> linXe1 (wait, cursor was at end of line1, then Up, then Left 2)
-        // line1 length 5. Cursor at 5. Up -> Cursor at 5. Left 2 -> Cursor at 3.
-        // lin e1 -> linXe1
         Assert.Equal("linXe1\nline2", result.Value);
     }
 
@@ -65,7 +60,6 @@ public class ScrollingTests
     {
         var fake = new FakeConsole();
         fake.WindowHeight = 5;
-        // BufferHeight is 1000 in FakeConsole now
         
         // Fill up to BufferHeight - 1
         for (int i = 0; i < 999; i++) fake.WriteLine();
@@ -94,15 +88,69 @@ public class ScrollingTests
         fake.EnqueueEnter();
         fake.EnqueueEnter();
         fake.EnqueueEnter();
-        fake.EnqueueEnter(); // This is the 5th line (index 4)
+        fake.EnqueueEnter(); 
         fake.EnqueueChars("L5");
-        fake.EnqueueEnter(); // This should move WindowTop to 1
+        fake.EnqueueEnter(); 
         fake.EnqueueChars("L6");
         fake.EnqueueCtrlEnter();
 
         var prompt = fake.GetPrompt();
         prompt.AskMultiLineText("in:");
 
-        Assert.Equal(3, fake.WindowTop); // 6 lines total + 1 for label, cursor at 8th line.
+        // StartTop was 1. End was 7. 
+        // L1(1), LF(2), LF(3), LF(4), L5(5), LF(6), L6(7).
+        // absoluteY for L6 is 7. WindowHeight is 5. WindowTop should be 7-5+1 = 3.
+        Assert.Equal(3, fake.WindowTop); 
+    }
+
+    [Fact]
+    public void AskMultiLineText_ScrollsUpWhenMovingAboveWindow()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 5;
+        
+        // Start at a lower position
+        for (int i = 0; i < 10; i++) fake.WriteLine();
+        
+        // startTop will be 11 (after label "in:")
+        fake.SetCursorPosition(0, 10);
+        fake.WindowTop = 10;
+        
+        // Enter 10 lines. WindowTop will follow to bottom.
+        for(int i=0; i<10; i++) fake.EnqueueEnter(); 
+        
+        // Now go UP 10 times.
+        for(int i=0; i<10; i++) fake.EnqueueUp();
+        
+        fake.EnqueueCtrlEnter();
+
+        var prompt = fake.GetPrompt();
+        prompt.AskMultiLineText("in:");
+
+        // Should be back at startTop - 1 (to show label)
+        Assert.Equal(10, fake.WindowTop);
+    }
+
+    [Fact]
+    public void AskMultiLineText_LongLabel_ScrollsCorrectly()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 5;
+        
+        // Label is 10 lines
+        string longLabel = "L1\nL2\nL3\nL4\nL5\nL6\nL7\nL8\nL9\nL10";
+        
+        // Textarea will start at row 10.
+        
+        fake.EnqueueEnter(); // absY = 11.
+        fake.EnqueueUp(); // absY = 10.
+        
+        fake.EnqueueCtrlEnter();
+
+        var prompt = fake.GetPrompt();
+        prompt.AskMultiLineText(longLabel);
+
+        // Should be at row 9 (to show L10 + Line 0)
+        Assert.Equal(9, fake.WindowTop);
     }
 }

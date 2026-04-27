@@ -524,20 +524,51 @@ public class Prompt
                         absoluteY--;
                     }
 
+                    if (absoluteY < 0) absoluteY = 0;
+                    if (absoluteY >= _console.BufferHeight) absoluteY = _console.BufferHeight - 1;
+
                     // 2. Ensure it's within Window view (scroll window if needed)
                     try
                     {
-                        if (absoluteY >= _console.WindowTop + _console.WindowHeight)
+                        int winTop = _console.WindowTop;
+                        int winHeight = _console.WindowHeight;
+                        
+                        if (y == 0)
                         {
-                            _console.WindowTop = absoluteY - _console.WindowHeight + 1;
+                            // When at the very first line, show the label if it fits
+                            int targetTop = absoluteY > 0 ? absoluteY - 1 : absoluteY;
+                            if (winTop != targetTop)
+                            {
+                                _console.WindowTop = targetTop;
+                            }
                         }
-                        else if (absoluteY < _console.WindowTop)
+                        else if (absoluteY >= winTop + winHeight - 1 && absoluteY < _console.BufferHeight - 1)
                         {
-                            _console.WindowTop = absoluteY;
+                            // Maintain 1-line margin at the bottom when navigating down
+                            _console.WindowTop = absoluteY - winHeight + 2;
+                        }
+                        else if (absoluteY <= winTop && absoluteY > 0)
+                        {
+                            // Maintain 1-line margin at the top when navigating up
+                            _console.WindowTop = absoluteY - 1;
                         }
                     }
                     catch { /* WindowTop might not be supported on all platforms */ }
 
+                    _console.SetCursorPosition(x, absoluteY);
+                }
+                catch { }
+            }
+
+            void SetCursorPositionInternal(int x, int y)
+            {
+                try
+                {
+                    int absoluteY = startTop + y;
+                    // Note: we don't auto-scroll the buffer here to avoid infinite loops during redrawing,
+                    // but we do clamp to valid rows.
+                    if (absoluteY < 0) absoluteY = 0;
+                    if (absoluteY >= _console.BufferHeight) absoluteY = _console.BufferHeight - 1;
                     _console.SetCursorPosition(x, absoluteY);
                 }
                 catch { }
@@ -552,7 +583,7 @@ public class Prompt
             {
                 try 
                 {
-                    SetCursor(0, y);
+                    SetCursorPositionInternal(0, y);
                     _console.Write(lines[y].ToString() + "   ");
                     UpdateCursorPosition();
                 } 
@@ -565,11 +596,16 @@ public class Prompt
                 {
                     for (int i = y; i <= lines.Count; i++)
                     {
-                        SetCursor(0, i);
+                        SetCursorPositionInternal(0, i);
                         if (i < lines.Count)
-                            _console.Write(lines[i].ToString() + new string(' ', 10)); // clear extra chars
+                        {
+                            _console.Write(lines[i].ToString() + "   ");
+                        }
                         else
-                            _console.Write(new string(' ', 80)); // clear the line below
+                        {
+                            // Clear one line below to handle deletions
+                            _console.Write(new string(' ', 100));
+                        }
                     }
                     UpdateCursorPosition();
                 }
@@ -641,8 +677,8 @@ public class Prompt
                     {
                         cursorY--;
                         if (cursorX > lines[cursorY].Length) cursorX = lines[cursorY].Length;
-                        UpdateCursorPosition();
                     }
+                    UpdateCursorPosition();
                 }
                 else if (key.Key == ConsoleKey.DownArrow)
                 {
@@ -650,8 +686,35 @@ public class Prompt
                     {
                         cursorY++;
                         if (cursorX > lines[cursorY].Length) cursorX = lines[cursorY].Length;
-                        UpdateCursorPosition();
                     }
+                    UpdateCursorPosition();
+                }
+                // Home and End keys
+                else if (key.Key == ConsoleKey.Home)
+                {
+                    if (key.Modifiers == ConsoleModifiers.Control)
+                    {
+                        cursorY = 0;
+                        cursorX = 0;
+                    }
+                    else
+                    {
+                        cursorX = 0;
+                    }
+                    UpdateCursorPosition();
+                }
+                else if (key.Key == ConsoleKey.End)
+                {
+                    if (key.Modifiers == ConsoleModifiers.Control)
+                    {
+                        cursorY = lines.Count - 1;
+                        cursorX = lines[cursorY].Length;
+                    }
+                    else
+                    {
+                        cursorX = lines[cursorY].Length;
+                    }
+                    UpdateCursorPosition();
                 }
                 // New line with Enter
                 else if (key.Key == ConsoleKey.Enter)
