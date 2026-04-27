@@ -15,6 +15,7 @@ public interface IConsole
     int CursorSize { get; set; }
     ConsoleColor ForegroundColor { get; set; }
     int WindowHeight { get; }
+    int WindowWidth { get; }
     int BufferHeight { get; }
     int WindowTop { get; set; }
 }

@@ -34,6 +34,7 @@ public class SystemConsole : IConsole
         set => Console.ForegroundColor = value;
     }
     public int WindowHeight => Console.WindowHeight;
+    public int WindowWidth => Console.WindowWidth;
     public int BufferHeight => Console.BufferHeight;
     public int WindowTop 
     { 

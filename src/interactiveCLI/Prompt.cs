@@ -565,8 +565,16 @@ public class Prompt
                 try
                 {
                     int absoluteY = startTop + y;
-                    // Note: we don't auto-scroll the buffer here to avoid infinite loops during redrawing,
-                    // but we do clamp to valid rows.
+                    
+                    // Ensure it's within BufferHeight (scroll buffer if needed)
+                    while (absoluteY >= _console.BufferHeight)
+                    {
+                        _console.SetCursorPosition(0, _console.BufferHeight - 1);
+                        _console.WriteLine();
+                        startTop--;
+                        absoluteY--;
+                    }
+
                     if (absoluteY < 0) absoluteY = 0;
                     if (absoluteY >= _console.BufferHeight) absoluteY = _console.BufferHeight - 1;
                     _console.SetCursorPosition(x, absoluteY);
@@ -594,6 +602,9 @@ public class Prompt
             {
                 try
                 {
+                    // Pre-scroll buffer if needed to ensure startTop is stable for the whole redraw
+                    SetCursor(0, lines.Count);
+
                     for (int i = y; i <= lines.Count; i++)
                     {
                         SetCursorPositionInternal(0, i);
@@ -604,7 +615,7 @@ public class Prompt
                         else
                         {
                             // Clear one line below to handle deletions
-                            _console.Write(new string(' ', 100));
+                            _console.Write(new string(' ', Math.Max(0, _console.WindowWidth - 1)));
                         }
                     }
                     UpdateCursorPosition();
@@ -620,7 +631,7 @@ public class Prompt
                 if (key.Key == finishKey && key.Modifiers == ConsoleModifiers.Control)
                 {
                     _console.CursorSize = originalCursorSize;
-                    _console.SetCursorPosition(0, startTop + lines.Count);
+                    SetCursorPositionInternal(0, lines.Count);
                     _console.WriteLine();
                     break;
                 }
@@ -628,7 +639,7 @@ public class Prompt
                 else if (key.Key == ConsoleKey.Escape)
                 {
                     _console.CursorSize = originalCursorSize;
-                    _console.SetCursorPosition(0, startTop + lines.Count);
+                    SetCursorPositionInternal(0, lines.Count);
                     _console.WriteLine();
                     return new Result<string>()
                     {
