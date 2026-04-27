@@ -129,8 +129,8 @@ public class AskTextTests
         var result = prompt.AskMultiLineText("content");
         Assert.True(result.Ok);
         var content = result.Value;
-        // AskMultiLineText does not implement intra-line cursor movement;
-        // LeftArrow/RightArrow are ignored, so "sty" appends to "second".
-        Assert.Equal("first\nsecondsty\nthird", content);
+        // Since arrow keys ARE supported:
+        // first -> (Enter) -> second -> (Left 9) -> moves to 'fir|st' -> (sty) -> 'firstyst' -> (Right 7) -> moves to 'seco|nd' -> (Enter) -> (third) -> 'thirdnd'
+        Assert.Equal("firstyst\nseco\nthirdnd", content);
     }
 }

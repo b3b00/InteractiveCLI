@@ -509,16 +509,50 @@ public class Prompt
             int originalCursorSize = _console.CursorSize;
             _console.CursorSize = 25;
 
+            void SetCursor(int x, int y)
+            {
+                try
+                {
+                    int absoluteY = startTop + y;
+                    
+                    // 1. Ensure it's within BufferHeight (scroll buffer if needed)
+                    while (absoluteY >= _console.BufferHeight)
+                    {
+                        _console.SetCursorPosition(0, _console.BufferHeight - 1);
+                        _console.WriteLine();
+                        startTop--;
+                        absoluteY--;
+                    }
+
+                    // 2. Ensure it's within Window view (scroll window if needed)
+                    try
+                    {
+                        if (absoluteY >= _console.WindowTop + _console.WindowHeight)
+                        {
+                            _console.WindowTop = absoluteY - _console.WindowHeight + 1;
+                        }
+                        else if (absoluteY < _console.WindowTop)
+                        {
+                            _console.WindowTop = absoluteY;
+                        }
+                    }
+                    catch { /* WindowTop might not be supported on all platforms */ }
+
+                    _console.SetCursorPosition(x, absoluteY);
+                }
+                catch { }
+            }
+
             void UpdateCursorPosition()
             {
-                try { _console.SetCursorPosition(cursorX, startTop + cursorY); } catch { }
+                SetCursor(cursorX, cursorY);
             }
 
             void RedrawLine(int y)
             {
                 try 
                 {
-                    _console.SetCursorPosition(0, startTop + y);
+                    SetCursor(0, y);
                     _console.Write(lines[y].ToString() + "   ");
                     UpdateCursorPosition();
                 } 
@@ -531,7 +565,7 @@ public class Prompt
                 {
                     for (int i = y; i <= lines.Count; i++)
                     {
-                        _console.SetCursorPosition(0, startTop + i);
+                        SetCursor(0, i);
                         if (i < lines.Count)
                             _console.Write(lines[i].ToString() + new string(' ', 10)); // clear extra chars
                         else
