@@ -28,6 +28,9 @@ public class Program
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
         Selector selector = new Selector();
+        Multi formM = new Multi();
+        formM.Ask();
+        return;
         selector.Ask();
         switch (selector.Option)
         {
