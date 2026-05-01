@@ -123,6 +123,10 @@ public class VirtualConsole
             CursorX = Lines[CursorY].Length;
             CheckScrollUp();
         }
+        else
+        {
+            SetConsoleCursor();
+        }
     }
 
     public void MoveRight()
@@ -138,6 +142,10 @@ public class VirtualConsole
             CursorX = 0;
             CheckScrollDown();
         }
+        else
+        {
+            SetConsoleCursor();
+        }
     }
 
     public void MoveUp()
@@ -151,6 +159,10 @@ public class VirtualConsole
             }
             CheckScrollUp();
         }
+        else
+        {
+            SetConsoleCursor();
+        }
     }
 
     public void MoveDown()
@@ -163,6 +175,10 @@ public class VirtualConsole
                 CursorX = Lines[CursorY].Length;
             }
             CheckScrollDown();
+        }
+        else
+        {
+            SetConsoleCursor();
         }
     }
 

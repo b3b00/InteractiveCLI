@@ -26,6 +26,9 @@ at top of screen
   - when a top of screen and currently displya line at line #0 is not the first line of the buffer: redraw starting fomr line -1 at top of screen.
   - when a top of buffer dot nothhing
 
+
+  
+
 **on enter key :**
 if a position (0,0) on screen and in insert mode -> insert a line at current line in buffer and redraw
 
@@ -41,4 +44,7 @@ at bottom of screen
   
 
 
+## bugs 
+
+  - if at (0,0) on screen AND buffer : moving up is making disapear the cursor but input char is still possible even if thy re not visible.
 
