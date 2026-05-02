@@ -20,6 +20,20 @@ public class AskPasswordTests
         Assert.True(result.IsApplicable);
         Assert.Equal("pass", result.Value);
     }
+    
+    [Fact]
+    public void ReturnTrue_WhenValidatorIsFalse()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChars(@"pass");
+        fake.EnqueueEnter();
+        var prompt = fake.GetPrompt();
+
+        var result = prompt.AskPassword("Password: ", validator:(string s) => (s == "pass", "good password"));
+        
+        Assert.True(result.Ok);
+        Assert.Equal("pass", result.Value);
+    }
 
     [Fact]
     public void HandlesBackspace_RemovesLastCharacter()

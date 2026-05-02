@@ -23,8 +23,8 @@ public class AskTextTests
     public void RetriesUntilValidInput()
     {
         var fake = new FakeConsole();
-        fake.EnqueueLine("bad");    // first attempt — rejected
-        fake.EnqueueLine("good");   // second attempt — accepted
+        fake.EnqueueLine("bad"); // first attempt — rejected
+        fake.EnqueueLine("good"); // second attempt — accepted
         var prompt = fake.GetPrompt();
 
         var result = prompt.AskText(
@@ -47,7 +47,7 @@ public class AskTextTests
 
         Assert.Contains("try again", fake.ErrorOutput);
     }
-    
+
 
     [Fact]
     public void UsesCustomInvalidInputMessage_WhenSet()
@@ -90,7 +90,7 @@ public class AskTextTests
         var content = result.Value;
         Assert.Equal("first\nsecond\nthird", content);
     }
-    
+
     [Fact]
     public void ReturnsManyLines_WhenInputManyLineAndEditBackspaceThroughLines()
     {
@@ -111,7 +111,7 @@ public class AskTextTests
         var content = result.Value;
         Assert.Equal("firupdate\nsecond\nthird", content);
     }
-    
+
     [Fact]
     public void ReturnsManyLines_WhenInputManyLineAndEditLeftThroughLines()
     {
@@ -132,5 +132,78 @@ public class AskTextTests
         // Since arrow keys ARE supported:
         // first -> (Enter) -> second -> (Left 9) -> moves to 'fir|st' -> (sty) -> 'firstyst' -> (Right 7) -> moves to 'seco|nd' -> (Enter) -> (third) -> 'thirdnd'
         Assert.Equal("firstyst\nseco\nthirdnd", content);
+    }
+
+    [Fact]
+    public void AskMultiLineText_ToggleInsertOverwrite_Works()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChars("abc");
+        fake.EnqueueLeft(); // moves to 'c'
+        fake.EnqueueSpecialKey(ConsoleKey.Insert); // toggle to overwrite
+        fake.EnqueueChars("z"); // overwrite 'c' with 'z'
+        fake.EnqueueCtrlKey(ConsoleKey.Enter);
+        var prompt = fake.GetPrompt();
+
+        var result = prompt.AskMultiLineText("content");
+
+        Assert.True(result.Ok);
+        Assert.Equal("abz", result.Value);
+    }
+
+    [Fact]
+    public void AskMultiLineText_CallbacksAreCalled()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChars("hello");
+        fake.EnqueueCtrlKey(ConsoleKey.Enter);
+        var prompt = fake.GetPrompt();
+
+        string callbackResult = null;
+        Random rnd = new Random();
+        int random = rnd.Next();
+        var result = prompt.AskMultiLineText("content",
+            callbacks: new Action<string>[] { s => callbackResult = s + random });
+
+        Assert.True(result.Ok);
+        Assert.Equal("hello", result.Value);
+        Assert.Equal("hello" + random, callbackResult);
+    }
+
+    [Fact]
+    public void AskMultiLineText_ReturnsFalseWhenConditionIsFalse()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChars("bad");
+        fake.EnqueueCtrlKey(ConsoleKey.Enter);
+        fake.EnqueueSpecialKey(ConsoleKey.Escape);
+        var prompt = fake.GetPrompt();
+
+        var result = prompt.AskMultiLineText(
+            "content",
+            condition: () => false);
+        
+        
+        Assert.False(result.Ok);
+    }
+    
+    
+
+    [Fact]
+    public void AskMultiLineText_RetriesUntilValidInput()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChars("bad");
+        fake.EnqueueCtrlKey(ConsoleKey.Enter); // first attempt rejected
+        fake.EnqueueChars("good");
+        fake.EnqueueCtrlKey(ConsoleKey.Enter); // second attempt accepted
+        
+        var prompt = fake.GetPrompt();
+        
+        var result = prompt.AskMultiLineText("content", validator: s => (s == "good", "try again"));
+        
+        Assert.True(result.Ok);
+        Assert.Equal("good", result.Value);
+        Assert.Contains("try again", fake.ErrorOutput);
     }
 }
