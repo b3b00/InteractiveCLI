@@ -193,6 +193,27 @@ public class VirtualConsoleTests
     }
 
     [Fact]
+    public void MoveHome_WithCtrl_WhenScrolledDown_RedrawsFromTop()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 5;
+        var vc = new VirtualConsole(fake);
+        
+        for (int i = 0; i < 10; i++)
+        {
+            vc.Enter();
+        }
+        
+        Assert.True(vc.ViewTopY > 0);
+        
+        vc.MoveHome(ctrl: true);
+        
+        Assert.Equal(0, vc.CursorY);
+        Assert.Equal(0, vc.CursorX);
+        Assert.Equal(0, vc.ViewTopY);
+    }
+
+    [Fact]
     public void MoveHome_WithoutCtrl_MovesToStartOfCurrentLine()
     {
         var fake = new FakeConsole();
@@ -287,5 +308,141 @@ public class VirtualConsoleTests
         Assert.Equal(1, vc.Lines.Count);
         Assert.Equal("AB", vc.Lines[0].ToString());
         Assert.Equal(1, vc.CursorX);
+    }
+
+    [Fact]
+    public void MoveLeft_NotAtEdge_MovesCursorLeft()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        var vc = new VirtualConsole(fake);
+        
+        vc.InsertChar('A');
+        vc.InsertChar('B');
+        vc.MoveLeft();
+        
+        Assert.Equal(1, vc.CursorX);
+        Assert.Equal(0, vc.CursorY);
+    }
+
+    [Fact]
+    public void MoveLeft_AtStartOfLine_MovesToEndOfPreviousLine()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        var vc = new VirtualConsole(fake);
+        
+        vc.InsertChar('A');
+        vc.Enter();
+        vc.InsertChar('B');
+        vc.MoveHome(false); // Move to start of line 1
+        
+        vc.MoveLeft();
+        
+        Assert.Equal(0, vc.CursorY);
+        Assert.Equal(1, vc.CursorX); // End of line 0
+    }
+
+    [Fact]
+    public void MoveLeft_AtStartOfBuffer_DoesNothing()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        var vc = new VirtualConsole(fake);
+        
+        vc.MoveLeft();
+        
+        Assert.Equal(0, vc.CursorX);
+        Assert.Equal(0, vc.CursorY);
+    }
+
+    [Fact]
+    public void MoveRight_NotAtEdge_MovesCursorRight()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        var vc = new VirtualConsole(fake);
+        
+        vc.InsertChar('A');
+        vc.InsertChar('B');
+        vc.MoveHome(false);
+        vc.MoveRight();
+        
+        Assert.Equal(1, vc.CursorX);
+        Assert.Equal(0, vc.CursorY);
+    }
+
+    [Fact]
+    public void MoveRight_AtEndOfLine_MovesToStartOfNextLine()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        var vc = new VirtualConsole(fake);
+        
+        vc.InsertChar('A');
+        vc.Enter();
+        vc.InsertChar('B');
+        vc.MoveHome(true); // Move to 0,0
+        vc.MoveEnd(false); // Move to end of line 0
+        
+        vc.MoveRight();
+        
+        Assert.Equal(1, vc.CursorY);
+        Assert.Equal(0, vc.CursorX);
+    }
+
+    [Fact]
+    public void MoveRight_AtEndOfBuffer_DoesNothing()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        var vc = new VirtualConsole(fake);
+        
+        vc.InsertChar('A');
+        vc.MoveRight();
+        
+        Assert.Equal(0, vc.CursorY);
+        Assert.Equal(1, vc.CursorX);
+    }
+
+    [Fact]
+    public void MoveUp_ToShorterLine_AdjustsCursorX()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        var vc = new VirtualConsole(fake);
+        
+        vc.InsertChar('A');
+        vc.Enter();
+        vc.InsertChar('B');
+        vc.InsertChar('C');
+        vc.InsertChar('D');
+        // Cursor is at 1, 3
+        
+        vc.MoveUp();
+        
+        Assert.Equal(0, vc.CursorY);
+        Assert.Equal(1, vc.CursorX); // Length of first line is 1
+    }
+
+    [Fact]
+    public void MoveDown_ToShorterLine_AdjustsCursorX()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        var vc = new VirtualConsole(fake);
+        
+        vc.InsertChar('A');
+        vc.InsertChar('B');
+        vc.InsertChar('C');
+        vc.Enter();
+        vc.InsertChar('D');
+        vc.MoveHome(true); // Move to 0,0
+        vc.MoveEnd(false); // Move to 0,3
+        
+        vc.MoveDown();
+        
+        Assert.Equal(1, vc.CursorY);
+        Assert.Equal(1, vc.CursorX); // Length of second line is 1
     }
 }
