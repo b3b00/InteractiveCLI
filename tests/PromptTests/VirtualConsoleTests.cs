@@ -445,4 +445,93 @@ public class VirtualConsoleTests
         Assert.Equal(1, vc.CursorY);
         Assert.Equal(1, vc.CursorX); // Length of second line is 1
     }
+
+    [Fact]
+    public void MoveEnd_WithCtrl_WhenOffScreen_ScrollsDown()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 5;
+        var vc = new VirtualConsole(fake);
+        
+        for (int i = 0; i < 10; i++)
+        {
+            vc.Enter();
+        }
+        vc.MoveHome(ctrl: true);
+        
+        vc.MoveEnd(ctrl: true);
+        
+        Assert.Equal(6, vc.ViewTopY);
+    }
+
+    [Fact]
+    public void Enter_WhenAtBottomAndStartTopGreaterThanZero_DecrementsStartTop()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        fake.SetCursorPosition(0, 5); // Start Top = 5
+        var vc = new VirtualConsole(fake);
+        
+        for (int i = 0; i < 5; i++)
+        {
+            vc.Enter();
+        }
+        
+        vc.Enter(); 
+        
+        Assert.Equal(0, vc.ViewTopY);
+    }
+
+    [Fact]
+    public void Backspace_AtStartOfLine_ScrollsUpIfAboveViewTop()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 5;
+        var vc = new VirtualConsole(fake);
+        
+        for (int i = 0; i < 10; i++)
+        {
+            vc.Enter();
+        }
+        
+        while (vc.CursorY > 6) vc.MoveUp();
+        vc.MoveHome(ctrl: false);
+        
+        vc.Backspace();
+        
+        Assert.Equal(5, vc.CursorY);
+        Assert.Equal(5, vc.ViewTopY);
+    }
+
+    [Fact]
+    public void InsertChar_OverwriteModeAtEndOfLine_AppendsChar()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 10;
+        var vc = new VirtualConsole(fake);
+        
+        vc.IsInsertMode = false;
+        vc.InsertChar('A');
+        
+        Assert.Equal("A", vc.Lines[0].ToString());
+        Assert.Equal(1, vc.CursorX);
+    }
+
+    [Fact]
+    public void Finish_WhenBottomYExceedsWindowHeight_CapsAtWindowHeightMinusOne()
+    {
+        var fake = new FakeConsole();
+        fake.WindowHeight = 5;
+        var vc = new VirtualConsole(fake);
+        
+        for (int i = 0; i < 10; i++)
+        {
+            vc.Enter();
+        }
+        vc.MoveHome(ctrl: true);
+        
+        vc.Finish();
+        
+        Assert.Equal(5, fake.CursorTop);
+    }
 }
