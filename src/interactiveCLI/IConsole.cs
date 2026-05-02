@@ -12,5 +12,10 @@ public interface IConsole
     (int Left, int Top) GetCursorPosition();
     void SetCursorPosition(int left, int top);
     int CursorTop { get; }
+    int CursorSize { get; set; }
     ConsoleColor ForegroundColor { get; set; }
+    int WindowHeight { get; }
+    int WindowWidth { get; }
+    int BufferHeight { get; }
+    int WindowTop { get; set; }
 }

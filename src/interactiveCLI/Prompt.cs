@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using interactiveCLI;
 using interactiveCLI.forms;
 
@@ -500,71 +500,58 @@ public class Prompt
             _console.WriteLine(label);
             //Console.WriteLine("(Press Ctrl+Enter to finish, Escape to cancel)");
 
-            var lines = new List<string>();
-            var currentLine = new StringBuilder();
-            int startTop = _console.CursorTop;
+            int originalCursorSize = _console.CursorSize;
+            _console.CursorSize = 25;
+
+            VirtualConsole vConsole = new VirtualConsole(_console, maxLines);
 
             while (true)
             {
                 var key = _console.ReadKey(true);
+                
                 // Finish input with Ctrl+Enter
                 if (key.Key == finishKey && key.Modifiers == ConsoleModifiers.Control)
                 {
-                    if (currentLine.Length > 0)
-                    {
-                        lines.Add(currentLine.ToString());
-                    }
-                    _console.WriteLine();
+                    _console.CursorSize = originalCursorSize;
+                    vConsole.Finish();
                     break;
                 }
                 // Cancel with Escape
                 else if (key.Key == ConsoleKey.Escape)
                 {
-                    _console.WriteLine();
+                    _console.CursorSize = originalCursorSize;
+                    vConsole.Finish();
                     return new Result<string>()
                     {
                         IsApplicable = false,
                         Ok = false
                     };
                 }
+                // Toggle Insert/Overwrite mode
+                else if (key.Key == ConsoleKey.Insert)
+                {
+                    vConsole.IsInsertMode = !vConsole.IsInsertMode;
+                    _console.CursorSize = vConsole.IsInsertMode ? 25 : 100;
+                }
+                // Arrow keys
+                else if (key.Key == ConsoleKey.LeftArrow) vConsole.MoveLeft();
+                else if (key.Key == ConsoleKey.RightArrow) vConsole.MoveRight();
+                else if (key.Key == ConsoleKey.UpArrow) vConsole.MoveUp();
+                else if (key.Key == ConsoleKey.DownArrow) vConsole.MoveDown();
+                // Home and End keys
+                else if (key.Key == ConsoleKey.Home) vConsole.MoveHome(key.Modifiers == ConsoleModifiers.Control);
+                else if (key.Key == ConsoleKey.End) vConsole.MoveEnd(key.Modifiers == ConsoleModifiers.Control);
                 // New line with Enter
-                else if (key.Key == ConsoleKey.Enter)
-                {
-                    if (maxLines > 0 && lines.Count >= maxLines - 1)
-                    {
-                        continue; // Don't allow more lines than maxLines
-                    }
-
-                    lines.Add(currentLine.ToString());
-                    currentLine.Clear();
-                    _console.WriteLine();
-                }
+                else if (key.Key == ConsoleKey.Enter) vConsole.Enter();
                 // Backspace
-                else if (key.Key == ConsoleKey.Backspace)
-                {
-                    if (currentLine.Length > 0)
-                    {
-                        currentLine.Length--;
-                        _console.Write("\b \b");
-                    }
-                    else if (lines.Count > 0)
-                    {
-                        // Move to previous line
-                        currentLine = new StringBuilder(lines[^1]);
-                        lines.RemoveAt(lines.Count - 1);
-                        _console.SetCursorPosition(0, _console.CursorTop - 1);
-                        _console.Write(currentLine.ToString());
-                    }
-                }
+                else if (key.Key == ConsoleKey.Backspace) vConsole.Backspace();
+                // Delete
+                else if (key.Key == ConsoleKey.Delete) vConsole.Delete();
                 // Regular character input
-                else if (!char.IsControl(key.KeyChar))
-                {
-                    currentLine.Append(key.KeyChar);
-                    _console.Write(key.KeyChar);
-                }
+                else if (!char.IsControl(key.KeyChar)) vConsole.InsertChar(key.KeyChar);
             }
 
-            var result = string.Join("\n", lines);
+            var result = string.Join("\n", vConsole.Lines.Select(l => l.ToString()));
 
             // Validation
             if (validator != null)

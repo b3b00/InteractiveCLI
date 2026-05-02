@@ -26,15 +26,11 @@ public class Program
     {
         // Enable UTF-8 encoding for emoji support
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        
-        Prompt prompt = new Prompt();
-        var result = prompt.Ask<string>("choose :", isIndexed: true,
-            dataSource: () => new string[] { "one", "two", "three", "four", "five" });
-        Console.WriteLine($"index select : {(result.Ok ? result.Value : "nope")}");
-        //var BirthDayResult = prompt.Ask<DateTime>("date :", pattern: "____-__-__", possibleValues: null, validator: (string s) => (true,null), converter: (string s) => DateTime.Now, dataSource: null, charValidator: ((int position, char c) s) => Char.IsDigit(s.c), condition: null, callbacks: (string s) => DisplayDate(s));
-       
 
         Selector selector = new Selector();
+        Multi formM = new Multi();
+        formM.Ask();
+        return;
         selector.Ask();
         switch (selector.Option)
         {

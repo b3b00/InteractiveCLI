@@ -1,162 +1,161 @@
 using System.Text;
+using System.Collections.Generic;
 using interactiveCLI;
 
 namespace PromptTests;
 
 /// <summary>
 /// A fake IConsole implementation for unit testing.
-/// Simulates keyboard input and captures all output.
+/// Simulates keyboard input and captures all output with a 2D buffer for realistic terminal simulation.
 /// </summary>
 public class FakeConsole : interactiveCLI.IConsole
 {
     private readonly Queue<string?> _lines = new();
     private readonly Queue<ConsoleKeyInfo> _keys = new();
-    private readonly StringBuilder _output = new();
+    private readonly char[,] _buffer = new char[1000, 120]; // Rows, Cols
     private readonly StringBuilder _errorOutput = new();
+    private readonly StringBuilder _rawOutput = new();
 
-    public Prompt GetPrompt()
+    public FakeConsole()
     {
-        return new Prompt(console: this);
+        for (int r = 0; r < 1000; r++)
+            for (int c = 0; c < 120; c++)
+                _buffer[r, c] = ' ';
     }
+
+    public Prompt GetPrompt() => new Prompt(console: this);
 
     // ── Input helpers ──────────────────────────────────────────────────
-
-    /// <summary>Enqueue a line that will be returned by the next ReadLine() call.</summary>
     public void EnqueueLine(string? line) => _lines.Enqueue(line);
-
-    /// <summary>Enqueue multiple lines at once.</summary>
-    public void EnqueueLines(params string?[] lines)
-    {
-        foreach (var line in lines) _lines.Enqueue(line);
-    }
-
-    /// <summary>Enqueue a ConsoleKeyInfo that will be returned by the next ReadKey() call.</summary>
+    public void EnqueueLines(params string?[] lines) { foreach (var line in lines) _lines.Enqueue(line); }
     public void EnqueueKey(ConsoleKeyInfo key) => _keys.Enqueue(key);
-
-    /// <summary>Enqueue a character keystroke.</summary>
-    public void EnqueueChar(char c)
-        => _keys.Enqueue(new ConsoleKeyInfo(c, CharToConsoleKey(c), false, false, false));
-
-    public void EnqueueChars(string value)
-    {
-        foreach(var c in value) EnqueueChar(c);
-    }
-    
-    /// <summary>Enqueue a special key (arrow, Enter, Escape, etc.).</summary>
-    public void EnqueueSpecialKey(ConsoleKey key)
-        => _keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, false));
-
+    public void EnqueueChar(char c) => _keys.Enqueue(new ConsoleKeyInfo(c, CharToConsoleKey(c), false, false, false));
+    public void EnqueueChars(string value) { foreach (var c in value) EnqueueChar(c); }
+    public void EnqueueSpecialKey(ConsoleKey key) => _keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, false));
     public void EnqueueLeft() => EnqueueSpecialKey(ConsoleKey.LeftArrow);
-
-    public void EnqueueLeft(int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            EnqueueLeft();
-        }
-    }
+    public void EnqueueLeft(int count) { for (int i = 0; i < count; i++) EnqueueLeft(); }
     public void EnqueueRight() => EnqueueSpecialKey(ConsoleKey.RightArrow);
-    
-    public void EnqueueRight(int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            EnqueueRight();
-        }
-    }
-    
+    public void EnqueueRight(int count) { for (int i = 0; i < count; i++) EnqueueRight(); }
     public void EnqueueUp() => EnqueueSpecialKey(ConsoleKey.UpArrow);
-    
     public void EnqueueDown() => EnqueueSpecialKey(ConsoleKey.DownArrow);
-    
-    /// <summary>Enqueue Enter key.</summary>
     public void EnqueueEnter() => EnqueueSpecialKey(ConsoleKey.Enter);
-
-    /// <summary>Enqueue Escape key.</summary>
     public void EnqueueEscape() => EnqueueSpecialKey(ConsoleKey.Escape);
-
-    /// <summary>Enqueue Spacebar key.</summary>
     public void EnqueueSpace() => _keys.Enqueue(new ConsoleKeyInfo(' ', ConsoleKey.Spacebar, false, false, false));
-
-    /// <summary>Enqueue Backspace key.</summary>
     public void EnqueueBackspace() => _keys.Enqueue(new ConsoleKeyInfo('\b', ConsoleKey.Backspace, false, false, false));
-
-    public void EnqueueBackspace(int count)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            EnqueueBackspace();
-        }
-    }
-
-    /// <summary>Enqueue a Ctrl+key combination.</summary>
-    public void EnqueueCtrlKey(ConsoleKey key)
-        => _keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, true));
-
-    public void EnqueueCtrlKey(char c)
-        => _keys.Enqueue(new ConsoleKeyInfo(c, CharToConsoleKey(c), false, false, true));
-    
+    public void EnqueueBackspace(int count) { for (int i = 0; i < count; i++) EnqueueBackspace(); }
+    public void EnqueueCtrlKey(ConsoleKey key) => _keys.Enqueue(new ConsoleKeyInfo('\0', key, false, false, true));
+    public void EnqueueCtrlKey(char c) => _keys.Enqueue(new ConsoleKeyInfo(c, CharToConsoleKey(c), false, false, true));
     public void EnqueueCtrlEnter() => EnqueueCtrlKey(ConsoleKey.Enter);
-    
-    
-    // ── Output inspection ─────────────────────────────────────────────
 
-    public string Output => _output.ToString();
+    // ── Output inspection ─────────────────────────────────────────────
+    public string Output => _rawOutput.ToString();
+    public string ScreenOutput => GetOutput();
     public string ErrorOutput => _errorOutput.ToString();
     public string[] OutputLines => GetOutputLines();
 
-    // ── IConsole implementation ───────────────────────────────────────
-
-    public string? ReadLine()
-    {
-        if (_lines.Count == 0)
-            throw new InvalidOperationException("FakeConsole: no more lines in the queue.");
-        return _lines.Dequeue();
-    }
-
-    public ConsoleKeyInfo ReadKey(bool intercept = false)
-    {
-        if (_keys.Count == 0)
-            throw new InvalidOperationException("FakeConsole: no more keys in the queue.");
-        return _keys.Dequeue();
-    }
-
-    public void Write(string? value) => _output.Append(value);
-    public void Write(char value) => _output.Append(value);
-    public void WriteLine(string? value) => _output.AppendLine(value);
-    public void WriteLine() => _output.AppendLine();
+    // ── IConsole Implementation ──────────────────────────────────────
+    public string? ReadLine() => _lines.Count == 0 ? throw new InvalidOperationException("FakeConsole: no lines") : _lines.Dequeue();
+    public ConsoleKeyInfo ReadKey(bool intercept = false) => _keys.Count == 0 ? throw new InvalidOperationException("FakeConsole: no keys") : _keys.Dequeue();
     public void WriteError(string value) => _errorOutput.AppendLine(value);
 
-    public (int Left, int Top) GetCursorPosition() => (0, 0);
-    public void SetCursorPosition(int left, int top) { /* no-op in tests */ }
-    public int CursorTop => 0;
+    public (int Left, int Top) GetCursorPosition() => (_cursorLeft, _cursorTop);
+    public void SetCursorPosition(int left, int top) 
+    { 
+        _cursorLeft = Math.Clamp(left, 0, 119);
+        _cursorTop = Math.Clamp(top, 0, 999);
+    }
+    public int CursorTop => _cursorTop;
+    private int _cursorTop = 0;
+    private int _cursorLeft = 0;
+
+    public int CursorSize { get; set; } = 25;
     public ConsoleColor ForegroundColor { get; set; } = ConsoleColor.Gray;
 
-    // ── Helpers ───────────────────────────────────────────────────────
+    public int WindowHeight { get; set; } = 25;
+    public int WindowWidth { get; set; } = 120;
+    public int BufferHeight { get; set; } = 1000;
+    public int WindowTop { get; set; } = 0;
 
-    private static ConsoleKey CharToConsoleKey(char c)
-    {
-        if (char.IsAsciiLetterUpper(c))
-            return (ConsoleKey)c;
-        if (char.IsAsciiLetterLower(c))
-            return (ConsoleKey)(c - 'a' + 'A');
-        if (char.IsAsciiDigit(c))
-            return (ConsoleKey)('D' - 'A' + (int)ConsoleKey.D0 + (c - '0'));
-        return ConsoleKey.Oem1; // fallback for symbols
+    public void WriteLine() 
+    { 
+        _rawOutput.AppendLine();
+        _cursorTop++;
+        _cursorLeft = 0;
     }
+
+    public void WriteLine(string? value)
+    {
+        _rawOutput.Append(value);
+        WriteToBuffer(value);
+        WriteLine();
+    }
+
+    public void Write(string? value)
+    {
+        if (value == null) return;
+        _rawOutput.Append(value);
+        WriteToBuffer(value);
+    }
+
+    public void Write(char value)
+    {
+        _rawOutput.Append(value);
+        WriteToBuffer(value);
+    }
+
+    private void WriteToBuffer(string? value)
+    {
+        if (value == null) return;
+        foreach (var c in value) WriteToBuffer(c);
+    }
+
+    private void WriteToBuffer(char value)
+    {
+        if (value == '\r')
+        {
+            _cursorLeft = 0;
+            return;
+        }
+        if (value == '\n')
+        {
+            WriteLine();
+            return;
+        }
+
+        _buffer[_cursorTop, _cursorLeft] = value;
+        _cursorLeft++;
+        if (_cursorLeft >= 120)
+        {
+            _cursorLeft = 0;
+            _cursorTop++;
+        }
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────
+    private string GetOutput() => string.Join("\n", GetOutputLines());
 
     private string[] GetOutputLines()
     {
-        List<string> lines = new List<string>();
-        using (var reader = new StringReader(Output))
+        var lines = new List<string>();
+        int maxRow = 0;
+        for (int r = 0; r < 1000; r++)
+            for (int c = 0; c < 120; c++)
+                if (_buffer[r, c] != ' ') maxRow = r;
+
+        for (int r = 0; r <= maxRow; r++)
         {
-            string line = reader.ReadLine();
-            while (line != null)
-            {
-                lines.Add(line);
-                line = reader.ReadLine();
-            }
+            var sb = new StringBuilder();
+            for (int c = 0; c < 120; c++) sb.Append(_buffer[r, c]);
+            lines.Add(sb.ToString().TrimEnd());
         }
         return lines.ToArray();
+    }
+
+    private static ConsoleKey CharToConsoleKey(char c)
+    {
+        if (char.IsAsciiLetterUpper(c)) return (ConsoleKey)c;
+        if (char.IsAsciiLetterLower(c)) return (ConsoleKey)(c - 'a' + 'A');
+        if (char.IsAsciiDigit(c)) return (ConsoleKey)('D' - 'A' + (int)ConsoleKey.D0 + (c - '0'));
+        return ConsoleKey.Oem1; 
     }
 }
