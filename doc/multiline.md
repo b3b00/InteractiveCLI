@@ -48,3 +48,8 @@ at bottom of screen
 
   - if at (0,0) on screen AND buffer : moving up is making disapear the cursor but input char is still possible even if thy re not visible.
 
+# unit tests
+
+Add unit tests for all edge cases.
+Add unit tests for all bugs.
+
