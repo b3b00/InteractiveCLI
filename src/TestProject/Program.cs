@@ -1,4 +1,4 @@
-﻿using interactiveCLI;
+using interactiveCLI;
 
 namespace TestProject;
 
@@ -29,8 +29,8 @@ public class Program
 
         Selector selector = new Selector();
         Multi formM = new Multi();
-        formM.Ask();
-        return;
+        //formM.Ask();
+        //return;
         selector.Ask();
         switch (selector.Option)
         {
@@ -51,11 +51,37 @@ public class Program
                     Console.WriteLine(form.ToString());
                     break;
                 }
+            case "file_picker":
+                {
+                    var filePicker = new FilePickerForm();
+                    filePicker.Ask();
+                    Console.WriteLine($"Selected file: {filePicker.FilePath}");
+                    break;
+                }
             case "quit":
                 {
                     Console.WriteLine("Goodbye !");
                     break;
                 }
+            case "repeat":
+            {
+                Repeat repeat = new Repeat();
+                
+                bool more = true;
+                List<Item> items = new List<Item>();
+                while (more)
+                {
+                    repeat.Ask();
+                    items.Add(repeat.ToItem());
+                    more = repeat.More;
+                }
+
+                foreach (var item in items)
+                {
+                    Console.WriteLine(item);
+                }
+                break;
+            }
             default:
                 {
                     Console.WriteLine($"I don't know what to do with {selector.Option}....");

@@ -1,4 +1,4 @@
-﻿using interactiveCLI.forms;
+using interactiveCLI.forms;
 
 namespace TestProject;
 
@@ -12,6 +12,6 @@ public partial class Selector
 
 
     public string[] options() => new string[] {
-        "test", "login", "multi","quit"
+        "test", "login", "multi","repeat", "file_picker", "quit"
     };
 }

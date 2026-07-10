@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 //using generatorLogging;
 using interactiveCLI.forms;
 using interactiveCLI.forms.generator;
@@ -143,22 +143,24 @@ public partial class {className} {{
                 var inputAttribute = propertyDeclarationSyntax.GetAttribute("Input");
                 var passwordAttribute = propertyDeclarationSyntax.GetAttribute("Password");
                 var textAreaAttribute = propertyDeclarationSyntax.GetAttribute("TextArea");
+                var fileAttribute = propertyDeclarationSyntax.GetAttribute("File");
                 var indexedAttribute = propertyDeclarationSyntax.GetAttribute("Indexed");
                 bool isIndexed = indexedAttribute != null;
-                if (inputAttribute != null || passwordAttribute != null || textAreaAttribute != null)
+                if (inputAttribute != null || passwordAttribute != null || textAreaAttribute != null || fileAttribute != null)
                 {
                     var input = getInputOrCreateNew(name);
                     input.IsIndexed =  isIndexed;
                     if (input != null)
                     {
                         input.Field = propertyDeclarationSyntax;
-                        input.InputAttribute = (inputAttribute ?? passwordAttribute) ?? textAreaAttribute;
+                        input.InputAttribute = (inputAttribute ?? passwordAttribute ?? textAreaAttribute) ?? fileAttribute;
                         int index = input.InputAttribute.GetNthIntArg(0, "index");
                         input.Index = index;
                     }
 
                     input.IsPasword = inputAttribute == null && passwordAttribute != null;
                     input.IsTextArea = textAreaAttribute != null;
+                    input.IsFile = fileAttribute != null;
                     input.MaxLines = textAreaAttribute != null ? textAreaAttribute.GetNthIntArg(1, "maxLines") : 0;
 
                     if (textAreaAttribute != null)

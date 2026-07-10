@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Diagnostics.CodeAnalysis;
 
 namespace interactiveCLI.forms;
@@ -31,6 +31,7 @@ public class Input
     public AttributeSyntax InputAttribute { get; set; }
     public int Index { get; set; }
     public bool IsTextArea { get; internal set; }
+    public bool IsFile { get; internal set; }
     public int MaxLines { get; internal set; }
 
     public ConsoleKey FinishKey { get; internal set; }

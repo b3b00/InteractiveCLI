@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using formGenerator;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Diagnostics.CodeAnalysis;
@@ -59,6 +59,15 @@ public class InputGenerator
 
             ask = $@"
     var {input.Name}Result = prompt.AskMultiLineText(""{label}"", maxLines:{input.MaxLines}, finishKey:ConsoleKey.{input.FinishKey.ToString()}, validator:{validator}, condition:{condition}, {callbacks});
+    if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
+        {input.Name} = {input.Name}Result.Value;
+    }}
+";
+        }
+        else if (input.IsFile)
+        {
+            ask = $@"
+    var {input.Name}Result = prompt.AskFile(""{label}"", validator:{validator}, condition:{condition}, fileProvider:null, callbacks:{callbacks});
     if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{
         {input.Name} = {input.Name}Result.Value;
     }}

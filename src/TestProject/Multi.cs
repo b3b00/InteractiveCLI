@@ -13,7 +13,7 @@ namespace TestProject
         [Input("titre : ", index: 1)]
         public string Title { get; set; }
 
-        [TextArea("code : ", index: 2, maxLines: 0, finishKey: ConsoleKey.D)]
+        [TextArea("code (ctrl+D to end) : ", index: 2, maxLines: 0, finishKey: ConsoleKey.D)]
         [Validator(nameof(ValidateText))]
         public string Text { get; set; }
 

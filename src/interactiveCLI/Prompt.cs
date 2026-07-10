@@ -603,6 +603,260 @@ public class Prompt
 
 
 
+    public Result<string> AskFile(string label, Func<string,(bool ok, string errorMessage)>? validator = null, Func<bool>? condition = null, Func<string, string[]>? fileProvider = null, params Action<string>[] callbacks)
+    {
+        if (condition != null && !condition())
+        {
+            return new Result<string> { IsApplicable = false };
+        }
+
+#pragma warning disable RS1035
+        if (fileProvider == null)
+        {
+            fileProvider = (path) =>
+            {
+                try
+                {
+                    string dir = "";
+                    string prefix = "";
+                    if (string.IsNullOrEmpty(path))
+                    {
+                        dir = System.IO.Directory.GetCurrentDirectory();
+                        prefix = "";
+                    }
+                    else if (System.IO.Directory.Exists(path) && (path.EndsWith(System.IO.Path.DirectorySeparatorChar.ToString()) || path.EndsWith(System.IO.Path.AltDirectorySeparatorChar.ToString())))
+                    {
+                        dir = path;
+                        prefix = "";
+                    }
+                    else
+                    {
+                        var dirName = System.IO.Path.GetDirectoryName(path);
+                        dir = dirName ?? System.IO.Directory.GetCurrentDirectory();
+                        prefix = System.IO.Path.GetFileName(path) ?? "";
+                    }
+                    
+                    if (!System.IO.Directory.Exists(dir)) return Array.Empty<string>();
+                    
+                    return System.IO.Directory.GetFileSystemEntries(dir, prefix + "*")
+                        .Select(p => {
+                            if (System.IO.Directory.Exists(p)) return p + System.IO.Path.DirectorySeparatorChar;
+                            return p;
+                        })
+                        .ToArray();
+                }
+                catch
+                {
+                    return Array.Empty<string>();
+                }
+            };
+        }
+#pragma warning restore RS1035
+
+        while (true)
+        {
+            _console.Write(label);
+            var initialPos = _console.GetCursorPosition();
+            
+            for (int i = 0; i < 5; i++)
+            {
+                _console.WriteLine();
+            }
+            
+            var currentPos = _console.GetCursorPosition();
+            int safeTop = currentPos.Top - 5;
+            _console.SetCursorPosition(initialPos.Left, safeTop);
+            
+            var inputPos = _console.GetCursorPosition();
+            StringBuilder input = new StringBuilder();
+            int selectedIndex = -1;
+            string[] currentMatches = fileProvider("");
+
+            int GetClearWidth()
+            {
+                int w = 80;
+                try { w = _console.WindowWidth > 1 ? _console.WindowWidth - 1 : 80; } catch { }
+                return w;
+            }
+
+            int GetMatchesTop()
+            {
+                int wWidth = _console.WindowWidth > 0 ? _console.WindowWidth : 80;
+                int inputLines = (inputPos.Left + input.Length) / wWidth;
+                return inputPos.Top + inputLines + 1;
+            }
+            
+            void SetCursorForInput()
+            {
+                int wWidth = _console.WindowWidth > 0 ? _console.WindowWidth : 80;
+                int cLeft = inputPos.Left + input.Length;
+                int cTop = inputPos.Top;
+                while (cLeft >= wWidth)
+                {
+                    cLeft -= wWidth;
+                    cTop++;
+                }
+                try { _console.SetCursorPosition(cLeft, cTop); } catch { }
+            }
+
+            void RedrawMatches()
+            {
+                int width = GetClearWidth();
+                int matchTop = GetMatchesTop();
+                
+                for (int i = 0; i < 5; i++)
+                {
+                    try { _console.SetCursorPosition(0, matchTop + i); } catch { }
+                    _console.Write(new string(' ', width));
+                }
+                
+                for (int i = 0; i < Math.Min(5, currentMatches.Length); i++)
+                {
+                    try { _console.SetCursorPosition(0, matchTop + i); } catch { }
+                    if (i == selectedIndex)
+                    {
+                        var text = "> " + currentMatches[i];
+                        if (text.Length > width) text = text.Substring(0, width);
+                        _console.Write("\x1b[1;7m" + text + "\x1b[0m");
+                    }
+                    else
+                    {
+                        var text = "  " + currentMatches[i];
+                        if (text.Length > width) text = text.Substring(0, width);
+                        _console.Write(text);
+                    }
+                }
+                
+                SetCursorForInput();
+            }
+
+            RedrawMatches();
+
+            while(true)
+            {
+                var key = _console.ReadKey(true);
+                int width = GetClearWidth();
+
+                if (key.Key == ConsoleKey.Enter)
+                {
+                    if (selectedIndex >= 0 && selectedIndex < currentMatches.Length)
+                    {
+                        input.Clear();
+                        input.Append(currentMatches[selectedIndex]);
+                        _console.SetCursorPosition(inputPos.Left, inputPos.Top);
+                        _console.Write(input.ToString() + new string(' ', Math.Max(0, width - input.Length - inputPos.Left)));
+                    }
+                    
+                    int matchTop = GetMatchesTop();
+                    for (int i = 0; i < 5; i++)
+                    {
+                        try { _console.SetCursorPosition(0, matchTop + i); } catch { }
+                        _console.Write(new string(' ', width));
+                    }
+                    
+                    try { _console.SetCursorPosition(0, matchTop); } catch { }
+                    break;
+                }
+                else if (key.Key == ConsoleKey.Tab)
+                {
+                    if (currentMatches.Length > 0)
+                    {
+                        if (currentMatches.Length == 1)
+                        {
+                            input.Clear();
+                            input.Append(currentMatches[0]);
+                        }
+                        else
+                        {
+                            string prefix = currentMatches[0];
+                            for(int i = 1; i < currentMatches.Length; i++)
+                            {
+                                int j = 0;
+                                while(j < prefix.Length && j < currentMatches[i].Length && char.ToLowerInvariant(prefix[j]) == char.ToLowerInvariant(currentMatches[i][j]))
+                                {
+                                    j++;
+                                }
+                                prefix = prefix.Substring(0, j);
+                            }
+                            if (prefix.Length > input.Length)
+                            {
+                                input.Clear();
+                                input.Append(prefix);
+                            }
+                        }
+                        _console.SetCursorPosition(inputPos.Left, inputPos.Top);
+                        _console.Write(input.ToString() + new string(' ', Math.Max(0, width - input.Length - inputPos.Left)));
+                        SetCursorForInput();
+                        selectedIndex = -1;
+                        currentMatches = fileProvider(input.ToString());
+                        RedrawMatches();
+                    }
+                }
+                else if (key.Key == ConsoleKey.UpArrow)
+                {
+                    if (currentMatches.Length > 0)
+                    {
+                        selectedIndex--;
+                        if (selectedIndex < 0) selectedIndex = Math.Min(5, currentMatches.Length) - 1;
+                        RedrawMatches();
+                    }
+                }
+                else if (key.Key == ConsoleKey.DownArrow)
+                {
+                    if (currentMatches.Length > 0)
+                    {
+                        selectedIndex++;
+                        if (selectedIndex >= Math.Min(5, currentMatches.Length)) selectedIndex = 0;
+                        RedrawMatches();
+                    }
+                }
+                else if (key.Key == ConsoleKey.Backspace)
+                {
+                    if (input.Length > 0)
+                    {
+                        input.Remove(input.Length - 1, 1);
+                        _console.SetCursorPosition(inputPos.Left, inputPos.Top);
+                        _console.Write(input.ToString() + new string(' ', Math.Max(0, width - input.Length - inputPos.Left)));
+                        SetCursorForInput();
+                        selectedIndex = -1;
+                        currentMatches = fileProvider(input.ToString());
+                        RedrawMatches();
+                    }
+                }
+                else if (key.KeyChar != '\0' && !char.IsControl(key.KeyChar))
+                {
+                    input.Append(key.KeyChar);
+                    _console.SetCursorPosition(inputPos.Left, inputPos.Top);
+                    _console.Write(input.ToString() + new string(' ', Math.Max(0, width - input.Length - inputPos.Left)));
+                    SetCursorForInput();
+                    selectedIndex = -1;
+                    currentMatches = fileProvider(input.ToString());
+                    RedrawMatches();
+                }
+            }
+            
+            string result = input.ToString();
+            var errorMessage = InvalidInputMessage ?? "Invalid answer.";
+            if (validator != null)
+            {
+                var validation = validator(result);
+                if (validation.ok)
+                {
+                    if (callbacks != null) { foreach(var cb in callbacks) cb(result); }
+                    return new Result<string>() { Ok = true, Value = result, IsApplicable = true };
+                }
+                errorMessage = validation.errorMessage ?? errorMessage;
+                _console.WriteError(errorMessage);
+            }
+            else
+            {
+                if (callbacks != null) { foreach(var cb in callbacks) cb(result); }
+                return new Result<string>() { Ok = true, Value = result, IsApplicable = true };
+            }
+        }
+    }
+
+
     public T AskForm<T>()
     {
         FormBuilder<T> formBuilder = new FormBuilder<T>();
