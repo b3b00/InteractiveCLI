@@ -17,6 +17,7 @@ Members of the Form class are tagged with attributes that declare them as inputs
 - `[Select]`
 - `[Password]`
 - `[TextArea]`
+- `[File]`
 
 Each input can be given an index that defines the order they are prompted.
 
@@ -201,6 +202,15 @@ example : a 5 lines text area validated by `ctrl+D`
 ```csharp
 [TextArea("verbatim : ", index:2, maxLines:5, finishingKey : ConsoleKey.D)]
 public string Verbatim {get; set;}
+```
+
+#### filepicker
+
+A file picker provides an interactive prompt with auto-completion for navigating and selecting files on the system. As you type, matching files and directories are displayed. You can navigate the path completions with `UP` and `DOWN` arrows, auto-complete the current selection with `TAB`, and finalize your choice with `ENTER`. It supports both absolute and relative paths.
+
+```csharp
+[File("Select a file path: ", index: 4)]
+public string SelectedFilePath { get; set; }
 ```
 
 #### boolean
