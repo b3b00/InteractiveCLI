@@ -85,6 +85,7 @@ public class InputGenerator
         charValidator:{charValidator},
         condition:{condition},
         isIndexed:{input.IsIndexed.ToString().ToLower()},
+        autocomplete:{input.IsAutocomplete.ToString().ToLower()},
         callbacks:{callbacks}
         );
     if ({input.Name}Result.Ok && {input.Name}Result.IsApplicable) {{

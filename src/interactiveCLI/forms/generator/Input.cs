@@ -9,6 +9,7 @@ public class Input
     private string _name;
 
     public bool IsIndexed { get; set; }
+    public bool IsAutocomplete { get; set; }
     
     public string Name { get; set; }
     

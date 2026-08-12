@@ -12,6 +12,21 @@ public partial class Selector
 
 
     public string[] options() => new string[] {
-        "test", "login", "multi","repeat", "file_picker", "quit"
+        "test", "login", "multi","repeat", "file_picker", "autocomp", "quit"
+    };
+}
+
+
+[Form]
+public partial class Autocomp
+{
+    [Input("select a test : ",index : 0 )]
+    [DataSource(nameof(Countries))]
+    [Indexed]
+    public string Country { get; set; }
+
+
+    public string[] Countries() => new string[] {
+        "France","Feroe","Belgium","Belarus","Germany","Spain","Italy","Swiss","Nederland","Luxembourg", "Austria","Poland","Greece"
     };
 }

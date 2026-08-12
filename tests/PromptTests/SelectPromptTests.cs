@@ -124,4 +124,76 @@ public class SelectPromptTests
 
         Assert.Equal("Cherry", result);
     }
+
+    [Fact]
+    public void FiltersList_WhenTyping()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChar('e');
+        fake.EnqueueChar('r');
+        fake.EnqueueEnter();
+        var select = new SelectPrompt("Pick one", ["Apple", "Banana", "Cherry"], console: fake, autocomplete: true);
+
+        var result = select.Select();
+
+        Assert.Equal("Cherry", result);
+    }
+
+    [Fact]
+    public void FiltersList_IgnoreCase()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChar('C');
+        fake.EnqueueChar('H');
+        fake.EnqueueEnter();
+        var select = new SelectPrompt("Pick one", ["Apple", "Banana", "Cherry"], console: fake, autocomplete: true);
+
+        var result = select.Select();
+
+        Assert.Equal("Cherry", result);
+    }
+
+    [Fact]
+    public void FiltersList_AndNavigates()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChar('a'); // Matches "Apple", "Banana"
+        fake.EnqueueSpecialKey(ConsoleKey.DownArrow);
+        fake.EnqueueEnter();
+        var select = new SelectPrompt("Pick one", ["Apple", "Banana", "Cherry"], console: fake, autocomplete: true);
+
+        var result = select.Select();
+
+        Assert.Equal("Banana", result);
+    }
+
+    [Fact]
+    public void FiltersList_BackspaceRestoresList()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueChar('z'); // Matches nothing
+        fake.EnqueueSpecialKey(ConsoleKey.Backspace); // Matches everything
+        fake.EnqueueSpecialKey(ConsoleKey.DownArrow);
+        fake.EnqueueEnter();
+        var select = new SelectPrompt("Pick one", ["Apple", "Banana", "Cherry"], console: fake, autocomplete: true);
+
+        var result = select.Select();
+
+        Assert.Equal("Banana", result);
+    }
+
+    [Fact]
+    public void FiltersList_MaintainsPositionWithinBounds()
+    {
+        var fake = new FakeConsole();
+        fake.EnqueueSpecialKey(ConsoleKey.DownArrow);
+        fake.EnqueueSpecialKey(ConsoleKey.DownArrow); // At Cherry (index 2)
+        fake.EnqueueChar('a'); // Matches Apple, Banana. Length is 2. Position should be bounded to 1 (Banana)
+        fake.EnqueueEnter();
+        var select = new SelectPrompt("Pick one", ["Apple", "Banana", "Cherry"], console: fake, autocomplete: true);
+
+        var result = select.Select();
+
+        Assert.Equal("Banana", result);
+    }
 }

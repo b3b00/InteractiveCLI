@@ -5,6 +5,9 @@ namespace interactiveCLI;
 public class SelectPrompt
 {
     private string[] _choices;
+    private string[] _allChoices;
+    private string _searchString = "";
+    private int _lastPrintedCount = 0;
     private string _label;
     Func<string, bool, int, string> _formatter;
     bool _isIndexed = false;
@@ -22,12 +25,12 @@ public class SelectPrompt
         return item;
     }
 
-
     public SelectPrompt(string label, string[] choices, Func<string, bool, int, string> formatter = null, bool isIndexed = false, IConsole console = null)
     {
         _isIndexed = isIndexed;
         _label = label;
         _choices = choices;
+        _allChoices = choices;
         _formatter = formatter ?? DefaultFormatter;
         _console = console ?? new SystemConsole();
     }
@@ -39,82 +42,120 @@ public class SelectPrompt
         {
             var item = _formatter(_choices[i], i == position, i);
             _console.SetCursorPosition(startPosition.left, startPosition.top + i);
-            _console.Write(item);
+            _console.Write($"{item}\x1b[K");
         }
-        _console.WriteLine();
-        
+        for (int i = _choices.Length; i < _lastPrintedCount; i++)
+        {
+            _console.SetCursorPosition(startPosition.left, startPosition.top + i);
+            _console.Write("\x1b[K");
+        }
+        _lastPrintedCount = _choices.Length;
     }
 
     public string? Select()
     {
-
         _console.WriteLine();
         var (left, top) = _console.GetCursorPosition();
-
+        
+        _console.WriteLine($"? {_label} {_searchString}");
 
         int position = 0;
-
+        _lastPrintedCount = _choices.Length;
 
         for (int i = 0; i < _choices.Length; i++)
         {
             var item = _formatter(_choices[i], i == position, i);
-            var bak = _console.ForegroundColor;
-            _console.WriteLine(item);
+            _console.WriteLine($"{item}\x1b[K");
         }
         var (l, t) = _console.GetCursorPosition();
-        // compute start position from last item position (to correctly handle bottom of the console)
-        top = t - _choices.Length;
+        top = t - _choices.Length - 1;
 
-
-        ConsoleKeyInfo key = _console.ReadKey();
+        ConsoleKeyInfo key = _console.ReadKey(true);
 
         bool indexSelected = false;
         
         while (key.Key != ConsoleKey.Enter && key.Key != ConsoleKey.Escape && !indexSelected)
         {
+            bool redrawSearch = false;
+            bool redrawList = false;
+
             if (key.Key == ConsoleKey.DownArrow)
             {
                 if (position < _choices.Length - 1)
                 {
                     position++;
-                    Print((left, top), position);
+                    redrawList = true;
                 }
             }
-            if (key.Key == ConsoleKey.UpArrow)
+            else if (key.Key == ConsoleKey.UpArrow)
             {
                 if (position > 0)
                 {
                     position--;
-                    Print((left, top), position);
+                    redrawList = true;
                 }
             }
-            if (_isIndexed &&  _choices.Length < 10)
+            else if (key.Key == ConsoleKey.Backspace)
             {
-                for (int i = 1; i <= _choices.Length; i++)
+                if (_searchString.Length > 0)
                 {
-                    if (key.KeyChar == i.ToString()[0])
-                    {
-                        position = i-1;
-                        indexSelected = true;
-                        break;
-                    }
+                    _searchString = _searchString.Substring(0, _searchString.Length - 1);
+                    redrawSearch = true;
                 }
+            }
+            else if (!char.IsControl(key.KeyChar))
+            {
+                if (_isIndexed && _choices.Length < 10)
+                {
+                    bool isIndexKey = false;
+                    for (int i = 1; i <= _choices.Length; i++)
+                    {
+                        if (key.KeyChar == i.ToString()[0])
+                        {
+                            position = i - 1;
+                            indexSelected = true;
+                            isIndexKey = true;
+                            break;
+                        }
+                    }
+                    if (isIndexKey) break;
+                }
+                
+                _searchString += key.KeyChar;
+                redrawSearch = true;
+            }
+
+            if (redrawSearch)
+            {
+                _console.SetCursorPosition(left, top);
+                _console.Write($"? {_label} {_searchString}\x1b[K");
+                
+                _choices = _allChoices.Where(c => c.Contains(_searchString, StringComparison.OrdinalIgnoreCase)).ToArray();
+                if (position >= _choices.Length) 
+                {
+                    position = Math.Max(0, _choices.Length - 1);
+                }
+                redrawList = true;
+            }
+
+            if (redrawList)
+            {
+                Print((left, top + 1), position);
             }
 
             if (!indexSelected)
             {
-                key = _console.ReadKey();
+                key = _console.ReadKey(true);
             }
         }
+        
         if (key.Key == ConsoleKey.Escape)
         {
-
-            _console.SetCursorPosition(left, top + _choices.Length);
+            _console.SetCursorPosition(left, top + 1 + _lastPrintedCount);
             return null;
         }
 
-        
-            
-        return _choices[position];
+        _console.SetCursorPosition(left, top + 1 + _lastPrintedCount);
+        return _choices.Length > 0 ? _choices[position] : null;
     }
 }

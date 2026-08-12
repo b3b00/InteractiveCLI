@@ -145,11 +145,14 @@ public partial class {className} {{
                 var textAreaAttribute = propertyDeclarationSyntax.GetAttribute("TextArea");
                 var fileAttribute = propertyDeclarationSyntax.GetAttribute("File");
                 var indexedAttribute = propertyDeclarationSyntax.GetAttribute("Indexed");
+                var autocompleteAttribute = propertyDeclarationSyntax.GetAttribute("Autocomplete");
                 bool isIndexed = indexedAttribute != null;
+                bool isAutocomplete = autocompleteAttribute != null;
                 if (inputAttribute != null || passwordAttribute != null || textAreaAttribute != null || fileAttribute != null)
                 {
                     var input = getInputOrCreateNew(name);
                     input.IsIndexed =  isIndexed;
+                    input.IsAutocomplete = isAutocomplete;
                     if (input != null)
                     {
                         input.Field = propertyDeclarationSyntax;

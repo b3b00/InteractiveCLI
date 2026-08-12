@@ -63,6 +63,13 @@ public class Program
                     Console.WriteLine("Goodbye !");
                     break;
                 }
+            case "autocomp":
+            {
+                var auto = new Autocomp();
+                auto.Ask();
+                Console.WriteLine(auto.Country);
+                break;
+            }
             case "repeat":
             {
                 Repeat repeat = new Repeat();
