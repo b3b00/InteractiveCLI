@@ -11,6 +11,7 @@ public class SelectPrompt
     private string _label;
     Func<string, bool, int, string> _formatter;
     bool _isIndexed = false;
+    bool _autocomplete = false;
     private readonly IConsole _console;
 
     public string DefaultFormatter(string value, bool selected, int index)
@@ -25,9 +26,10 @@ public class SelectPrompt
         return item;
     }
 
-    public SelectPrompt(string label, string[] choices, Func<string, bool, int, string> formatter = null, bool isIndexed = false, IConsole console = null)
+    public SelectPrompt(string label, string[] choices, Func<string, bool, int, string> formatter = null, bool isIndexed = false, IConsole console = null, bool autocomplete = false)
     {
         _isIndexed = isIndexed;
+        _autocomplete = autocomplete;
         _label = label;
         _choices = choices;
         _allChoices = choices;
@@ -57,7 +59,10 @@ public class SelectPrompt
         _console.WriteLine();
         var (left, top) = _console.GetCursorPosition();
         
-        _console.WriteLine($"? {_label} {_searchString}");
+        if (_autocomplete)
+        {
+            _console.WriteLine($"? {_label} {_searchString}");
+        }
 
         int position = 0;
         _lastPrintedCount = _choices.Length;
@@ -68,7 +73,7 @@ public class SelectPrompt
             _console.WriteLine($"{item}\x1b[K");
         }
         var (l, t) = _console.GetCursorPosition();
-        top = t - _choices.Length - 1;
+        top = t - _choices.Length - (_autocomplete ? 1 : 0);
 
         ConsoleKeyInfo key = _console.ReadKey(true);
 
@@ -97,7 +102,7 @@ public class SelectPrompt
             }
             else if (key.Key == ConsoleKey.Backspace)
             {
-                if (_searchString.Length > 0)
+                if (_autocomplete && _searchString.Length > 0)
                 {
                     _searchString = _searchString.Substring(0, _searchString.Length - 1);
                     redrawSearch = true;
@@ -121,8 +126,11 @@ public class SelectPrompt
                     if (isIndexKey) break;
                 }
                 
-                _searchString += key.KeyChar;
-                redrawSearch = true;
+                if (_autocomplete)
+                {
+                    _searchString += key.KeyChar;
+                    redrawSearch = true;
+                }
             }
 
             if (redrawSearch)
@@ -140,7 +148,7 @@ public class SelectPrompt
 
             if (redrawList)
             {
-                Print((left, top + 1), position);
+                Print((left, top + (_autocomplete ? 1 : 0)), position);
             }
 
             if (!indexSelected)
@@ -151,11 +159,11 @@ public class SelectPrompt
         
         if (key.Key == ConsoleKey.Escape)
         {
-            _console.SetCursorPosition(left, top + 1 + _lastPrintedCount);
+            _console.SetCursorPosition(left, top + (_autocomplete ? 1 : 0) + _lastPrintedCount);
             return null;
         }
 
-        _console.SetCursorPosition(left, top + 1 + _lastPrintedCount);
+        _console.SetCursorPosition(left, top + (_autocomplete ? 1 : 0) + _lastPrintedCount);
         return _choices.Length > 0 ? _choices[position] : null;
     }
 }

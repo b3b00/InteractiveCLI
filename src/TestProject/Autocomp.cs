@@ -1,13 +1,14 @@
-﻿using interactiveCLI.forms;
+using interactiveCLI.forms;
 
 namespace TestProject;
 
 [Form]
 public partial class Autocomp
 {
-    [Input("select a test : ",index : 0 )]
+    [Input("select a test : ",index : 0  )]
     [DataSource(nameof(Countries))]
-    [Indexed]
+    [Indexed]6
+    [Autocomplete]
     public string Country { get; set; }
 
 
