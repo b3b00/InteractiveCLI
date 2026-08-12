@@ -7,7 +7,7 @@ public partial class Autocomp
 {
     [Input("select a test : ",index : 0  )]
     [DataSource(nameof(Countries))]
-    [Indexed]6
+    [Indexed]
     [Autocomplete]
     public string Country { get; set; }
 
